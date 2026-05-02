@@ -415,28 +415,109 @@
         description: violation.description,
         help: violation.help,
         helpUrl: violation.helpUrl,
-        target: node.target.join(', '),
-        html: node.html,
-        failureSummary: node.failureSummary || ''
+        target: node.target ? node.target.join(', ') : '',
+        html: node.html || '',
+        failureSummary: node.failureSummary || '',
+        data: node.data || null,
       }));
     });
   }
 
+  function impactConfig(impact) {
+    return {
+      critical: { color: '#f08c8b', bg: 'rgba(226,75,74,0.12)', label: 'Critical' },
+      serious:  { color: '#f0bf6b', bg: 'rgba(239,159,39,0.12)', label: 'Serious' },
+      moderate: { color: '#85b7eb', bg: 'rgba(55,138,221,0.12)', label: 'Moderate' },
+      minor:    { color: '#8b8fa8', bg: 'rgba(139,143,168,0.12)', label: 'Minor' },
+    }[impact] || { color: '#8b8fa8', bg: 'rgba(139,143,168,0.12)', label: impact };
+  }
+
+  function renderContrastSwatch(data) {
+    if (!data || !data.fgColor || !data.bgColor) return '';
+    return `
+      <div style="display:flex;align-items:center;gap:0.75rem;margin:0.5rem 0;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;">
+          <div style="width:16px;height:16px;border-radius:3px;background:${escapeHtml(data.fgColor)};border:0.5px solid rgba(255,255,255,0.15)"></div>
+          <span style="color:#8b8fa8">Text</span>
+          <code style="color:#e8e9f0;font-size:0.72rem">${escapeHtml(data.fgColor)}</code>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;">
+          <div style="width:16px;height:16px;border-radius:3px;background:${escapeHtml(data.bgColor)};border:0.5px solid rgba(255,255,255,0.15)"></div>
+          <span style="color:#8b8fa8">Background</span>
+          <code style="color:#e8e9f0;font-size:0.72rem">${escapeHtml(data.bgColor)}</code>
+        </div>
+        <div style="font-size:0.75rem;color:#f0bf6b">
+          Ratio ${data.contrastRatio}:1
+          ${data.expectedContrastRatio ? `<span style="color:#8b8fa8">(needs ${escapeHtml(String(data.expectedContrastRatio))})</span>` : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  function formatWcagTags(tags) {
+    const scMap = {
+      wcag111: '1.1.1', wcag121: '1.2.1', wcag122: '1.2.2', wcag123: '1.2.3',
+      wcag124: '1.2.4', wcag125: '1.2.5', wcag131: '1.3.1', wcag132: '1.3.2',
+      wcag133: '1.3.3', wcag134: '1.3.4', wcag135: '1.3.5', wcag141: '1.4.1',
+      wcag142: '1.4.2', wcag143: '1.4.3', wcag144: '1.4.4', wcag145: '1.4.5',
+      wcag1410: '1.4.10', wcag1411: '1.4.11', wcag1412: '1.4.12', wcag1413: '1.4.13',
+      wcag211: '2.1.1', wcag212: '2.1.2', wcag214: '2.1.4', wcag221: '2.2.1',
+      wcag222: '2.2.2', wcag231: '2.3.1', wcag241: '2.4.1', wcag242: '2.4.2',
+      wcag243: '2.4.3', wcag244: '2.4.4', wcag245: '2.4.5', wcag246: '2.4.6',
+      wcag247: '2.4.7', wcag251: '2.5.1', wcag252: '2.5.2', wcag253: '2.5.3',
+      wcag254: '2.5.4', wcag311: '3.1.1', wcag312: '3.1.2', wcag321: '3.2.1',
+      wcag322: '3.2.2', wcag323: '3.2.3', wcag324: '3.2.4', wcag331: '3.3.1',
+      wcag332: '3.3.2', wcag333: '3.3.3', wcag334: '3.3.4', wcag411: '4.1.1',
+      wcag412: '4.1.2', wcag413: '4.1.3',
+    };
+
+    const levelMap = {
+      wcag2a: 'WCAG 2.0 A',
+      wcag2aa: 'WCAG 2.0 AA',
+      wcag2aaa: 'WCAG 2.0 AAA',
+      wcag21a: 'WCAG 2.1 A',
+      wcag21aa: 'WCAG 2.1 AA',
+      wcag21aaa: 'WCAG 2.1 AAA',
+      wcag22aa: 'WCAG 2.2 AA',
+    };
+
+    const pills = [];
+
+    tags.forEach(tag => {
+      if (levelMap[tag]) {
+        pills.push(`<span style="background:rgba(0,212,160,0.1);color:#00d4a0;padding:0.15rem 0.5rem;border-radius:4px;font-size:0.7rem;white-space:nowrap">${levelMap[tag]}</span>`);
+      } else if (scMap[tag]) {
+        pills.push(`<span style="background:rgba(255,255,255,0.06);color:#8b8fa8;padding:0.15rem 0.5rem;border-radius:4px;font-size:0.7rem;white-space:nowrap">SC ${scMap[tag]}</span>`);
+      }
+    });
+
+    return pills.length ? pills.join('') : '<span style="color:#8b8fa8;font-size:0.7rem">No WCAG criteria mapped</span>';
+  }
+
   function renderResults(results, scannedUrl) {
     latestScanResults = { scannedUrl, generatedAt: new Date().toISOString(), ...results };
-    const rows = buildRows(results);
-    const resultsEl = document.getElementById('scanResults');
+    const violations = results.violations || [];
     const passes = results.passes ? results.passes.length : 0;
     const incomplete = results.incomplete ? results.incomplete.length : 0;
     const score = results.summary ? results.summary.score : null;
     const scoreColor = score >= 80 ? '#00d4a0' : score >= 50 ? '#ef9f27' : '#e24b4a';
+    const totalNodes = violations.reduce((sum, v) => sum + v.nodes.length, 0);
 
+    // Group violations by impact level
+    const order = ['critical', 'serious', 'moderate', 'minor'];
+    const grouped = order.reduce((acc, level) => {
+      const group = violations.filter(v => v.impact === level);
+      if (group.length) acc[level] = group;
+      return acc;
+    }, {});
+
+    const resultsEl = document.getElementById('scanResults');
     resultsEl.classList.add('active');
     resultsEl.innerHTML = `
       <div class="results-summary">
         ${score !== null ? `<div class="result-stat"><strong style="color:${scoreColor}">${score}</strong><span>accessibility score</span></div>` : ''}
-        <div class="result-stat"><strong>${results.violations.length}</strong><span>rule violations</span></div>
-        <div class="result-stat"><strong>${rows.length}</strong><span>affected elements</span></div>
+        <div class="result-stat"><strong>${violations.length}</strong><span>violations</span></div>
+        <div class="result-stat"><strong>${totalNodes}</strong><span>affected elements</span></div>
         <div class="result-stat"><strong>${passes}</strong><span>rules passed</span></div>
         <div class="result-stat"><strong>${incomplete}</strong><span>needs review</span></div>
       </div>
@@ -445,16 +526,47 @@
         <button class="btn-small" type="button" onclick="exportJSON()">Export JSON</button>
         <button class="btn-small" type="button" onclick="exportPDF()">Export PDF</button>
       </div>
-      <p class="dialog-sub">Scanned: ${scannedUrl}</p>
-      <div class="issues-list">
-        ${rows.length ? rows.slice(0, 25).map(row => `
-          <div class="result-issue">
-            <h3>${escapeHtml(row.help)} <span class="issue-badge ${row.impact === 'critical' || row.impact === 'serious' ? 'badge-crit' : row.impact === 'moderate' ? 'badge-warn' : 'badge-info'}">${escapeHtml(row.impact)}</span></h3>
-            <p>${escapeHtml(row.description)}</p>
-            <div class="result-meta">Target: ${escapeHtml(row.target)}</div>
+      <p class="dialog-sub" style="margin-bottom:1rem">Scanned: <strong style="color:#e8e9f0">${escapeHtml(scannedUrl)}</strong></p>
+
+      ${violations.length === 0 ? `
+        <div class="result-issue">
+          <h3 style="color:#00d4a0">No automated violations found.</h3>
+          <p>Automated scans catch around 40% of accessibility issues. We recommend a manual audit to ensure full WCAG compliance.</p>
+        </div>
+      ` : Object.entries(grouped).map(([impact, group]) => {
+        const cfg = impactConfig(impact);
+        return `
+          <div style="margin-bottom:1.25rem">
+            <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.6rem">
+              <span style="width:8px;height:8px;border-radius:50%;background:${cfg.color};flex-shrink:0"></span>
+              <span style="font-size:0.75rem;font-weight:500;color:${cfg.color};text-transform:uppercase;letter-spacing:0.08em">${cfg.label}</span>
+              <span style="font-size:0.75rem;color:#8b8fa8">${group.length} violation${group.length !== 1 ? 's' : ''}, ${group.reduce((s,v) => s + v.nodes.length, 0)} element${group.reduce((s,v) => s + v.nodes.length, 0) !== 1 ? 's' : ''}</span>
+            </div>
+            ${group.map(violation => `
+              <div class="result-issue" style="margin-bottom:0.6rem;border-left:2px solid ${cfg.color}">
+                <div style="margin-bottom:0.4rem">
+                  <h3 style="font-size:0.9rem">${escapeHtml(violation.help)}</h3>
+                </div>
+                <p style="margin-bottom:0.6rem">${escapeHtml(violation.description)}</p>
+                <div style="font-size:0.75rem;color:#8b8fa8;margin-bottom:0.5rem;display:flex;flex-wrap:wrap;gap:0.4rem">
+                  ${formatWcagTags(violation.tags || [])}
+                </div>
+                ${violation.nodes.slice(0, 3).map(node => `
+                  <div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:0.6rem 0.75rem;margin-top:0.4rem;font-size:0.78rem">
+                    ${node.failureSummary ? `<p style="color:#e8e9f0;margin-bottom:0.35rem">${escapeHtml(node.failureSummary.replace('Fix any of the following:\n', '').replace('Fix all of the following:\n', ''))}</p>` : ''}
+                    ${renderContrastSwatch(node.data)}
+                    <div style="color:#8b8fa8;font-size:0.7rem;margin-top:0.25rem">
+                      <span style="color:#00d4a0">Target:</span> ${escapeHtml(node.target ? node.target.join(', ') : '')}
+                    </div>
+                    ${node.html ? `<code style="display:block;margin-top:0.3rem;color:#8b8fa8;font-size:0.68rem;word-break:break-all;white-space:pre-wrap">${escapeHtml(node.html.slice(0, 120))}${node.html.length > 120 ? '...' : ''}</code>` : ''}
+                  </div>
+                `).join('')}
+                ${violation.nodes.length > 3 ? `<p style="font-size:0.75rem;color:#8b8fa8;margin-top:0.4rem">+ ${violation.nodes.length - 3} more element${violation.nodes.length - 3 !== 1 ? 's' : ''}</p>` : ''}
+              </div>
+            `).join('')}
           </div>
-        `).join('') : '<div class="result-issue"><h3>No automated violations found.</h3><p>Automated scans do not replace a manual accessibility audit, but this is a good initial result.</p></div>'}
-      </div>
+        `;
+      }).join('')}
     `;
   }
 
