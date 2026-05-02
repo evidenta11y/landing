@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #0a0f2e;
+    --navy-mid: #111840;
+    --teal: #00d4a0;
+    --teal-dim: #00b386;
+    --off-white: #f5f4f0;
+    --muted: #8b8fa8;
+    --text: #e8e9f0;
+    --card-bg: #141b3d;
+    --border: rgba(255,255,255,0.08);
+    --serif: 'DM Serif Display', serif;
+    --sans: 'DM Sans', sans-serif;
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--navy); color: var(--text); font-family: var(--sans); font-weight: 300; line-height: 1.7; overflow-x: hidden; }
+  [id] { scroll-margin-top: 5.5rem; }
+  a { color: var(--teal); text-decoration: none; }
+  img, svg, video { max-width: 100%; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1rem 1.5rem;
+    background: rgba(10,15,46,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 0.5px solid var(--border);
+    flex-wrap: wrap; gap: 0.75rem;
+  }
+  .nav-logo { font-family: var(--serif); font-size: 1.4rem; color: var(--teal); letter-spacing: -0.02em; }
+  .nav-links { display: flex; gap: 1.5rem; font-size: 0.85rem; }
+  .nav-links a { color: var(--muted); transition: color 0.2s; }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta { background: var(--teal); color: var(--navy); font-family: var(--sans); font-weight: 500; font-size: 0.85rem; padding: 0.5rem 1.25rem; border-radius: 6px; border: none; cursor: pointer; white-space: nowrap; }
+  .nav-cta:hover { background: var(--teal-dim); }
+
+  .wrapper { width: 100%; max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+
+  .hero { padding: 5rem 1.5rem 5rem; max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(0,212,160,0.1); border: 0.5px solid rgba(0,212,160,0.3); border-radius: 100px; padding: 0.3rem 1rem; font-size: 0.78rem; color: var(--teal); margin-bottom: 1.5rem; }
+  .hero-badge span { width: 6px; height: 6px; background: var(--teal); border-radius: 50%; flex-shrink: 0; }
+  h1 { font-family: var(--serif); font-size: clamp(2rem, 5vw, 3.4rem); line-height: 1.1; letter-spacing: -0.03em; color: #fff; margin-bottom: 1.25rem; }
+  h1 em { color: var(--teal); font-style: italic; }
+  .hero-sub { font-size: 1rem; color: var(--muted); line-height: 1.75; margin-bottom: 2rem; }
+  .hero-actions { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+  .btn-primary { background: var(--teal); color: var(--navy); font-family: var(--sans); font-weight: 500; font-size: 0.9rem; padding: 0.75rem 1.75rem; border-radius: 8px; border: none; cursor: pointer; white-space: nowrap; }
+  .btn-primary:hover { background: var(--teal-dim); }
+  .btn-ghost { background: transparent; color: var(--text); font-family: var(--sans); font-weight: 400; font-size: 0.9rem; padding: 0.75rem 1.75rem; border-radius: 8px; border: 0.5px solid var(--border); cursor: pointer; white-space: nowrap; }
+  .btn-ghost:hover { border-color: rgba(255,255,255,0.25); }
+
+  .hero-card { background: var(--card-bg); border: 0.5px solid var(--border); border-radius: 14px; padding: 1.5rem; min-width: 0; }
+  .hero-card-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .dot-red { background: #ff5f57; }
+  .dot-yellow { background: #febc2e; }
+  .dot-green { background: #28c840; }
+  .scan-bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.06); margin-bottom: 0.6rem; overflow: hidden; }
+  .scan-fill { height: 100%; border-radius: 3px; }
+  .scan-label { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--muted); margin-bottom: 1rem; }
+  .issue-row { display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0; border-bottom: 0.5px solid var(--border); font-size: 0.8rem; flex-wrap: wrap; }
+  .issue-row:last-child { border-bottom: none; }
+  .issue-badge { font-size: 0.65rem; font-weight: 500; padding: 0.2rem 0.6rem; border-radius: 4px; flex-shrink: 0; }
+  .badge-crit { background: rgba(226,75,74,0.15); color: #f08c8b; }
+  .badge-warn { background: rgba(239,159,39,0.15); color: #f0bf6b; }
+  .badge-info { background: rgba(55,138,221,0.15); color: #85b7eb; }
+  .score-circle { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--teal); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 1rem auto 0; }
+  .score-num { font-family: var(--serif); font-size: 1.5rem; color: var(--teal); line-height: 1; }
+  .score-lbl { font-size: 0.6rem; color: var(--muted); }
+
+  .section-pad { padding: 5rem 1.5rem; max-width: 1100px; margin: 0 auto; }
+  .section-label { font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--teal); margin-bottom: 0.75rem; }
+  h2 { font-family: var(--serif); font-size: clamp(1.8rem, 4vw, 2.4rem); line-height: 1.15; letter-spacing: -0.02em; color: #fff; margin-bottom: 1rem; }
+  .section-intro { font-size: 1rem; color: var(--muted); max-width: 520px; line-height: 1.75; margin-bottom: 3rem; }
+
+  .auto-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
+  .auto-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+
+  .problem-card { background: var(--card-bg); border: 0.5px solid var(--border); border-radius: 12px; padding: 1.5rem; }
+  .problem-card h3 { font-family: var(--sans); font-weight: 500; font-size: 1rem; color: #fff; margin-bottom: 0.5rem; }
+  .problem-card p { font-size: 0.85rem; color: var(--muted); line-height: 1.65; }
+  .stat-big { font-family: var(--serif); font-size: 2.5rem; color: var(--teal); display: block; margin-bottom: 0.25rem; }
+
+  .service-card { background: var(--card-bg); border: 0.5px solid var(--border); border-radius: 12px; padding: 1.75rem; }
+  .service-card:hover { border-color: rgba(0,212,160,0.3); }
+  .service-icon { width: 40px; height: 40px; border-radius: 8px; background: rgba(0,212,160,0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; font-size: 1.1rem; flex-shrink: 0; }
+  .service-card h3 { font-family: var(--sans); font-weight: 500; font-size: 1rem; color: #fff; margin-bottom: 0.6rem; }
+  .service-card p { font-size: 0.85rem; color: var(--muted); line-height: 1.65; }
+
+  .bg-mid { background: var(--navy-mid); border-top: 0.5px solid var(--border); border-bottom: 0.5px solid var(--border); }
+
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0; }
+  .step { padding: 2rem 1.5rem; border-right: 0.5px solid var(--border); border-bottom: 0.5px solid var(--border); }
+  .step:last-child { border-right: none; }
+  .step-num { font-family: var(--serif); font-size: 2.2rem; color: rgba(0,212,160,0.25); line-height: 1; margin-bottom: 0.75rem; }
+  .step h3 { font-family: var(--sans); font-weight: 500; font-size: 0.95rem; color: #fff; margin-bottom: 0.5rem; }
+  .step p { font-size: 0.82rem; color: var(--muted); line-height: 1.65; }
+
+  .why-item { display: flex; gap: 1rem; align-items: flex-start; padding: 1.25rem; background: var(--card-bg); border-radius: 10px; border: 0.5px solid var(--border); }
+  .why-check { width: 20px; height: 20px; border-radius: 50%; background: rgba(0,212,160,0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; font-size: 0.65rem; color: var(--teal); }
+  .why-item h4 { font-weight: 500; font-size: 0.9rem; color: #fff; margin-bottom: 0.25rem; }
+  .why-item p { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+
+  .faq-item { border-bottom: 0.5px solid var(--border); padding: 1.5rem 0; cursor: pointer; }
+  .faq-q { display: flex; justify-content: space-between; align-items: center; gap: 1rem; font-weight: 500; font-size: 0.95rem; color: #fff; }
+  .faq-toggle { color: var(--teal); font-size: 1.2rem; line-height: 1; flex-shrink: 0; transition: transform 0.2s; }
+  .faq-a { font-size: 0.875rem; color: var(--muted); line-height: 1.75; margin-top: 0.75rem; display: none; }
+  .faq-item.open .faq-a { display: block; }
+  .faq-item.open .faq-toggle { transform: rotate(45deg); }
+
+  .cta-section { text-align: center; padding: 7rem 1.5rem; }
+  .cta-section h2 { max-width: 600px; margin: 0 auto 1.25rem; }
+  .cta-section p { color: var(--muted); font-size: 1rem; max-width: 440px; margin: 0 auto 2.5rem; }
+
+  footer { border-top: 0.5px solid var(--border); padding: 2rem 1.5rem; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; max-width: 1100px; margin: 0 auto; font-size: 0.8rem; color: var(--muted); }
+
+
+
+  html { scroll-behavior: smooth; scroll-padding-top: 84px; }
+
+  .dialog-backdrop {
+    position: fixed; inset: 0; z-index: 1000;
+    display: none; align-items: center; justify-content: center;
+    padding: 1rem; background: rgba(5, 8, 24, 0.72);
+    backdrop-filter: blur(8px);
+  }
+  .dialog-backdrop.open { display: flex; }
+  .scan-dialog {
+    width: min(720px, 100%);
+    max-height: 90vh;
+    overflow: auto;
+    background: var(--navy-mid);
+    border: 0.5px solid var(--border);
+    border-radius: 18px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.35);
+    padding: 1.5rem;
+  }
+  .dialog-header { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start; margin-bottom: 1rem; }
+  .dialog-header h2 { margin-bottom: 0.35rem; }
+  .dialog-sub { color: var(--muted); font-size: 0.9rem; line-height: 1.6; }
+  .dialog-close { background: transparent; color: var(--muted); border: 0; font-size: 1.8rem; cursor: pointer; line-height: 1; }
+  .dialog-close:hover { color: var(--text); }
+  .scan-form { display: grid; grid-template-columns: 1fr auto; gap: 0.75rem; margin: 1.25rem 0 1rem; }
+  .scan-form input {
+    width: 100%; min-width: 0;
+    background: rgba(255,255,255,0.06);
+    border: 0.5px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 0.85rem 1rem;
+    font-family: var(--sans);
+    font-size: 0.95rem;
+  }
+  .scan-form input:focus { outline: 2px solid rgba(0,212,160,0.35); border-color: rgba(0,212,160,0.65); }
+  .scan-progress { display: none; margin: 1rem 0; }
+  .scan-progress.active { display: block; }
+  .progress-track { height: 10px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; }
+  .progress-fill { width: 0%; height: 100%; background: var(--teal); border-radius: 999px; transition: width 0.35s ease; }
+  .progress-label { margin-top: 0.5rem; color: var(--muted); font-size: 0.8rem; }
+  .scan-results { display: none; margin-top: 1.25rem; }
+  .scan-results.active { display: block; }
+  .results-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
+  .result-stat { background: var(--card-bg); border: 0.5px solid var(--border); border-radius: 10px; padding: 1rem; }
+  .result-stat strong { display: block; color: #fff; font-size: 1.6rem; line-height: 1; font-family: var(--serif); }
+  .result-stat span { color: var(--muted); font-size: 0.76rem; }
+  .export-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1rem 0; }
+  .btn-small { background: transparent; color: var(--text); font-family: var(--sans); font-weight: 400; font-size: 0.8rem; padding: 0.55rem 0.9rem; border-radius: 7px; border: 0.5px solid var(--border); cursor: pointer; }
+  .btn-small:hover { border-color: rgba(0,212,160,0.45); }
+  .issues-list { display: grid; gap: 0.75rem; margin-top: 1rem; }
+  .result-issue { background: var(--card-bg); border: 0.5px solid var(--border); border-radius: 10px; padding: 1rem; }
+  .result-issue h3 { color: #fff; font-size: 0.95rem; font-weight: 500; margin-bottom: 0.35rem; }
+  .result-issue p { color: var(--muted); font-size: 0.82rem; line-height: 1.6; margin-bottom: 0.4rem; }
+  .result-meta { color: var(--teal); font-size: 0.72rem; word-break: break-word; }
+  .scan-note { background: rgba(0,212,160,0.08); border: 0.5px solid rgba(0,212,160,0.22); color: var(--text); border-radius: 10px; padding: 0.85rem 1rem; font-size: 0.82rem; line-height: 1.6; margin-top: 1rem; }
+
+  @media (max-width: 700px) {
+    .hero { grid-template-columns: 1fr; gap: 2.5rem; }
+    .hero-card-label { display: none; }
+    .nav-links { display: none; }
+    .steps { grid-template-columns: 1fr; }
+    .step { border-right: none; }
+    .step:last-child { border-bottom: none; }
+    footer { flex-direction: column; align-items: flex-start; }
+  }
+
+  @media (max-width: 400px) {
+    nav { padding: 0.9rem 1rem; }
+    .hero { padding: 3rem 1rem 3rem; }
+    .section-pad { padding: 3.5rem 1rem; }
+    h1 { font-size: 1.9rem; }
+    h2 { font-size: 1.6rem; }
+    .btn-primary, .btn-ghost { width: 100%; text-align: center; }
+    .hero-actions { flex-direction: column; }
+    .auto-grid-3, .auto-grid-2 { grid-template-columns: 1fr; }
+    .scan-form { grid-template-columns: 1fr; }
+    .stat-big { font-size: 2rem; }
+  }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Evidenta11y</div>
+  <div class="nav-links">
+    <a href="#services">Services</a>
+    <a href="#how-it-works">How it works</a>
+    <a href="#why-us">Why us</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <button class="nav-cta" onclick="openScanDialog()">Run free scan</button>
+</nav>
+
+<div class="dialog-backdrop" id="scanDialog" role="dialog" aria-modal="true" aria-labelledby="scanDialogTitle" aria-hidden="true">
+  <div class="scan-dialog">
+    <div class="dialog-header">
+      <div>
+        <p class="section-label">Free accessibility scan</p>
+        <h2 id="scanDialogTitle">Scan a website with axe-core.</h2>
+        <p class="dialog-sub">Enter a URL and run an automated accessibility scan. Results will appear below the URL field, with export options for CSV, JSON, and PDF.</p>
+      </div>
+      <button class="dialog-close" type="button" aria-label="Close scan dialog" onclick="closeScanDialog()">&times;</button>
+    </div>
+
+    <form class="scan-form" id="scanForm">
+      <label class="sr-only" for="scanUrl">Website URL</label>
+      <input id="scanUrl" name="scanUrl" type="url" placeholder="https://example.com" required>
+      <button class="btn-primary" type="submit">Run</button>
+    </form>
+
+    <div class="scan-progress" id="scanProgress" aria-live="polite">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-label" id="progressLabel">Preparing scan...</div>
+    </div>
+
+    <div class="scan-results" id="scanResults" aria-live="polite"></div>
+
+    <p class="scan-note">Scans run on our servers using Playwright and axe-core. Results typically take 15 to 30 seconds. Free scans are limited to 3 per hour per IP address.</p>
+  </div>
+</div>
+
+
+<section class="hero">
+  <div>
+    <div class="hero-badge"><span></span> ADA compliance starts here</div>
+    <h1>Your website should work for <em>everyone.</em></h1>
+    <p class="hero-sub">Evidenta11y combines automated scanning, expert manual testing, and hands-on remediation to keep your site accessible and legally compliant.</p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="openScanDialog()">Run free scan &rarr;</button>
+      <a class="btn-ghost" href="#services">See what we check</a>
+    </div>
+  </div>
+  <div>
+    <div class="hero-card">
+      <div class="hero-card-header">
+        <div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div>
+        <span class="hero-card-label" style="font-size:0.72rem;color:var(--muted);">yoursite.com &mdash; accessibility scan</span>
+      </div>
+      <div class="scan-label"><span>Overall score</span><span style="color:var(--teal)">Scanning...</span></div>
+      <div class="scan-bar"><div class="scan-fill" style="width:38%;background:#e24b4a;"></div></div>
+      <div class="scan-bar" style="margin-top:0.25rem;"><div class="scan-fill" style="width:62%;background:#ef9f27;"></div></div>
+      <div style="margin:1.25rem 0 0.5rem;font-size:0.72rem;color:var(--muted);">Issues found</div>
+      <div class="issue-row"><span class="issue-badge badge-crit">Critical</span><span style="color:var(--text);flex:1;min-width:0;">Missing alt text on 14 images</span></div>
+      <div class="issue-row"><span class="issue-badge badge-crit">Critical</span><span style="color:var(--text);flex:1;min-width:0;">Form fields lack labels</span></div>
+      <div class="issue-row"><span class="issue-badge badge-warn">Warning</span><span style="color:var(--text);flex:1;min-width:0;">Color contrast ratio too low</span></div>
+      <div class="issue-row"><span class="issue-badge badge-info">Info</span><span style="color:var(--text);flex:1;min-width:0;">Keyboard navigation gaps</span></div>
+      <div class="score-circle"><span class="score-num">38</span><span class="score-lbl">/ 100</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="bg-mid">
+<div class="section-pad">
+  <p class="section-label">The problem</p>
+  <h2>Most websites are failing users without knowing it.</h2>
+  <p class="section-intro">ADA website lawsuits have surged over 300% in recent years. Businesses of all sizes are targeted, and most had no idea they were exposed.</p>
+  <div class="auto-grid-3">
+    <div class="problem-card"><span class="stat-big">5,000+</span><h3>ADA lawsuits filed in 2025</h3><p>Web accessibility litigation is at an all-time high and growing every year.</p></div>
+    <div class="problem-card"><span class="stat-big">96%</span><h3>Of homepages have detectable failures</h3><p>Nearly every website has accessibility issues that could expose it to legal risk.</p></div>
+    <div class="problem-card"><span class="stat-big">$25K+</span><h3>Average cost of a demand letter</h3><p>Settlement costs and legal fees add up fast. Proactive compliance is a fraction of the price.</p></div>
+  </div>
+</div>
+</div>
+
+<div class="section-pad" id="services">
+  <p class="section-label">Services</p>
+  <h2>Everything you need to stay compliant.</h2>
+  <p class="section-intro">From initial audit to ongoing monitoring, we handle the full accessibility lifecycle so you can focus on your business.</p>
+  <div class="auto-grid-3">
+    <div class="service-card"><div class="service-icon">&#128269;</div><h3>Automated testing</h3><p>Continuous scanning across your site to catch new issues as they appear. Real-time alerts and detailed reports delivered to your team.</p></div>
+    <div class="service-card"><div class="service-icon">&#128101;</div><h3>Manual testing</h3><p>Expert testers with assistive technology experience go beyond automated scans to find what algorithms miss.</p></div>
+    <div class="service-card"><div class="service-icon">&#128296;</div><h3>Remediation</h3><p>We don't just find issues. Our team fixes them. Fast turnaround, clean code, and a compliance guarantee.</p></div>
+    <div class="service-card"><div class="service-icon">&#127891;</div><h3>A11y training</h3><p>Empower your dev and design teams to build accessibly from the start. Live workshops, documentation, and ongoing support.</p></div>
+    <div class="service-card"><div class="service-icon">&#128196;</div><h3>VPAT & documentation</h3><p>Need a Voluntary Product Accessibility Template for enterprise clients? We prepare WCAG-compliant documentation for any requirement.</p></div>
+    <div class="service-card"><div class="service-icon">&#128737;</div><h3>Legal risk review</h3><p>A plain-language summary of your current exposure, prioritized by severity. Bring this to your legal team or board with confidence.</p></div>
+  </div>
+</div>
+
+<div class="bg-mid">
+<div class="section-pad" id="how-it-works">
+  <p class="section-label">How it works</p>
+  <h2>From audit to compliant in four steps.</h2>
+  <div class="steps" style="margin-top:3rem;">
+    <div class="step"><div class="step-num">01</div><h3>We scan your site</h3><p>Automated and manual testing across every page. We flag every WCAG 2.1 AA violation.</p></div>
+    <div class="step"><div class="step-num">02</div><h3>You get a clear report</h3><p>A prioritized report showing critical issues, legal risk level, and recommended next steps.</p></div>
+    <div class="step"><div class="step-num">03</div><h3>We remediate</h3><p>Our team fixes the issues directly in your codebase or provides developer-ready specifications.</p></div>
+    <div class="step"><div class="step-num">04</div><h3>Ongoing monitoring</h3><p>Automated scans keep you compliant as your site evolves. We alert you before issues become liabilities.</p></div>
+  </div>
+</div>
+</div>
+
+<div class="section-pad" id="why-us">
+  <p class="section-label">Why Evidenta11y</p>
+  <h2>Built for businesses, not just developers.</h2>
+  <p class="section-intro">We make accessibility approachable, actionable, and affordable for teams of every size.</p>
+  <div class="auto-grid-2">
+    <div class="why-item"><div class="why-check">&#10003;</div><div><h4>WCAG 2.1 & 2.2 certified experts</h4><p>Our auditors are certified accessibility specialists with years of hands-on experience.</p></div></div>
+    <div class="why-item"><div class="why-check">&#10003;</div><div><h4>Fast turnaround</h4><p>Most audits delivered within 5 business days. Remediation timelines matched to your release cycle.</p></div></div>
+    <div class="why-item"><div class="why-check">&#10003;</div><div><h4>No jargon, just clarity</h4><p>Reports are written for business owners and developers alike. You will always know exactly what you are looking at.</p></div></div>
+    <div class="why-item"><div class="why-check">&#10003;</div><div><h4>Proactive, not reactive</h4><p>We find issues before plaintiffs' attorneys do. Continuous monitoring means no surprises.</p></div></div>
+    <div class="why-item"><div class="why-check">&#10003;</div><div><h4>Full-service or a la carte</h4><p>From a one-time audit to a long-term accessibility partner, we scale to your needs and budget.</p></div></div>
+    <div class="why-item"><div class="why-check">&#10003;</div><div><h4>Team training included</h4><p>Every engagement includes guidance to help your team build accessibly going forward.</p></div></div>
+  </div>
+</div>
+
+<div class="bg-mid">
+<div class="section-pad" id="faq" style="max-width:760px;">
+  <p class="section-label">FAQ</p>
+  <h2>Common questions.</h2>
+  <div style="margin-top:2.5rem;">
+    <div class="faq-item"><div class="faq-q">How do I know if my site is at risk?<span class="faq-toggle">+</span></div><p class="faq-a">If your site was built without explicit accessibility testing, there is a high likelihood it has WCAG violations. We offer a free initial scan to show you exactly where you stand.</p></div>
+    <div class="faq-item"><div class="faq-q">What is WCAG and do I have to follow it?<span class="faq-toggle">+</span></div><p class="faq-a">WCAG (Web Content Accessibility Guidelines) is the recognized standard for web accessibility. Courts and regulators widely use it as the benchmark for ADA compliance online.</p></div>
+    <div class="faq-item"><div class="faq-q">How long does remediation take?<span class="faq-toggle">+</span></div><p class="faq-a">It depends on the size and complexity of your site. Most small to mid-sized sites are remediated within 2 to 4 weeks. We will give you a clear timeline after the initial audit.</p></div>
+    <div class="faq-item"><div class="faq-q">Do I need ongoing monitoring after remediation?<span class="faq-toggle">+</span></div><p class="faq-a">Yes. Every time you publish new content, update a page, or deploy code, new accessibility issues can appear. Ongoing monitoring ensures you stay compliant without manually re-testing.</p></div>
+    <div class="faq-item"><div class="faq-q">Can you train our internal team?<span class="faq-toggle">+</span></div><p class="faq-a">Absolutely. We offer live workshops for developers and designers, as well as written documentation and reference guides your team can use going forward.</p></div>
+    <div class="faq-item"><div class="faq-q">What industries do you work with?<span class="faq-toggle">+</span></div><p class="faq-a">We work with businesses across healthcare, e-commerce, finance, education, hospitality, and more. If your business has a website, we can help.</p></div>
+  </div>
+</div>
+</div>
+
+<section class="cta-section">
+  <p class="section-label">Get started</p>
+  <h2>See what your website is missing.</h2>
+  <p>Run a free automated scan and uncover accessibility issues before they become bigger problems. No commitment required.</p>
+  <button class="btn-primary" style="font-size:1rem;padding:0.9rem 2.25rem;" onclick="openScanDialog()">Run free scan &rarr;</button>
+</section>
+
+<footer>
+  <div style="font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--teal);">Evidenta11y</div>
+  <div></div>
+  <div>&copy; 2026 Evidenta11y. All rights reserved.</div>
+</footer>
+
+
+<script>
+  let latestScanResults = null;
+  let progressTimer = null;
+
+  function openScanDialog() {
+    const dialog = document.getElementById('scanDialog');
+    dialog.classList.add('open');
+    dialog.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('scanUrl').focus(), 50);
+  }
+
+  function closeScanDialog() {
+    const dialog = document.getElementById('scanDialog');
+    dialog.classList.remove('open');
+    dialog.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  function normalizeUrl(value) {
+    const trimmed = value.trim();
+    if (!trimmed) return '';
+    return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+  }
+
+  function setProgress(percent, label) {
+    document.getElementById('progressFill').style.width = `${percent}%`;
+    document.getElementById('progressLabel').textContent = label;
+  }
+
+  function startProgress() {
+    const progress = document.getElementById('scanProgress');
+    progress.classList.add('active');
+    setProgress(12, 'Loading page...');
+    let value = 12;
+    const labels = ['Submitting scan...', 'Loading page...', 'Running axe-core checks...', 'Preparing report...'];
+    progressTimer = setInterval(() => {
+      value = Math.min(value + Math.random() * 16, 88);
+      setProgress(Math.round(value), labels[Math.min(Math.floor(value / 25), labels.length - 1)]);
+    }, 500);
+  }
+
+  function stopProgress(label = 'Scan complete') {
+    clearInterval(progressTimer);
+    setProgress(100, label);
+    setTimeout(() => document.getElementById('scanProgress').classList.remove('active'), 700);
+  }
+
+  function buildRows(results) {
+    return (results.violations || []).flatMap(violation => {
+      return violation.nodes.map(node => ({
+        id: violation.id,
+        impact: violation.impact || 'unknown',
+        description: violation.description,
+        help: violation.help,
+        helpUrl: violation.helpUrl,
+        target: node.target.join(', '),
+        html: node.html,
+        failureSummary: node.failureSummary || ''
+      }));
+    });
+  }
+
+  function renderResults(results, scannedUrl) {
+    latestScanResults = { scannedUrl, generatedAt: new Date().toISOString(), ...results };
+    const rows = buildRows(results);
+    const resultsEl = document.getElementById('scanResults');
+    const passes = results.passes ? results.passes.length : 0;
+    const incomplete = results.incomplete ? results.incomplete.length : 0;
+    const score = results.summary ? results.summary.score : null;
+    const scoreColor = score >= 80 ? '#00d4a0' : score >= 50 ? '#ef9f27' : '#e24b4a';
+
+    resultsEl.classList.add('active');
+    resultsEl.innerHTML = `
+      <div class="results-summary">
+        ${score !== null ? `<div class="result-stat"><strong style="color:${scoreColor}">${score}</strong><span>accessibility score</span></div>` : ''}
+        <div class="result-stat"><strong>${results.violations.length}</strong><span>rule violations</span></div>
+        <div class="result-stat"><strong>${rows.length}</strong><span>affected elements</span></div>
+        <div class="result-stat"><strong>${passes}</strong><span>rules passed</span></div>
+        <div class="result-stat"><strong>${incomplete}</strong><span>needs review</span></div>
+      </div>
+      <div class="export-actions">
+        <button class="btn-small" type="button" onclick="exportCSV()">Export CSV</button>
+        <button class="btn-small" type="button" onclick="exportJSON()">Export JSON</button>
+        <button class="btn-small" type="button" onclick="exportPDF()">Export PDF</button>
+      </div>
+      <p class="dialog-sub">Scanned: ${scannedUrl}</p>
+      <div class="issues-list">
+        ${rows.length ? rows.slice(0, 25).map(row => `
+          <div class="result-issue">
+            <h3>${escapeHtml(row.help)} <span class="issue-badge ${row.impact === 'critical' || row.impact === 'serious' ? 'badge-crit' : row.impact === 'moderate' ? 'badge-warn' : 'badge-info'}">${escapeHtml(row.impact)}</span></h3>
+            <p>${escapeHtml(row.description)}</p>
+            <div class="result-meta">Target: ${escapeHtml(row.target)}</div>
+          </div>
+        `).join('') : '<div class="result-issue"><h3>No automated violations found.</h3><p>Automated scans do not replace a manual accessibility audit, but this is a good initial result.</p></div>'}
+      </div>
+    `;
+  }
+
+  function renderError(message) {
+    const resultsEl = document.getElementById('scanResults');
+    resultsEl.classList.add('active');
+    resultsEl.innerHTML = `<div class="result-issue"><h3>Scan could not run</h3><p>${escapeHtml(message)}</p></div>`;
+  }
+
+  const API_BASE = 'https://platform-production-ace5.up.railway.app';
+
+  async function runAxeScan(url) {
+    // Step 1: Submit scan to Evidenta11y API
+    const submitRes = await fetch(`${API_BASE}/v1/scans/public`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, wcag_level: 'AA' }),
+    });
+
+    if (submitRes.status === 429) {
+      throw new Error('You have reached the free scan limit. Please try again in an hour or contact us for full access.');
+    }
+
+    if (!submitRes.ok) {
+      const err = await submitRes.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to start scan. Please try again.');
+    }
+
+    const { id: scanId } = await submitRes.json();
+
+    // Step 2: Poll for completion (up to 60 seconds)
+    const maxAttempts = 30;
+    const pollInterval = 2000;
+
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      await new Promise(r => setTimeout(r, pollInterval));
+
+      const statusRes = await fetch(`${API_BASE}/v1/scans/public/${scanId}`);
+      if (!statusRes.ok) continue;
+
+      const scan = await statusRes.json();
+
+      if (scan.status === 'failed') {
+        throw new Error('The scan failed. The site may be unavailable or blocking automated access.');
+      }
+
+      if (scan.status === 'complete') {
+        // Step 3: Fetch full results
+        const resultsRes = await fetch(`${API_BASE}/v1/results/public/${scanId}`);
+        if (!resultsRes.ok) throw new Error('Failed to retrieve scan results.');
+
+        const data = await resultsRes.json();
+
+        // Normalize to the shape renderResults expects
+        return {
+          violations: data.violations || [],
+          passes: data.passes || [],
+          incomplete: data.incomplete || [],
+          inapplicable: data.inapplicable || [],
+          summary: data.summary,
+        };
+      }
+    }
+
+    throw new Error('Scan timed out. The site may be slow to respond. Please try again.');
+  }
+
+  function downloadFile(filename, content, type) {
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function exportJSON() {
+    if (!latestScanResults) return;
+    downloadFile('accessibility-scan-results.json', JSON.stringify(latestScanResults, null, 2), 'application/json');
+  }
+
+  function exportCSV() {
+    if (!latestScanResults) return;
+    const rows = buildRows(latestScanResults);
+    const headers = ['id', 'impact', 'help', 'description', 'target', 'failureSummary', 'helpUrl'];
+    const csv = [headers.join(',')].concat(rows.map(row => headers.map(key => `"${String(row[key] || '').replace(/"/g, '""')}"`).join(','))).join('\n');
+    downloadFile('accessibility-scan-results.csv', csv, 'text/csv');
+  }
+
+  function exportPDF() {
+    if (!latestScanResults) return;
+    const rows = buildRows(latestScanResults);
+    const jsPDF = window.jspdf && window.jspdf.jsPDF;
+
+    if (!jsPDF) {
+      window.print();
+      return;
+    }
+
+    const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+    const margin = 40;
+    let y = 48;
+    doc.setFontSize(18);
+    doc.text('Accessibility Scan Results', margin, y);
+    y += 26;
+    doc.setFontSize(10);
+    doc.text(`Scanned: ${latestScanResults.scannedUrl}`, margin, y);
+    y += 16;
+    doc.text(`Generated: ${latestScanResults.generatedAt}`, margin, y);
+    y += 24;
+    doc.setFontSize(12);
+    doc.text(`Violations: ${latestScanResults.violations.length} | Affected elements: ${rows.length}`, margin, y);
+    y += 24;
+
+    rows.slice(0, 40).forEach((row, index) => {
+      if (y > 720) { doc.addPage(); y = 48; }
+      doc.setFontSize(11);
+      doc.text(`${index + 1}. ${row.help} (${row.impact})`, margin, y, { maxWidth: 520 });
+      y += 16;
+      doc.setFontSize(9);
+      doc.text(`Target: ${row.target}`, margin, y, { maxWidth: 520 });
+      y += 18;
+    });
+
+    doc.save('accessibility-scan-results.pdf');
+  }
+
+  function escapeHtml(value) {
+    return String(value || '').replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
+  }
+
+  document.getElementById('scanForm').addEventListener('submit', async event => {
+    event.preventDefault();
+    const url = normalizeUrl(document.getElementById('scanUrl').value);
+    document.getElementById('scanResults').classList.remove('active');
+    startProgress();
+
+    try {
+      const results = await runAxeScan(url);
+      stopProgress('Scan complete');
+      renderResults(results, url);
+    } catch (error) {
+      stopProgress('Scan unavailable');
+      renderError(error.message || 'Something went wrong while running the scan.');
+    }
+  });
+
+  document.getElementById('scanDialog').addEventListener('click', event => {
+    if (event.target.id === 'scanDialog') closeScanDialog();
+  });
+
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') closeScanDialog();
+  });
+
+  document.querySelectorAll('a[href^="#"]').forEach(link => {
+    link.addEventListener('click', event => {
+      const target = document.querySelector(link.getAttribute('href'));
+      if (!target) return;
+      event.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.addEventListener('click', () => item.classList.toggle('open'));
+  });
+</script>
+</body>
+</html>
