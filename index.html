@@ -179,6 +179,8 @@
   .result-issue p { color: var(--muted); font-size: 0.82rem; line-height: 1.6; margin-bottom: 0.4rem; }
   .result-meta { color: var(--teal); font-size: 0.72rem; word-break: break-word; }
   .scan-note { background: rgba(0,212,160,0.08); border: 0.5px solid rgba(0,212,160,0.22); color: var(--text); border-radius: 10px; padding: 0.85rem 1rem; font-size: 0.82rem; line-height: 1.6; margin-top: 1rem; }
+  .scan-disclaimer { background: rgba(239,159,39,0.08); border: 0.5px solid rgba(239,159,39,0.28); color: var(--text); border-radius: 10px; padding: 0.85rem 1rem; font-size: 0.82rem; line-height: 1.6; margin-top: 0.6rem; }
+  .scan-disclaimer strong { color: #f0bf6b; font-weight: 500; }
 
   @media (max-width: 700px) {
     .hero { grid-template-columns: 1fr; gap: 2.5rem; }
@@ -242,6 +244,7 @@
     <div class="scan-results" id="scanResults" aria-live="polite"></div>
 
     <p class="scan-note">Scans crawl up to 3 pages of your site and check each for accessibility issues. Results typically take 30 to 90 seconds. Free scans are limited to 3 per hour per IP address.</p>
+    <p class="scan-disclaimer"><strong>Important:</strong> this is an automated scan and only catches a portion of accessibility issues. A passing score does not guarantee your site is accessible or compliant. A full assessment requires a manual audit by an accessibility specialist.</p>
   </div>
 </div>
 
