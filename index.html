@@ -203,7 +203,6 @@
     .stat-big { font-size: 2rem; }
   }
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -242,7 +241,7 @@
 
     <div class="scan-results" id="scanResults" aria-live="polite"></div>
 
-    <p class="scan-note">Scans run on our servers using Playwright and axe-core. Results typically take 15 to 30 seconds. Free scans are limited to 3 per hour per IP address.</p>
+    <p class="scan-note">Scans crawl up to 3 pages of your site and run axe-core against each. Results typically take 30 to 90 seconds. Free scans are limited to 3 per hour per IP address.</p>
   </div>
 </div>
 
@@ -392,13 +391,28 @@
   function startProgress() {
     const progress = document.getElementById('scanProgress');
     progress.classList.add('active');
-    setProgress(12, 'Loading page...');
-    let value = 12;
-    const labels = ['Submitting scan...', 'Loading page...', 'Running axe-core checks...', 'Preparing report...'];
+    setProgress(8, 'Submitting scan...');
+    let value = 8;
     progressTimer = setInterval(() => {
-      value = Math.min(value + Math.random() * 16, 88);
-      setProgress(Math.round(value), labels[Math.min(Math.floor(value / 25), labels.length - 1)]);
-    }, 500);
+      // Slow drift up to 22% while we wait for the worker to start crawling.
+      value = Math.min(value + Math.random() * 2, 22);
+      setProgress(Math.round(value), 'Crawling site...');
+    }, 700);
+  }
+
+  function updatePollProgress(scan) {
+    if (!scan) return;
+    clearInterval(progressTimer);
+    progressTimer = null;
+    const total = scan.pages_total ?? 0;
+    const scanned = scan.pages_scanned ?? 0;
+    if (total === 0) {
+      setProgress(20, 'Crawling site...');
+      return;
+    }
+    // Reserve 25–95% for the per-page scan phase.
+    const percent = 25 + Math.round((scanned / total) * 70);
+    setProgress(Math.min(percent, 95), `Scanning pages (${scanned}/${total})...`);
   }
 
   function stopProgress(label = 'Scan complete') {
@@ -407,166 +421,70 @@
     setTimeout(() => document.getElementById('scanProgress').classList.remove('active'), 700);
   }
 
-  function buildRows(results) {
-    return (results.violations || []).flatMap(violation => {
-      return violation.nodes.map(node => ({
-        id: violation.id,
-        impact: violation.impact || 'unknown',
-        description: violation.description,
-        help: violation.help,
-        helpUrl: violation.helpUrl,
-        target: node.target ? node.target.join(', ') : '',
-        html: node.html || '',
-        failureSummary: node.failureSummary || '',
-        data: node.data || null,
-      }));
-    });
-  }
-
-  function impactConfig(impact) {
-    return {
-      critical: { color: '#f08c8b', bg: 'rgba(226,75,74,0.12)', label: 'Critical' },
-      serious:  { color: '#f0bf6b', bg: 'rgba(239,159,39,0.12)', label: 'Serious' },
-      moderate: { color: '#85b7eb', bg: 'rgba(55,138,221,0.12)', label: 'Moderate' },
-      minor:    { color: '#8b8fa8', bg: 'rgba(139,143,168,0.12)', label: 'Minor' },
-    }[impact] || { color: '#8b8fa8', bg: 'rgba(139,143,168,0.12)', label: impact };
-  }
-
-  function renderContrastSwatch(data) {
-    if (!data || !data.fgColor || !data.bgColor) return '';
-    return `
-      <div style="display:flex;align-items:center;gap:0.75rem;margin:0.5rem 0;flex-wrap:wrap;">
-        <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;">
-          <div style="width:16px;height:16px;border-radius:3px;background:${escapeHtml(data.fgColor)};border:0.5px solid rgba(255,255,255,0.15)"></div>
-          <span style="color:#8b8fa8">Text</span>
-          <code style="color:#e8e9f0;font-size:0.72rem">${escapeHtml(data.fgColor)}</code>
-        </div>
-        <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;">
-          <div style="width:16px;height:16px;border-radius:3px;background:${escapeHtml(data.bgColor)};border:0.5px solid rgba(255,255,255,0.15)"></div>
-          <span style="color:#8b8fa8">Background</span>
-          <code style="color:#e8e9f0;font-size:0.72rem">${escapeHtml(data.bgColor)}</code>
-        </div>
-        <div style="font-size:0.75rem;color:#f0bf6b">
-          Ratio ${data.contrastRatio}:1
-          ${data.expectedContrastRatio ? `<span style="color:#8b8fa8">(needs ${escapeHtml(String(data.expectedContrastRatio))})</span>` : ''}
-        </div>
-      </div>
-    `;
-  }
-
-  function formatWcagTags(tags) {
-    const scMap = {
-      wcag111: '1.1.1', wcag121: '1.2.1', wcag122: '1.2.2', wcag123: '1.2.3',
-      wcag124: '1.2.4', wcag125: '1.2.5', wcag131: '1.3.1', wcag132: '1.3.2',
-      wcag133: '1.3.3', wcag134: '1.3.4', wcag135: '1.3.5', wcag141: '1.4.1',
-      wcag142: '1.4.2', wcag143: '1.4.3', wcag144: '1.4.4', wcag145: '1.4.5',
-      wcag1410: '1.4.10', wcag1411: '1.4.11', wcag1412: '1.4.12', wcag1413: '1.4.13',
-      wcag211: '2.1.1', wcag212: '2.1.2', wcag214: '2.1.4', wcag221: '2.2.1',
-      wcag222: '2.2.2', wcag231: '2.3.1', wcag241: '2.4.1', wcag242: '2.4.2',
-      wcag243: '2.4.3', wcag244: '2.4.4', wcag245: '2.4.5', wcag246: '2.4.6',
-      wcag247: '2.4.7', wcag251: '2.5.1', wcag252: '2.5.2', wcag253: '2.5.3',
-      wcag254: '2.5.4', wcag311: '3.1.1', wcag312: '3.1.2', wcag321: '3.2.1',
-      wcag322: '3.2.2', wcag323: '3.2.3', wcag324: '3.2.4', wcag331: '3.3.1',
-      wcag332: '3.3.2', wcag333: '3.3.3', wcag334: '3.3.4', wcag411: '4.1.1',
-      wcag412: '4.1.2', wcag413: '4.1.3',
-    };
-
-    const levelMap = {
-      wcag2a: 'WCAG 2.0 A',
-      wcag2aa: 'WCAG 2.0 AA',
-      wcag2aaa: 'WCAG 2.0 AAA',
-      wcag21a: 'WCAG 2.1 A',
-      wcag21aa: 'WCAG 2.1 AA',
-      wcag21aaa: 'WCAG 2.1 AAA',
-      wcag22aa: 'WCAG 2.2 AA',
-    };
-
-    const pills = [];
-
-    tags.forEach(tag => {
-      if (levelMap[tag]) {
-        pills.push(`<span style="background:rgba(0,212,160,0.1);color:#00d4a0;padding:0.15rem 0.5rem;border-radius:4px;font-size:0.7rem;white-space:nowrap">${levelMap[tag]}</span>`);
-      } else if (scMap[tag]) {
-        pills.push(`<span style="background:rgba(255,255,255,0.06);color:#8b8fa8;padding:0.15rem 0.5rem;border-radius:4px;font-size:0.7rem;white-space:nowrap">SC ${scMap[tag]}</span>`);
-      }
-    });
-
-    return pills.length ? pills.join('') : '<span style="color:#8b8fa8;font-size:0.7rem">No WCAG criteria mapped</span>';
+  function scoreColor(score) {
+    if (score === null || score === undefined) return '#8b8fa8';
+    if (score >= 80) return '#00d4a0';
+    if (score >= 50) return '#ef9f27';
+    return '#e24b4a';
   }
 
   function renderResults(results, scannedUrl) {
     latestScanResults = { scannedUrl, generatedAt: new Date().toISOString(), ...results };
-    const violations = results.violations || [];
-    const passes = results.passes ? results.passes.length : 0;
-    const incomplete = results.incomplete ? results.incomplete.length : 0;
-    const score = results.summary ? results.summary.score : null;
-    const scoreColor = score >= 80 ? '#00d4a0' : score >= 50 ? '#ef9f27' : '#e24b4a';
-    const totalNodes = violations.reduce((sum, v) => sum + v.nodes.length, 0);
 
-    // Group violations by impact level
-    const order = ['critical', 'serious', 'moderate', 'minor'];
-    const grouped = order.reduce((acc, level) => {
-      const group = violations.filter(v => v.impact === level);
-      if (group.length) acc[level] = group;
-      return acc;
-    }, {});
+    const pages = Array.isArray(results.pages) ? results.pages : [];
+    const pagesScanned = results.pages_scanned ?? 0;
+    const pagesTotal = results.pages_total ?? pages.length;
+    const avgScore = results.avg_score ?? null;
+    const totalViolations = results.total_violations ?? 0;
+    const criticalCount = results.critical_count ?? 0;
+    const seriousCount = results.serious_count ?? 0;
 
     const resultsEl = document.getElementById('scanResults');
     resultsEl.classList.add('active');
     resultsEl.innerHTML = `
       <div class="results-summary">
-        ${score !== null ? `<div class="result-stat"><strong style="color:${scoreColor}">${score}</strong><span>accessibility score</span></div>` : ''}
-        <div class="result-stat"><strong>${violations.length}</strong><span>violations</span></div>
-        <div class="result-stat"><strong>${totalNodes}</strong><span>affected elements</span></div>
-        <div class="result-stat"><strong>${passes}</strong><span>rules passed</span></div>
-        <div class="result-stat"><strong>${incomplete}</strong><span>needs review</span></div>
+        <div class="result-stat"><strong>${pagesScanned}<span style="font-size:1rem;color:#8b8fa8;font-family:var(--sans);font-weight:300">/${pagesTotal}</span></strong><span>pages scanned</span></div>
+        <div class="result-stat"><strong style="color:${scoreColor(avgScore)}">${avgScore ?? '—'}</strong><span>average score</span></div>
+        <div class="result-stat"><strong>${totalViolations}</strong><span>total violations</span></div>
+        <div class="result-stat"><strong style="color:#f08c8b">${criticalCount}</strong><span>critical</span></div>
+        <div class="result-stat"><strong style="color:#f0bf6b">${seriousCount}</strong><span>serious</span></div>
       </div>
       <div class="export-actions">
-        <button class="btn-small" type="button" onclick="exportCSV()">Export CSV</button>
-        <button class="btn-small" type="button" onclick="exportJSON()">Export JSON</button>
-        <button class="btn-small" type="button" onclick="exportPDF()">Export PDF</button>
+        <button class="btn-small" type="button" onclick="downloadReport()">Download report (HTML)</button>
       </div>
       <p class="dialog-sub" style="margin-bottom:1rem">Scanned: <strong style="color:#e8e9f0">${escapeHtml(scannedUrl)}</strong></p>
 
-      ${violations.length === 0 ? `
+      ${pages.length === 0 ? `
         <div class="result-issue">
-          <h3 style="color:#00d4a0">No automated violations found.</h3>
-          <p>Automated scans catch around 40% of accessibility issues. We recommend a manual audit to ensure full WCAG compliance.</p>
+          <h3>No pages scanned.</h3>
+          <p>The crawler did not return any pages. The site may be blocking automated access.</p>
         </div>
-      ` : Object.entries(grouped).map(([impact, group]) => {
-        const cfg = impactConfig(impact);
-        return `
-          <div style="margin-bottom:1.25rem">
-            <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.6rem">
-              <span style="width:8px;height:8px;border-radius:50%;background:${cfg.color};flex-shrink:0"></span>
-              <span style="font-size:0.75rem;font-weight:500;color:${cfg.color};text-transform:uppercase;letter-spacing:0.08em">${cfg.label}</span>
-              <span style="font-size:0.75rem;color:#8b8fa8">${group.length} violation${group.length !== 1 ? 's' : ''}, ${group.reduce((s,v) => s + v.nodes.length, 0)} element${group.reduce((s,v) => s + v.nodes.length, 0) !== 1 ? 's' : ''}</span>
-            </div>
-            ${group.map(violation => `
-              <div class="result-issue" style="margin-bottom:0.6rem;border-left:2px solid ${cfg.color}">
-                <div style="margin-bottom:0.4rem">
-                  <h3 style="font-size:0.9rem">${escapeHtml(violation.help)}</h3>
-                </div>
-                <p style="margin-bottom:0.6rem">${escapeHtml(violation.description)}</p>
-                <div style="font-size:0.75rem;color:#8b8fa8;margin-bottom:0.5rem;display:flex;flex-wrap:wrap;gap:0.4rem">
-                  ${formatWcagTags(violation.tags || [])}
-                </div>
-                ${violation.nodes.slice(0, 3).map(node => `
-                  <div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:0.6rem 0.75rem;margin-top:0.4rem;font-size:0.78rem">
-                    ${node.failureSummary ? `<p style="color:#e8e9f0;margin-bottom:0.35rem">${escapeHtml(node.failureSummary.replace('Fix any of the following:\n', '').replace('Fix all of the following:\n', ''))}</p>` : ''}
-                    ${renderContrastSwatch(node.data)}
-                    <div style="color:#8b8fa8;font-size:0.7rem;margin-top:0.25rem">
-                      <span style="color:#00d4a0">Target:</span> ${escapeHtml(node.target ? node.target.join(', ') : '')}
-                    </div>
-                    ${node.html ? `<code style="display:block;margin-top:0.3rem;color:#8b8fa8;font-size:0.68rem;word-break:break-all;white-space:pre-wrap">${escapeHtml(node.html.slice(0, 120))}${node.html.length > 120 ? '...' : ''}</code>` : ''}
-                  </div>
-                `).join('')}
-                ${violation.nodes.length > 3 ? `<p style="font-size:0.75rem;color:#8b8fa8;margin-top:0.4rem">+ ${violation.nodes.length - 3} more element${violation.nodes.length - 3 !== 1 ? 's' : ''}</p>` : ''}
-              </div>
+      ` : `
+        <table style="width:100%;border-collapse:collapse;margin-bottom:1.25rem;font-size:0.85rem">
+          <thead>
+            <tr style="text-align:left;color:#8b8fa8;font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase">
+              <th style="padding:0.6rem 0.5rem;border-bottom:0.5px solid var(--border);font-weight:500">Page</th>
+              <th style="padding:0.6rem 0.5rem;border-bottom:0.5px solid var(--border);font-weight:500;text-align:right;width:70px">Score</th>
+              <th style="padding:0.6rem 0.5rem;border-bottom:0.5px solid var(--border);font-weight:500;text-align:right;width:70px">Issues</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${pages.map(p => `
+              <tr>
+                <td style="padding:0.7rem 0.5rem;border-bottom:0.5px solid var(--border);color:#e8e9f0;word-break:break-all">${escapeHtml(p.url || '')}</td>
+                <td style="padding:0.7rem 0.5rem;border-bottom:0.5px solid var(--border);text-align:right;color:${scoreColor(p.score)};font-weight:500">${p.score ?? '—'}</td>
+                <td style="padding:0.7rem 0.5rem;border-bottom:0.5px solid var(--border);text-align:right;color:#e8e9f0">${p.violation_count ?? 0}</td>
+              </tr>
             `).join('')}
-          </div>
-        `;
-      }).join('')}
+          </tbody>
+        </table>
+      `}
+
+      <div style="margin-top:1.5rem;padding:1.25rem 1.5rem;background:rgba(0,212,160,0.06);border:0.5px solid rgba(0,212,160,0.22);border-radius:12px;text-align:center">
+        <p style="color:#e8e9f0;font-size:0.95rem;font-weight:500;margin-bottom:0.3rem">Want us to fix these issues?</p>
+        <p style="color:#8b8fa8;font-size:0.82rem;margin-bottom:1rem">Book a free 30-minute consultation and we'll walk through the results together.</p>
+        <a href="https://calendly.com/hello-evidenta11y/30min" target="_blank" rel="noopener" style="display:inline-block;background:#00d4a0;color:#0a0f2e;font-weight:500;font-size:0.875rem;padding:0.65rem 1.5rem;border-radius:8px;text-decoration:none">Speak with a pro →</a>
+      </div>
     `;
   }
 
@@ -579,7 +497,7 @@
   const API_BASE = 'https://platform-production-ace5.up.railway.app';
 
   async function runAxeScan(url) {
-    // Step 1: Submit scan to Evidenta11y API
+    // Step 1: Submit public site scan (returns site_scan id)
     const submitRes = await fetch(`${API_BASE}/v1/scans/public`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -595,106 +513,137 @@
       throw new Error(err.error || 'Failed to start scan. Please try again.');
     }
 
-    const { id: scanId } = await submitRes.json();
+    const { id: siteScanId } = await submitRes.json();
 
-    // Step 2: Poll for completion (up to 60 seconds)
-    const maxAttempts = 30;
+    // Step 2: Poll site_scan status (~3 minutes for 3 pages)
+    const maxAttempts = 90;
     const pollInterval = 2000;
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       await new Promise(r => setTimeout(r, pollInterval));
 
-      const statusRes = await fetch(`${API_BASE}/v1/scans/public/${scanId}`);
+      const statusRes = await fetch(`${API_BASE}/v1/scans/public/${siteScanId}`);
       if (!statusRes.ok) continue;
 
       const scan = await statusRes.json();
+      updatePollProgress(scan);
 
       if (scan.status === 'failed') {
         throw new Error('The scan failed. The site may be unavailable or blocking automated access.');
       }
 
       if (scan.status === 'complete') {
-        // Step 3: Fetch full results
-        const resultsRes = await fetch(`${API_BASE}/v1/results/public/${scanId}`);
+        // Step 3: Fetch the full multi-page report
+        const resultsRes = await fetch(`${API_BASE}/v1/results/public/${siteScanId}`);
         if (!resultsRes.ok) throw new Error('Failed to retrieve scan results.');
-
-        const data = await resultsRes.json();
-
-        // Normalize to the shape renderResults expects
-        return {
-          violations: data.violations || [],
-          passes: data.passes || [],
-          incomplete: data.incomplete || [],
-          inapplicable: data.inapplicable || [],
-          summary: data.summary,
-        };
+        return await resultsRes.json();
       }
     }
 
     throw new Error('Scan timed out. The site may be slow to respond. Please try again.');
   }
 
-  function downloadFile(filename, content, type) {
-    const blob = new Blob([content], { type });
+  function buildReportHtml(data) {
+    const pages = Array.isArray(data.pages) ? data.pages : [];
+    const scanned = data.pages_scanned ?? 0;
+    const total = data.pages_total ?? pages.length;
+    const generated = new Date(data.generatedAt || Date.now()).toLocaleString();
+    const safeUrl = escapeHtml(data.scannedUrl || '');
+
+    const rows = pages.map(p => `
+        <tr>
+          <td>${escapeHtml(p.url || '')}</td>
+          <td>${p.score ?? '—'}</td>
+          <td>${p.violation_count ?? 0}</td>
+        </tr>`).join('');
+
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Accessibility scan report — ${safeUrl}</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { color-scheme: light; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #111; max-width: 800px; margin: 2rem auto; padding: 0 1.5rem; line-height: 1.55; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem; }
+  h2 { font-size: 1.1rem; margin: 2rem 0 0.75rem; }
+  .meta { color: #555; font-size: 0.9rem; margin-bottom: 1.5rem; }
+  dl.summary { display: grid; grid-template-columns: max-content 1fr; gap: 0.4rem 1.25rem; margin: 0; }
+  dl.summary dt { color: #555; }
+  dl.summary dd { margin: 0; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; font-size: 0.95rem; }
+  caption { text-align: left; font-weight: 600; padding: 0.5rem 0; }
+  th, td { text-align: left; padding: 0.55rem 0.5rem; border-bottom: 1px solid #ddd; vertical-align: top; word-break: break-word; }
+  th { background: #f5f5f5; font-weight: 600; }
+  th:nth-child(2), td:nth-child(2),
+  th:nth-child(3), td:nth-child(3) { text-align: right; width: 6rem; }
+  .print-hint { color: #555; font-size: 0.85rem; margin-top: 2rem; }
+  .print-actions { margin-top: 1rem; }
+  .print-actions button { font: inherit; padding: 0.5rem 1rem; cursor: pointer; }
+  @media print {
+    body { margin: 0; max-width: none; }
+    .print-actions, .print-hint { display: none; }
+    th { background: transparent; border-bottom: 1.5px solid #000; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Accessibility scan report</h1>
+  <p class="meta">
+    <strong>Scanned URL:</strong> ${safeUrl}<br>
+    <strong>Generated:</strong> ${escapeHtml(generated)}
+  </p>
+</header>
+
+<section aria-labelledby="summary-heading">
+  <h2 id="summary-heading">Summary</h2>
+  <dl class="summary">
+    <dt>Pages scanned</dt><dd>${scanned} of ${total}</dd>
+    <dt>Average score</dt><dd>${data.avg_score ?? '—'}</dd>
+    <dt>Total violations</dt><dd>${data.total_violations ?? 0}</dd>
+    <dt>Critical</dt><dd>${data.critical_count ?? 0}</dd>
+    <dt>Serious</dt><dd>${data.serious_count ?? 0}</dd>
+  </dl>
+</section>
+
+<section aria-labelledby="pages-heading">
+  <h2 id="pages-heading">Per-page results</h2>
+  <table>
+    <caption class="sr-only">Accessibility score and violation count for each scanned page</caption>
+    <thead>
+      <tr>
+        <th scope="col">Page</th>
+        <th scope="col">Score</th>
+        <th scope="col">Issues</th>
+      </tr>
+    </thead>
+    <tbody>${rows || '<tr><td colspan="3">No pages scanned.</td></tr>'}
+    </tbody>
+  </table>
+</section>
+
+<div class="print-actions">
+  <button type="button" onclick="window.print()">Print or save as PDF</button>
+</div>
+<p class="print-hint">Tip: use your browser's "Print" command and choose "Save as PDF" if you want a PDF copy.</p>
+</body>
+</html>`;
+  }
+
+  function downloadReport() {
+    if (!latestScanResults) return;
+    const html = buildReportHtml(latestScanResults);
+    const blob = new Blob([html], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = filename;
+    a.download = 'accessibility-scan-report.html';
     document.body.appendChild(a);
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
-  }
-
-  function exportJSON() {
-    if (!latestScanResults) return;
-    downloadFile('accessibility-scan-results.json', JSON.stringify(latestScanResults, null, 2), 'application/json');
-  }
-
-  function exportCSV() {
-    if (!latestScanResults) return;
-    const rows = buildRows(latestScanResults);
-    const headers = ['id', 'impact', 'help', 'description', 'target', 'failureSummary', 'helpUrl'];
-    const csv = [headers.join(',')].concat(rows.map(row => headers.map(key => `"${String(row[key] || '').replace(/"/g, '""')}"`).join(','))).join('\n');
-    downloadFile('accessibility-scan-results.csv', csv, 'text/csv');
-  }
-
-  function exportPDF() {
-    if (!latestScanResults) return;
-    const rows = buildRows(latestScanResults);
-    const jsPDF = window.jspdf && window.jspdf.jsPDF;
-
-    if (!jsPDF) {
-      window.print();
-      return;
-    }
-
-    const doc = new jsPDF({ unit: 'pt', format: 'letter' });
-    const margin = 40;
-    let y = 48;
-    doc.setFontSize(18);
-    doc.text('Accessibility Scan Results', margin, y);
-    y += 26;
-    doc.setFontSize(10);
-    doc.text(`Scanned: ${latestScanResults.scannedUrl}`, margin, y);
-    y += 16;
-    doc.text(`Generated: ${latestScanResults.generatedAt}`, margin, y);
-    y += 24;
-    doc.setFontSize(12);
-    doc.text(`Violations: ${latestScanResults.violations.length} | Affected elements: ${rows.length}`, margin, y);
-    y += 24;
-
-    rows.slice(0, 40).forEach((row, index) => {
-      if (y > 720) { doc.addPage(); y = 48; }
-      doc.setFontSize(11);
-      doc.text(`${index + 1}. ${row.help} (${row.impact})`, margin, y, { maxWidth: 520 });
-      y += 16;
-      doc.setFontSize(9);
-      doc.text(`Target: ${row.target}`, margin, y, { maxWidth: 520 });
-      y += 18;
-    });
-
-    doc.save('accessibility-scan-results.pdf');
   }
 
   function escapeHtml(value) {
