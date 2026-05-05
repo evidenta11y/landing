@@ -222,7 +222,7 @@
     <div class="dialog-header">
       <div>
         <p class="section-label">Free accessibility scan</p>
-        <h2 id="scanDialogTitle">Scan a website with axe-core.</h2>
+        <h2 id="scanDialogTitle">Scan a website for free.</h2>
         <p class="dialog-sub">Enter a URL and run an automated accessibility scan. Results will appear below the URL field, with export options for CSV, JSON, and PDF.</p>
       </div>
       <button class="dialog-close" type="button" aria-label="Close scan dialog" onclick="closeScanDialog()">&times;</button>
@@ -241,7 +241,7 @@
 
     <div class="scan-results" id="scanResults" aria-live="polite"></div>
 
-    <p class="scan-note">Scans crawl up to 3 pages of your site and run axe-core against each. Results typically take 30 to 90 seconds. Free scans are limited to 3 per hour per IP address.</p>
+    <p class="scan-note">Scans crawl up to 3 pages of your site and check each for accessibility issues. Results typically take 30 to 90 seconds. Free scans are limited to 3 per hour per IP address.</p>
   </div>
 </div>
 
@@ -253,7 +253,7 @@
     <p class="hero-sub">Evidenta11y combines automated scanning, expert manual testing, and hands-on remediation to keep your site accessible and legally compliant.</p>
     <div class="hero-actions">
       <button class="btn-primary" onclick="openScanDialog()">Run free scan &rarr;</button>
-      <a class="btn-ghost" href="#services">See what we check</a>
+      <a class="btn-ghost" href="https://calendly.com/hello-evidenta11y/30min" target="_blank" rel="noopener">Speak with a pro</a>
     </div>
   </div>
   <div>
@@ -496,7 +496,7 @@
 
   const API_BASE = 'https://platform-production-ace5.up.railway.app';
 
-  async function runAxeScan(url) {
+  async function runScan(url) {
     // Step 1: Submit public site scan (returns site_scan id)
     const submitRes = await fetch(`${API_BASE}/v1/scans/public`, {
       method: 'POST',
@@ -657,7 +657,7 @@
     startProgress();
 
     try {
-      const results = await runAxeScan(url);
+      const results = await runScan(url);
       stopProgress('Scan complete');
       renderResults(results, url);
     } catch (error) {
