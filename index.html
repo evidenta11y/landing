@@ -225,7 +225,7 @@
       <div>
         <p class="section-label">Free accessibility scan</p>
         <h2 id="scanDialogTitle">Scan a website for free.</h2>
-        <p class="dialog-sub">Enter a URL and run an automated accessibility scan. Checks up to 5 pages. Limit: 3 free scans per hour per IP.</p>
+        <p class="dialog-sub">Enter a URL and run an automated accessbility scan that checks up to 5 pages. Limited 3 free scans per hour per IP.</p>
 
       </div>
       <button class="dialog-close" type="button" aria-label="Close scan dialog" onclick="closeScanDialog()">&times;</button>
@@ -441,6 +441,11 @@
     const totalViolations = results.total_violations ?? 0;
     const criticalCount = results.critical_count ?? 0;
     const seriousCount = results.serious_count ?? 0;
+    const isClean = totalViolations === 0 && pagesScanned > 0;
+    const ctaHeading = isClean ? 'Want us to verify your score?' : 'Want us to fix these issues?';
+    const ctaBody = isClean
+      ? "Book a free 30-minute consultation and let's discuss verifying your score with a manual audit."
+      : "Book a free 30-minute consultation and we'll walk through the results together.";
 
     const resultsEl = document.getElementById('scanResults');
     resultsEl.classList.add('active');
@@ -484,8 +489,8 @@
       `}
 
       <div style="margin-top:1.5rem;padding:1.25rem 1.5rem;background:rgba(0,212,160,0.06);border:0.5px solid rgba(0,212,160,0.22);border-radius:12px;text-align:center">
-        <p style="color:#e8e9f0;font-size:0.95rem;font-weight:500;margin-bottom:0.3rem">Want us to fix these issues?</p>
-        <p style="color:#8b8fa8;font-size:0.82rem;margin-bottom:1rem">Book a free 30-minute consultation and we'll walk through the results together.</p>
+        <p style="color:#e8e9f0;font-size:0.95rem;font-weight:500;margin-bottom:0.3rem">${ctaHeading}</p>
+        <p style="color:#8b8fa8;font-size:0.82rem;margin-bottom:1rem">${ctaBody}</p>
         <a href="https://calendly.com/hello-evidenta11y/30min" target="_blank" rel="noopener" style="display:inline-block;background:#00d4a0;color:#0a0f2e;font-weight:500;font-size:0.875rem;padding:0.65rem 1.5rem;border-radius:8px;text-decoration:none">Speak with a pro →</a>
       </div>
     `;
