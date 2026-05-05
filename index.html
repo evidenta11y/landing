@@ -488,6 +488,8 @@
         </table>
       `}
 
+      ${!isClean && pages.length > 0 ? renderEmailCapture(scannedUrl) : ''}
+
       <div style="margin-top:1.5rem;padding:1.25rem 1.5rem;background:rgba(0,212,160,0.06);border:0.5px solid rgba(0,212,160,0.22);border-radius:12px;text-align:center">
         <p style="color:#e8e9f0;font-size:0.95rem;font-weight:500;margin-bottom:0.3rem">${ctaHeading}</p>
         <p style="color:#8b8fa8;font-size:0.82rem;margin-bottom:1rem">${ctaBody}</p>
@@ -500,6 +502,87 @@
     const resultsEl = document.getElementById('scanResults');
     resultsEl.classList.add('active');
     resultsEl.innerHTML = `<div class="result-issue"><h3>Scan could not run</h3><p>${escapeHtml(message)}</p></div>`;
+  }
+
+  function renderEmailCapture(scannedUrl) {
+    const safeUrl = escapeHtml(scannedUrl).replace(/'/g, '&#39;');
+    return `
+      <div id="emailCaptureCard" style="margin-top:1.5rem;padding:1.25rem 1.5rem;background:rgba(0,212,160,0.06);border:0.5px solid rgba(0,212,160,0.22);border-radius:12px">
+        <p style="color:#e8e9f0;font-size:0.95rem;font-weight:500;margin-bottom:0.3rem">Want your full site report?</p>
+        <p style="color:#8b8fa8;font-size:0.82rem;margin-bottom:1rem">We'll scan up to 50 pages and email you a complete accessibility report — free.</p>
+        <form class="scan-form" id="emailCaptureForm" onsubmit="submitReportEmail(event, '${safeUrl}')" style="margin:0">
+          <label class="sr-only" for="emailCaptureInput">Your email</label>
+          <input id="emailCaptureInput" name="email" type="email" placeholder="your@email.com" required autocomplete="email">
+          <button class="btn-primary" type="submit">Send my report</button>
+        </form>
+      </div>
+    `;
+  }
+
+  async function submitReportEmail(event, scannedUrl) {
+    event.preventDefault();
+    const card = document.getElementById('emailCaptureCard');
+    if (!card) return;
+    const input = document.getElementById('emailCaptureInput');
+    const email = input ? input.value.trim() : '';
+    if (!email) return;
+
+    const submitBtn = card.querySelector('button[type="submit"]');
+    const prevLabel = submitBtn ? submitBtn.textContent : '';
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending...';
+    }
+    clearEmailCaptureError();
+
+    try {
+      const res = await fetch(`${API_BASE}/v1/public/report`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: scannedUrl, email }),
+      });
+
+      if (!res.ok) {
+        const msg = res.status === 429
+          ? 'Only one report per email per day. Try again later or use a different address.'
+          : 'Something went wrong. Please try again.';
+        showEmailCaptureError(msg, submitBtn, prevLabel);
+        return;
+      }
+
+      card.innerHTML = `
+        <p style="color:#00d4a0;font-size:1rem;font-weight:500;margin-bottom:0.3rem">✓ Report on its way!</p>
+        <p style="color:#e8e9f0;font-size:0.85rem;margin-bottom:0.3rem">Check your inbox in the next few minutes.</p>
+        <p style="color:#8b8fa8;font-size:0.82rem;margin:0">We'll include a full breakdown of every page on your site.</p>
+      `;
+    } catch {
+      showEmailCaptureError('Something went wrong. Please try again.', submitBtn, prevLabel);
+    }
+  }
+
+  function showEmailCaptureError(msg, submitBtn, prevLabel) {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = prevLabel || 'Send my report';
+    }
+    const card = document.getElementById('emailCaptureCard');
+    if (!card) return;
+    let errEl = card.querySelector('.email-capture-error');
+    if (!errEl) {
+      errEl = document.createElement('p');
+      errEl.className = 'email-capture-error';
+      errEl.setAttribute('role', 'alert');
+      errEl.style.cssText = 'color:#f08c8b;font-size:0.82rem;margin:0.6rem 0 0';
+      card.appendChild(errEl);
+    }
+    errEl.textContent = msg;
+  }
+
+  function clearEmailCaptureError() {
+    const card = document.getElementById('emailCaptureCard');
+    if (!card) return;
+    const errEl = card.querySelector('.email-capture-error');
+    if (errEl) errEl.remove();
   }
 
   const API_BASE = 'https://platform-production-ace5.up.railway.app';
