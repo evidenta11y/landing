@@ -442,10 +442,8 @@
     const criticalCount = results.critical_count ?? 0;
     const seriousCount = results.serious_count ?? 0;
     const isClean = totalViolations === 0 && pagesScanned > 0;
-    const ctaHeading = isClean ? 'Want us to verify your score?' : 'Want us to fix these issues?';
-    const ctaBody = isClean
-      ? "Book a free 30-minute consultation and let's discuss verifying your score with a manual audit."
-      : "Book a free 30-minute consultation and we'll walk through the results together.";
+    const ctaHeading = 'Want us to verify your score?';
+    const ctaBody = "Book a free 30-minute consultation and let's discuss verifying your score with a manual audit.";
 
     const resultsEl = document.getElementById('scanResults');
     resultsEl.classList.add('active');
@@ -490,10 +488,23 @@
 
       ${!isClean && pages.length > 0 ? renderEmailCapture(scannedUrl) : ''}
 
-      <div style="margin-top:1.5rem;padding:1.25rem 1.5rem;background:rgba(0,212,160,0.06);border:0.5px solid rgba(0,212,160,0.22);border-radius:12px;text-align:center">
-        <p style="color:#e8e9f0;font-size:0.95rem;font-weight:500;margin-bottom:0.3rem">${ctaHeading}</p>
-        <p style="color:#8b8fa8;font-size:0.82rem;margin-bottom:1rem">${ctaBody}</p>
-        <a href="https://calendly.com/hello-evidenta11y/30min" target="_blank" rel="noopener" style="display:inline-block;background:#00d4a0;color:#0a0f2e;font-weight:500;font-size:0.875rem;padding:0.65rem 1.5rem;border-radius:8px;text-decoration:none">Speak with a pro →</a>
+      ${totalViolations > 0 ? renderAiUpsell() : `
+        <div style="margin-top:1.5rem;padding:1.25rem 1.5rem;background:rgba(0,212,160,0.06);border:0.5px solid rgba(0,212,160,0.22);border-radius:12px;text-align:center">
+          <p style="color:#e8e9f0;font-size:0.95rem;font-weight:500;margin-bottom:0.3rem">${ctaHeading}</p>
+          <p style="color:#8b8fa8;font-size:0.82rem;margin-bottom:1rem">${ctaBody}</p>
+          <a href="https://calendly.com/hello-evidenta11y/30min" target="_blank" rel="noopener" style="display:inline-block;background:#00d4a0;color:#0a0f2e;font-weight:500;font-size:0.875rem;padding:0.65rem 1.5rem;border-radius:8px;text-decoration:none">Speak with a pro →</a>
+        </div>
+      `}
+    `;
+  }
+
+  function renderAiUpsell() {
+    return `
+      <div style="margin-top:1.5rem;padding:1.25rem 1.5rem;background:rgba(0,212,160,0.06);border:0.5px solid rgba(0,212,160,0.22);border-radius:12px">
+        <p style="color:#00d4a0;font-size:0.7rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.75rem">✦ AI-Powered Audit</p>
+        <p style="color:#e8e9f0;font-size:0.95rem;font-weight:500;margin-bottom:0.4rem">Upgrade to Pro to see what automated tools miss</p>
+        <p style="color:#8b8fa8;font-size:0.82rem;margin-bottom:1rem">Our AI audit layer detects focus order problems, ambiguous link text, semantic structure issues, and more — the violations that no automated scanner can find.</p>
+        <a href="https://calendly.com/hello-evidenta11y/30min" target="_blank" rel="noopener" class="btn-primary" style="display:inline-block;text-decoration:none">Speak with a pro →</a>
       </div>
     `;
   }
