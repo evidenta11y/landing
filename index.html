@@ -166,8 +166,7 @@
   .progress-label { margin-top: 0.5rem; color: var(--muted); font-size: 0.8rem; }
   .scan-results { display: none; margin-top: 1.25rem; }
   .scan-results.active { display: block; }
-  .results-summary { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
-  @media (max-width: 700px) { .results-summary { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); } }
+  .results-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
   .result-stat { background: var(--card-bg); border: 0.5px solid var(--border); border-radius: 10px; padding: 1rem; }
   .result-stat strong { display: block; color: #fff; font-size: 1.6rem; line-height: 1; font-family: var(--serif); }
   .result-stat span { color: var(--muted); font-size: 0.76rem; }
@@ -433,6 +432,136 @@
     return '#e24b4a';
   }
 
+  function impactConfig(impact) {
+    return {
+      critical: { color: '#f08c8b', label: 'Critical' },
+      serious:  { color: '#f0bf6b', label: 'Serious' },
+      moderate: { color: '#85b7eb', label: 'Moderate' },
+      minor:    { color: '#8b8fa8', label: 'Minor' },
+    }[impact] || { color: '#8b8fa8', label: impact || 'Unknown' };
+  }
+
+  function cleanFailureSummary(text) {
+    return String(text || '')
+      .replace(/^Fix any of the following:\s*\n?/i, '')
+      .replace(/^Fix all of the following:\s*\n?/i, '')
+      .trim();
+  }
+
+  function formatWcagTags(tags) {
+    const scMap = {
+      wcag111: '1.1.1', wcag121: '1.2.1', wcag122: '1.2.2', wcag123: '1.2.3',
+      wcag124: '1.2.4', wcag125: '1.2.5', wcag131: '1.3.1', wcag132: '1.3.2',
+      wcag133: '1.3.3', wcag134: '1.3.4', wcag135: '1.3.5', wcag141: '1.4.1',
+      wcag142: '1.4.2', wcag143: '1.4.3', wcag144: '1.4.4', wcag145: '1.4.5',
+      wcag1410: '1.4.10', wcag1411: '1.4.11', wcag1412: '1.4.12', wcag1413: '1.4.13',
+      wcag211: '2.1.1', wcag212: '2.1.2', wcag214: '2.1.4', wcag221: '2.2.1',
+      wcag222: '2.2.2', wcag231: '2.3.1', wcag241: '2.4.1', wcag242: '2.4.2',
+      wcag243: '2.4.3', wcag244: '2.4.4', wcag245: '2.4.5', wcag246: '2.4.6',
+      wcag247: '2.4.7', wcag251: '2.5.1', wcag252: '2.5.2', wcag253: '2.5.3',
+      wcag254: '2.5.4', wcag311: '3.1.1', wcag312: '3.1.2', wcag321: '3.2.1',
+      wcag322: '3.2.2', wcag323: '3.2.3', wcag324: '3.2.4', wcag331: '3.3.1',
+      wcag332: '3.3.2', wcag333: '3.3.3', wcag334: '3.3.4', wcag411: '4.1.1',
+      wcag412: '4.1.2', wcag413: '4.1.3',
+    };
+    const levelMap = {
+      wcag2a: 'WCAG 2.0 A', wcag2aa: 'WCAG 2.0 AA', wcag2aaa: 'WCAG 2.0 AAA',
+      wcag21a: 'WCAG 2.1 A', wcag21aa: 'WCAG 2.1 AA', wcag21aaa: 'WCAG 2.1 AAA',
+      wcag22aa: 'WCAG 2.2 AA',
+    };
+    const pills = [];
+    (tags || []).forEach(tag => {
+      if (levelMap[tag]) {
+        pills.push(`<span style="background:rgba(0,212,160,0.1);color:#00d4a0;padding:0.15rem 0.5rem;border-radius:4px;font-size:0.7rem;white-space:nowrap">${levelMap[tag]}</span>`);
+      } else if (scMap[tag]) {
+        pills.push(`<span style="background:rgba(255,255,255,0.06);color:#8b8fa8;padding:0.15rem 0.5rem;border-radius:4px;font-size:0.7rem;white-space:nowrap">SC ${scMap[tag]}</span>`);
+      }
+    });
+    return pills.join('');
+  }
+
+  function renderContrastSwatch(data) {
+    if (!data || !data.fgColor || !data.bgColor) return '';
+    return `
+      <div style="display:flex;align-items:center;gap:0.75rem;margin:0.4rem 0;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.72rem">
+          <div style="width:14px;height:14px;border-radius:3px;background:${escapeHtml(data.fgColor)};border:0.5px solid rgba(255,255,255,0.18)"></div>
+          <span style="color:#8b8fa8">Text</span>
+          <code style="color:#e8e9f0;font-size:0.7rem">${escapeHtml(data.fgColor)}</code>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.72rem">
+          <div style="width:14px;height:14px;border-radius:3px;background:${escapeHtml(data.bgColor)};border:0.5px solid rgba(255,255,255,0.18)"></div>
+          <span style="color:#8b8fa8">Background</span>
+          <code style="color:#e8e9f0;font-size:0.7rem">${escapeHtml(data.bgColor)}</code>
+        </div>
+        <div style="font-size:0.72rem;color:#f0bf6b">
+          Ratio ${data.contrastRatio}:1${data.expectedContrastRatio ? ` <span style="color:#8b8fa8">(needs ${escapeHtml(String(data.expectedContrastRatio))})</span>` : ''}
+        </div>
+      </div>`;
+  }
+
+  function renderViolationCard(violation) {
+    const cfg = impactConfig(violation.impact);
+    const nodes = Array.isArray(violation.nodes) ? violation.nodes : [];
+    const pills = formatWcagTags(violation.tags);
+    return `
+      <div class="result-issue" style="border-left:2px solid ${cfg.color};margin-bottom:0.6rem">
+        <h3 style="font-size:0.9rem">${escapeHtml(violation.help || '')}</h3>
+        ${violation.description ? `<p style="margin-bottom:0.5rem">${escapeHtml(violation.description)}</p>` : ''}
+        ${pills ? `<div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:0.5rem">${pills}</div>` : ''}
+        ${nodes.slice(0, 3).map(node => `
+          <div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:0.55rem 0.7rem;margin-top:0.35rem;font-size:0.78rem">
+            ${node.failureSummary ? `<p style="color:#e8e9f0;margin-bottom:0.3rem">${escapeHtml(cleanFailureSummary(node.failureSummary))}</p>` : ''}
+            ${renderContrastSwatch(node.data)}
+            <div style="color:#8b8fa8;font-size:0.7rem;margin-top:0.2rem">
+              <span style="color:#00d4a0">Target:</span> ${escapeHtml(Array.isArray(node.target) ? node.target.join(', ') : '')}
+            </div>
+            ${node.html ? `<code style="display:block;margin-top:0.3rem;color:#8b8fa8;font-size:0.68rem;word-break:break-all;white-space:pre-wrap">${escapeHtml(String(node.html).slice(0, 120))}${String(node.html).length > 120 ? '...' : ''}</code>` : ''}
+          </div>
+        `).join('')}
+        ${nodes.length > 3 ? `<p style="font-size:0.75rem;color:#8b8fa8;margin-top:0.4rem">+ ${nodes.length - 3} more element${nodes.length - 3 !== 1 ? 's' : ''}</p>` : ''}
+      </div>`;
+  }
+
+  function renderViolationsForPage(violations) {
+    const order = ['critical', 'serious', 'moderate', 'minor'];
+    const grouped = order.reduce((acc, level) => {
+      const group = violations.filter(v => v.impact === level);
+      if (group.length) acc.push([level, group]);
+      return acc;
+    }, []);
+    if (!grouped.length) return '';
+    return grouped.map(([impact, group]) => {
+      const cfg = impactConfig(impact);
+      const totalElements = group.reduce((s, v) => s + (Array.isArray(v.nodes) ? v.nodes.length : 0), 0);
+      return `
+        <div style="margin-bottom:1rem">
+          <div style="display:flex;align-items:center;gap:0.5rem;margin:0.5rem 0 0.4rem">
+            <span style="width:8px;height:8px;border-radius:50%;background:${cfg.color};flex-shrink:0"></span>
+            <span style="font-size:0.72rem;font-weight:500;color:${cfg.color};text-transform:uppercase;letter-spacing:0.08em">${cfg.label}</span>
+            <span style="font-size:0.72rem;color:#8b8fa8">${group.length} violation${group.length !== 1 ? 's' : ''}, ${totalElements} element${totalElements !== 1 ? 's' : ''}</span>
+          </div>
+          ${group.map(renderViolationCard).join('')}
+        </div>`;
+    }).join('');
+  }
+
+  function renderPageSection(page) {
+    const violations = Array.isArray(page.violations) ? page.violations : null;
+    const issueCount = page.violation_count ?? (violations ? violations.length : 0);
+    return `
+      <div style="margin-bottom:1.25rem;padding-top:0.75rem;border-top:0.5px solid var(--border)">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;margin-bottom:0.4rem">
+          <span style="color:#e8e9f0;font-size:0.85rem;word-break:break-all;flex:1;min-width:200px">${escapeHtml(page.url || '')}</span>
+          <div style="display:flex;gap:1rem;font-size:0.78rem;color:#8b8fa8;white-space:nowrap">
+            <span>Score: <strong style="color:${scoreColor(page.score)};font-weight:500">${page.score ?? '—'}</strong></span>
+            <span>${issueCount} issue${issueCount !== 1 ? 's' : ''}</span>
+          </div>
+        </div>
+        ${violations && violations.length ? renderViolationsForPage(violations) : ''}
+      </div>`;
+  }
+
   function renderResults(results, scannedUrl) {
     latestScanResults = { scannedUrl, generatedAt: new Date().toISOString(), ...results };
 
@@ -464,26 +593,7 @@
           <h3>No pages scanned.</h3>
           <p>The crawler did not return any pages. The site may be blocking automated access.</p>
         </div>
-      ` : `
-        <table style="width:100%;border-collapse:collapse;margin-bottom:1.25rem;font-size:0.85rem">
-          <thead>
-            <tr style="text-align:left;color:#8b8fa8;font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase">
-              <th style="padding:0.6rem 0.5rem;border-bottom:0.5px solid var(--border);font-weight:500">Page</th>
-              <th style="padding:0.6rem 0.5rem;border-bottom:0.5px solid var(--border);font-weight:500;text-align:right;width:70px">Score</th>
-              <th style="padding:0.6rem 0.5rem;border-bottom:0.5px solid var(--border);font-weight:500;text-align:right;width:70px">Issues</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${pages.map(p => `
-              <tr>
-                <td style="padding:0.7rem 0.5rem;border-bottom:0.5px solid var(--border);color:#e8e9f0;word-break:break-all">${escapeHtml(p.url || '')}</td>
-                <td style="padding:0.7rem 0.5rem;border-bottom:0.5px solid var(--border);text-align:right;color:${scoreColor(p.score)};font-weight:500">${p.score ?? '—'}</td>
-                <td style="padding:0.7rem 0.5rem;border-bottom:0.5px solid var(--border);text-align:right;color:#e8e9f0">${p.violation_count ?? 0}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      `}
+      ` : pages.map(renderPageSection).join('')}
 
       ${totalViolations > 0 ? renderEmailCapture(scannedUrl) : ''}
 
