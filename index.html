@@ -166,7 +166,8 @@
   .progress-label { margin-top: 0.5rem; color: var(--muted); font-size: 0.8rem; }
   .scan-results { display: none; margin-top: 1.25rem; }
   .scan-results.active { display: block; }
-  .results-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
+  .results-summary { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
+  @media (max-width: 700px) { .results-summary { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); } }
   .result-stat { background: var(--card-bg); border: 0.5px solid var(--border); border-radius: 10px; padding: 1rem; }
   .result-stat strong { display: block; color: #fff; font-size: 1.6rem; line-height: 1; font-family: var(--serif); }
   .result-stat span { color: var(--muted); font-size: 0.76rem; }
@@ -426,9 +427,10 @@
 
   function scoreColor(score) {
     if (score === null || score === undefined) return '#8b8fa8';
-    if (score >= 80) return '#00d4a0';
-    if (score >= 50) return '#ef9f27';
-    return '#f08c8b';
+    if (score >= 90) return '#00d4a0';
+    if (score >= 70) return '#ef9f27';
+    if (score >= 50) return '#e07b39';
+    return '#e24b4a';
   }
 
   function renderResults(results, scannedUrl) {
@@ -454,9 +456,6 @@
         <div class="result-stat"><strong>${totalViolations}</strong><span>total violations</span></div>
         <div class="result-stat"><strong style="color:#f08c8b">${criticalCount}</strong><span>critical</span></div>
         <div class="result-stat"><strong style="color:#f0bf6b">${seriousCount}</strong><span>serious</span></div>
-      </div>
-      <div class="export-actions">
-        <button class="btn-small" type="button" onclick="downloadReport()">Download report (HTML)</button>
       </div>
       <p class="dialog-sub" style="margin-bottom:1rem">Scanned: <strong style="color:#e8e9f0">${escapeHtml(scannedUrl)}</strong></p>
 
@@ -486,7 +485,7 @@
         </table>
       `}
 
-      ${!isClean && pages.length > 0 ? renderEmailCapture(scannedUrl) : ''}
+      ${totalViolations > 0 ? renderEmailCapture(scannedUrl) : ''}
 
       ${totalViolations > 0 ? renderAiUpsell() : `
         <div style="margin-top:1.5rem;padding:1.25rem 1.5rem;background:rgba(0,212,160,0.06);border:0.5px solid rgba(0,212,160,0.22);border-radius:12px;text-align:center">
@@ -502,8 +501,8 @@
     return `
       <div style="margin-top:1.5rem;padding:1.25rem 1.5rem;background:rgba(0,212,160,0.06);border:0.5px solid rgba(0,212,160,0.22);border-radius:12px">
         <p style="color:#00d4a0;font-size:0.7rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.75rem">✦ AI-Powered Audit</p>
-        <p style="color:#e8e9f0;font-size:0.95rem;font-weight:500;margin-bottom:0.4rem">Upgrade to Pro to see what automated tools miss</p>
-        <p style="color:#8b8fa8;font-size:0.82rem;margin-bottom:1rem">Our AI audit layer detects focus order problems, ambiguous link text, semantic structure issues, and more — the violations that no automated scanner can find.</p>
+        <p style="color:#e8e9f0;font-size:0.95rem;font-weight:500;margin-bottom:0.4rem">Upgrade to Pro to see what automated tools can't detect</p>
+        <p style="color:#8b8fa8;font-size:0.82rem;margin-bottom:1rem">Focus order problems, ambiguous labels, and semantic structure violations.</p>
         <a href="https://calendly.com/hello-evidenta11y/30min" target="_blank" rel="noopener" class="btn-primary" style="display:inline-block;text-decoration:none">Speak with a pro →</a>
       </div>
     `;
@@ -643,109 +642,6 @@
     }
 
     throw new Error('Scan timed out. The site may be slow to respond. Please try again.');
-  }
-
-  function buildReportHtml(data) {
-    const pages = Array.isArray(data.pages) ? data.pages : [];
-    const scanned = data.pages_scanned ?? 0;
-    const total = data.pages_total ?? pages.length;
-    const generated = new Date(data.generatedAt || Date.now()).toLocaleString();
-    const safeUrl = escapeHtml(data.scannedUrl || '');
-
-    const rows = pages.map(p => `
-        <tr>
-          <td>${escapeHtml(p.url || '')}</td>
-          <td>${p.score ?? '—'}</td>
-          <td>${p.violation_count ?? 0}</td>
-        </tr>`).join('');
-
-    return `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Accessibility scan report — ${safeUrl}</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-  :root { color-scheme: light; }
-  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #111; max-width: 800px; margin: 2rem auto; padding: 0 1.5rem; line-height: 1.55; }
-  h1 { font-size: 1.6rem; margin: 0 0 0.25rem; }
-  h2 { font-size: 1.1rem; margin: 2rem 0 0.75rem; }
-  .meta { color: #555; font-size: 0.9rem; margin-bottom: 1.5rem; }
-  dl.summary { display: grid; grid-template-columns: max-content 1fr; gap: 0.4rem 1.25rem; margin: 0; }
-  dl.summary dt { color: #555; }
-  dl.summary dd { margin: 0; font-weight: 600; }
-  table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; font-size: 0.95rem; }
-  caption { text-align: left; font-weight: 600; padding: 0.5rem 0; }
-  th, td { text-align: left; padding: 0.55rem 0.5rem; border-bottom: 1px solid #ddd; vertical-align: top; word-break: break-word; }
-  th { background: #f5f5f5; font-weight: 600; }
-  th:nth-child(2), td:nth-child(2),
-  th:nth-child(3), td:nth-child(3) { text-align: right; width: 6rem; }
-  .print-hint { color: #555; font-size: 0.85rem; margin-top: 2rem; }
-  .print-actions { margin-top: 1rem; }
-  .print-actions button { font: inherit; padding: 0.5rem 1rem; cursor: pointer; }
-  @media print {
-    body { margin: 0; max-width: none; }
-    .print-actions, .print-hint { display: none; }
-    th { background: transparent; border-bottom: 1.5px solid #000; }
-  }
-</style>
-</head>
-<body>
-<header>
-  <h1>Accessibility scan report</h1>
-  <p class="meta">
-    <strong>Scanned URL:</strong> ${safeUrl}<br>
-    <strong>Generated:</strong> ${escapeHtml(generated)}
-  </p>
-</header>
-
-<section aria-labelledby="summary-heading">
-  <h2 id="summary-heading">Summary</h2>
-  <dl class="summary">
-    <dt>Pages scanned</dt><dd>${scanned} of ${total}</dd>
-    <dt>Average score</dt><dd>${data.avg_score ?? '—'}</dd>
-    <dt>Total violations</dt><dd>${data.total_violations ?? 0}</dd>
-    <dt>Critical</dt><dd>${data.critical_count ?? 0}</dd>
-    <dt>Serious</dt><dd>${data.serious_count ?? 0}</dd>
-  </dl>
-</section>
-
-<section aria-labelledby="pages-heading">
-  <h2 id="pages-heading">Per-page results</h2>
-  <table>
-    <caption class="sr-only">Accessibility score and violation count for each scanned page</caption>
-    <thead>
-      <tr>
-        <th scope="col">Page</th>
-        <th scope="col">Score</th>
-        <th scope="col">Issues</th>
-      </tr>
-    </thead>
-    <tbody>${rows || '<tr><td colspan="3">No pages scanned.</td></tr>'}
-    </tbody>
-  </table>
-</section>
-
-<div class="print-actions">
-  <button type="button" onclick="window.print()">Print or save as PDF</button>
-</div>
-<p class="print-hint">Tip: use your browser's "Print" command and choose "Save as PDF" if you want a PDF copy.</p>
-</body>
-</html>`;
-  }
-
-  function downloadReport() {
-    if (!latestScanResults) return;
-    const html = buildReportHtml(latestScanResults);
-    const blob = new Blob([html], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'accessibility-scan-report.html';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
   }
 
   function escapeHtml(value) {
