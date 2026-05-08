@@ -413,7 +413,25 @@
         <a href="https://calendly.com/hello-evidenta11y/30min" target="_blank" rel="noopener">Speak with a pro &rarr;</a>
       </section>
     `;
+
+    // Hand data to the Lit table component (it may not be upgraded yet — Lit
+    // applies the properties when the custom element registers).
+    const table = root.querySelector('#auditTable');
+    if (table) {
+      table.findings = flattenFindings(data.pages || []);
+      table.mode = 'report';
+      table.claimed = !!data.claimed;
+      table.token = getToken() || '';
+    }
   }
+
+  // Bubbled from the locked remediation dropdown when the report isn't claimed.
+  // Wired to a placeholder for now; replace with the real signup modal handler
+  // when the front-end auth flow is ready.
+  document.addEventListener('e11y-signup-required', () => {
+    // TODO: open signup modal
+    console.info('e11y-signup-required — open signup modal here');
+  });
 
   function renderCriticalCallout(critical) {
     if (!critical.length) return '';
@@ -485,85 +503,406 @@
 
   function renderPerPage(pages) {
     if (!pages.length) return '';
-    const sections = pages.map((p, idx) => renderPageBlock(p, idx)).join('');
+    const hasFindings = pages.some(p => Array.isArray(p.violations) && p.violations.length > 0);
+    if (!hasFindings) {
+      return `
+        <section aria-labelledby="pages-h">
+          <h2 id="pages-h">Per-page results</h2>
+          <p class="no-violations">No detailed violation data is available for these pages yet.</p>
+        </section>`;
+    }
     return `
       <section aria-labelledby="pages-h">
         <h2 id="pages-h">Per-page results</h2>
-        ${sections}
+        <e11y-audit-table id="auditTable"></e11y-audit-table>
       </section>`;
   }
 
-  function renderPageBlock(page, idx) {
-    const violations = Array.isArray(page.violations) ? page.violations : [];
-    const issueCount = page.violation_count ?? violations.length;
-    const captionId = `page-${idx}-caption`;
-
-    let body;
-    if (violations.length === 0) {
-      body = `<p class="no-violations">No violations recorded for this page${issueCount > 0 ? ' (detailed data unavailable)' : ''}.</p>`;
-    } else {
-      // Order violations by impact severity within the page
-      const order = ['critical', 'serious', 'moderate', 'minor'];
-      const sorted = [...violations].sort((a, b) => {
-        const ai = order.indexOf(a.impact); const bi = order.indexOf(b.impact);
-        return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
-      });
-      // One row per (violation, node) — capped at 5 nodes per violation
-      const rows = sorted.flatMap(v => {
-        const nodes = Array.isArray(v.nodes) ? v.nodes.slice(0, 5) : [];
-        const remaining = (v.nodes?.length || 0) - nodes.length;
-        const tags = formatWcagTags(v.tags);
-        const tagsHtml = tags.length ? `<div style="margin-top:0.3rem;font-size:0.72rem;color:var(--muted)">${tags.map(t => escapeHtml(t)).join(' · ')}</div>` : '';
-        const cells = nodes.map(node => {
-          const fail = node.failureSummary ? `<div style="font-size:0.78rem;margin-bottom:0.3rem;color:var(--text)">${escapeHtml(cleanFailureSummary(node.failureSummary))}</div>` : '';
-          const target = Array.isArray(node.target) && node.target.length
-            ? `<div class="target"><strong>Target:</strong> ${escapeHtml(node.target.join(', '))}</div>` : '';
-          const html = node.html
-            ? `<code class="snippet">${escapeHtml(String(node.html).slice(0, 200))}${String(node.html).length > 200 ? '…' : ''}</code>` : '';
-          return `
-            <tr>
-              <td>
-                <div style="font-weight:500">${escapeHtml(v.help || v.id || '')}</div>
-                ${tagsHtml}
-              </td>
-              <td>${impactBadge(v.impact)}</td>
-              <td>
-                ${fail}
-                ${html}
-                ${target}
-              </td>
-            </tr>`;
-        }).join('');
-        const moreRow = remaining > 0
-          ? `<tr><td colspan="3" style="color:var(--muted);font-size:0.8rem;font-style:italic">+ ${remaining} more failing element${remaining !== 1 ? 's' : ''} for this rule</td></tr>`
-          : '';
-        return cells + moreRow;
-      }).join('');
-      body = `
-        <table>
-          <caption id="${captionId}" class="sr-only">Violations on ${escapeHtml(page.url || '')}</caption>
-          <thead>
-            <tr>
-              <th scope="col">Issue</th>
-              <th scope="col">Severity</th>
-              <th scope="col">Failing element</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>`;
+  // Flatten data.pages[].violations[].nodes[] → one finding per (violation, node)
+  function flattenFindings(pages) {
+    const out = [];
+    for (const page of (pages || [])) {
+      const violations = Array.isArray(page.violations) ? page.violations : [];
+      for (const v of violations) {
+        const nodes = Array.isArray(v.nodes) && v.nodes.length ? v.nodes : [{}];
+        for (const node of nodes) {
+          out.push({
+            page: page.url || '',
+            testType: 'Automated',
+            impact: v.impact,
+            tags: v.tags,
+            help: v.help || v.id,
+            description: v.description,
+            failureSummary: node.failureSummary,
+            html: node.html,
+            target: node.target,
+          });
+        }
+      }
     }
-
-    return `
-      <article class="page-section" aria-labelledby="${captionId}">
-        <div class="head">
-          <span class="url">${escapeHtml(page.url || '')}</span>
-          <span class="score">Score: <strong style="color:${scoreColor(page.score)}">${escapeHtml(page.score == null ? '—' : String(page.score))}</strong> · ${issueCount} issue${issueCount !== 1 ? 's' : ''}</span>
-        </div>
-        ${body}
-      </article>`;
+    return out;
   }
 
   init();
 </script>
+
+<script type="module">
+  import { LitElement, html, css } from 'https://esm.sh/lit@3';
+
+  const IMPACT_RANK = { critical: 0, serious: 1, moderate: 2, minor: 3 };
+  const IMPACT_LABEL = { critical: 'CRITICAL', serious: 'SERIOUS', moderate: 'MODERATE', minor: 'MINOR' };
+  const REMEDIATION = ['Not started', 'In Progress', 'Pending', 'Completed'];
+
+  const SC_MAP = {
+    wcag111:'1.1.1', wcag121:'1.2.1', wcag122:'1.2.2', wcag123:'1.2.3',
+    wcag124:'1.2.4', wcag125:'1.2.5', wcag131:'1.3.1', wcag132:'1.3.2',
+    wcag133:'1.3.3', wcag134:'1.3.4', wcag135:'1.3.5', wcag141:'1.4.1',
+    wcag142:'1.4.2', wcag143:'1.4.3', wcag144:'1.4.4', wcag145:'1.4.5',
+    wcag1410:'1.4.10', wcag1411:'1.4.11', wcag1412:'1.4.12', wcag1413:'1.4.13',
+    wcag211:'2.1.1', wcag212:'2.1.2', wcag214:'2.1.4', wcag221:'2.2.1',
+    wcag222:'2.2.2', wcag231:'2.3.1', wcag241:'2.4.1', wcag242:'2.4.2',
+    wcag243:'2.4.3', wcag244:'2.4.4', wcag245:'2.4.5', wcag246:'2.4.6',
+    wcag247:'2.4.7', wcag251:'2.5.1', wcag252:'2.5.2', wcag253:'2.5.3',
+    wcag254:'2.5.4', wcag311:'3.1.1', wcag312:'3.1.2', wcag321:'3.2.1',
+    wcag322:'3.2.2', wcag323:'3.2.3', wcag324:'3.2.4', wcag331:'3.3.1',
+    wcag332:'3.3.2', wcag333:'3.3.3', wcag334:'3.3.4', wcag411:'4.1.1',
+    wcag412:'4.1.2', wcag413:'4.1.3'
+  };
+
+  class E11yAuditTable extends LitElement {
+    static properties = {
+      findings: { type: Array },
+      mode: { type: String },
+      claimed: { type: Boolean },
+      token: { type: String },
+      _sortColumn: { state: true },
+      _sortDir: { state: true },
+      _statuses: { state: true },
+    };
+
+    static styles = css`
+      :host { display: block; font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1a1a1a; }
+      details { border-top: 1px solid #eaeaea; padding: 1rem 0 0; margin-top: 1rem; }
+      details:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+      summary { cursor: pointer; font-weight: 600; font-size: 0.95rem; padding: 0.4rem 0; word-break: break-all; }
+      summary .count { color: #555555; font-weight: 400; margin-left: 0.5rem; }
+      summary:hover { color: #0a0f2e; }
+      .table-wrap { overflow-x: auto; margin-top: 0.5rem; }
+      table { width: 100%; min-width: 1100px; border-collapse: collapse; font-size: 0.82rem; }
+      caption { text-align: left; font-weight: 600; padding: 0.4rem 0; }
+      th, td { padding: 0.55rem 0.5rem; border-bottom: 1px solid #eaeaea; vertical-align: top; text-align: left; }
+      th { background: #f5f5f5; color: #1a1a1a; font-weight: 600; user-select: none; cursor: pointer; border-bottom: 1px solid #cccccc; white-space: nowrap; }
+      th:hover { background: #ececec; }
+      th:focus-visible { outline: 2px solid #0a0f2e; outline-offset: -2px; }
+      th .arrow { color: #555555; margin-left: 0.25rem; font-size: 0.7rem; }
+      th.active { background: #e8eef5; color: #0a0f2e; }
+      td.num { text-align: right; }
+
+      .badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 3px; vertical-align: middle; white-space: nowrap; border: 1px solid; }
+      .badge-critical { background: #fde8e8; color: #8b1a1a; border-color: #8b1a1a; }
+      .badge-serious  { background: #fef3e2; color: #7a4f00; border-color: #7a4f00; }
+      .badge-moderate { background: #e8f0fe; color: #1a3a5c; border-color: #1a3a5c; }
+      .badge-minor    { background: #f0f0f0; color: #333333; border-color: #aaaaaa; }
+      .badge-unknown  { background: #f0f0f0; color: #555555; border-color: #aaaaaa; }
+
+      .test-type { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 3px; border: 1px solid; white-space: nowrap; }
+      .test-type-automated { background: #f0f0f0; color: #1a1a1a; border-color: #cccccc; }
+      .test-type-manual    { background: #e8f0fe; color: #1a3a5c; border-color: #1a3a5c; }
+      .test-type-ai        { background: #f0eaff; color: #4b2c8c; border-color: #4b2c8c; }
+
+      .wcag { font-size: 0.78rem; color: #555555; word-break: break-word; max-width: 14ch; display: inline-block; }
+      .summary { font-weight: 500; min-width: 14ch; }
+      .problem, .expected { min-width: 22ch; }
+      .snippet { display: block; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.74rem; background: #f5f5f5; padding: 0.35rem 0.5rem; border-radius: 4px; word-break: break-all; white-space: pre-wrap; max-height: 5rem; overflow: hidden; }
+      .target { font-size: 0.72rem; color: #555555; margin-top: 0.25rem; word-break: break-all; }
+      .muted { color: #555555; font-style: italic; }
+
+      select { font: inherit; padding: 0.3rem 0.5rem; border: 1px solid #cccccc; border-radius: 4px; background: #ffffff; color: #1a1a1a; cursor: pointer; min-width: 9rem; }
+      select:disabled { background: #f5f5f5; color: #555555; cursor: not-allowed; }
+      .locked-select { position: relative; display: inline-block; cursor: pointer; }
+      .locked-select select { pointer-events: none; padding-right: 1.7rem; }
+      .locked-select .lock { position: absolute; right: 0.45rem; top: 50%; transform: translateY(-50%); font-size: 0.85rem; pointer-events: none; }
+      .locked-select:hover select { border-color: #0a0f2e; }
+      .locked-select:focus-visible { outline: 2px solid #0a0f2e; outline-offset: 2px; border-radius: 5px; }
+
+      .empty { color: #555555; font-style: italic; padding: 1rem 0; }
+
+      @media print {
+        details { page-break-inside: avoid; }
+        details > summary { list-style: none; }
+        table { min-width: 0; font-size: 0.7rem; }
+        th { background: transparent !important; border-bottom: 1.5px solid #000 !important; }
+        .badge, .test-type { border: 1px solid #555 !important; background: transparent !important; color: #000 !important; }
+        select, .locked-select { display: none; }
+      }
+    `;
+
+    constructor() {
+      super();
+      this.findings = [];
+      this.mode = 'report';
+      this.claimed = false;
+      this.token = '';
+      this._sortColumn = 'impact';
+      this._sortDir = 'asc'; // asc → critical first (rank 0)
+      this._statuses = {};
+    }
+
+    willUpdate(changed) {
+      if (changed.has('findings') || changed.has('token') || changed.has('claimed')) {
+        this._loadStatuses();
+      }
+    }
+
+    _storageKey(pageUrl, issueNum) {
+      return `${this.token}:${pageUrl}:${issueNum}`;
+    }
+
+    _loadStatuses() {
+      if (!this.claimed || !this.token) { this._statuses = {}; return; }
+      const out = {};
+      const groups = this._groupByPage(this.findings);
+      for (const [page, items] of groups) {
+        items.forEach((_, i) => {
+          const key = this._storageKey(page, i + 1);
+          try {
+            const v = localStorage.getItem(key);
+            if (v) out[key] = v;
+          } catch { /* localStorage may be unavailable */ }
+        });
+      }
+      this._statuses = out;
+    }
+
+    _groupByPage(findings) {
+      const map = new Map();
+      for (const f of (findings || [])) {
+        const k = f.page || '(no page)';
+        if (!map.has(k)) map.set(k, []);
+        map.get(k).push(f);
+      }
+      return map;
+    }
+
+    _formatWcag(tags) {
+      if (!Array.isArray(tags)) return '';
+      const out = [];
+      for (const t of tags) {
+        const m = /^wcag(2|21|22)?(a{1,3})$/.exec(t);
+        if (m) {
+          out.push(`WCAG 2.2 ${m[2].toUpperCase()}`);
+        } else if (SC_MAP[t]) {
+          out.push(`SC ${SC_MAP[t]}`);
+        }
+      }
+      return [...new Set(out)].join(' · ');
+    }
+
+    _cleanFailureSummary(text) {
+      return String(text || '')
+        .replace(/^Fix any of the following:\s*\n?/i, '')
+        .replace(/^Fix all of the following:\s*\n?/i, '')
+        .trim();
+    }
+
+    _truncate(str, n) {
+      const s = String(str || '');
+      return s.length > n ? s.slice(0, n) + '…' : s;
+    }
+
+    _sortKey(col, f, pageUrl, issueNum) {
+      switch (col) {
+        case 'issue': return issueNum;
+        case 'testType': return (f.testType || '').toLowerCase();
+        case 'impact': return IMPACT_RANK[f.impact] ?? 99;
+        case 'wcag': return this._formatWcag(f.tags);
+        case 'summary': return (f.help || '').toLowerCase();
+        case 'problem': return this._cleanFailureSummary(f.failureSummary).toLowerCase();
+        case 'expected': return (f.description || '').toLowerCase();
+        case 'failingElement':
+          return ((Array.isArray(f.target) && f.target[0]) || f.html || '').toLowerCase();
+        case 'remediation': {
+          const status = this._statuses[this._storageKey(pageUrl, issueNum)] || REMEDIATION[0];
+          return REMEDIATION.indexOf(status);
+        }
+        case 'screenshot':
+        default:
+          return 0;
+      }
+    }
+
+    _onSortClick(col) {
+      if (this._sortColumn === col) {
+        this._sortDir = this._sortDir === 'asc' ? 'desc' : 'asc';
+      } else {
+        this._sortColumn = col;
+        this._sortDir = 'asc';
+      }
+    }
+
+    _onSortKey(e, col) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        this._onSortClick(col);
+      }
+    }
+
+    _onRemediationChange(e, key) {
+      const val = e.target.value;
+      try { localStorage.setItem(key, val); } catch { /* ignore */ }
+      this._statuses = { ...this._statuses, [key]: val };
+    }
+
+    _onLockedClick(e) {
+      e.preventDefault();
+      this.dispatchEvent(new CustomEvent('e11y-signup-required', {
+        bubbles: true, composed: true,
+      }));
+    }
+
+    _onLockedKey(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        this._onLockedClick(e);
+      }
+    }
+
+    _renderHeader(col, label) {
+      const active = this._sortColumn === col;
+      const arrow = active ? (this._sortDir === 'asc' ? '▲' : '▼') : '';
+      return html`
+        <th
+          scope="col"
+          class=${active ? 'active' : ''}
+          tabindex="0"
+          role="button"
+          aria-sort=${active ? (this._sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
+          @click=${() => this._onSortClick(col)}
+          @keydown=${(e) => this._onSortKey(e, col)}
+        >${label}<span class="arrow" aria-hidden="true">${arrow}</span></th>
+      `;
+    }
+
+    _renderImpact(impact) {
+      const cls = IMPACT_LABEL[impact] ? `badge-${impact}` : 'badge-unknown';
+      const label = IMPACT_LABEL[impact] || 'UNKNOWN';
+      return html`<span class="badge ${cls}">${label}</span>`;
+    }
+
+    _renderTestType(type) {
+      const t = type || 'Automated';
+      const cls = `test-type-${String(t).toLowerCase()}`;
+      return html`<span class="test-type ${cls}">${t}</span>`;
+    }
+
+    _renderRemediation(key) {
+      const current = this._statuses[key] || REMEDIATION[0];
+      if (this.claimed) {
+        return html`
+          <select
+            aria-label="Remediation status"
+            .value=${current}
+            @change=${(e) => this._onRemediationChange(e, key)}
+          >
+            ${REMEDIATION.map(opt => html`
+              <option value=${opt} ?selected=${opt === current}>${opt}</option>
+            `)}
+          </select>
+        `;
+      }
+      return html`
+        <span
+          class="locked-select"
+          role="button"
+          tabindex="0"
+          title="Create a free account to track remediation progress"
+          aria-label="Create a free account to track remediation progress"
+          @click=${this._onLockedClick}
+          @keydown=${this._onLockedKey}
+        >
+          <select disabled aria-disabled="true" tabindex="-1">
+            <option>${current}</option>
+          </select>
+          <span class="lock" aria-hidden="true">🔒</span>
+        </span>
+      `;
+    }
+
+    _renderRow(f, pageUrl, issueNum) {
+      const wcag = this._formatWcag(f.tags);
+      const problem = this._cleanFailureSummary(f.failureSummary);
+      const target = Array.isArray(f.target) ? f.target.join(', ') : '';
+      const key = this._storageKey(pageUrl, issueNum);
+      return html`
+        <tr>
+          <td class="num">${issueNum}</td>
+          <td>${this._renderTestType(f.testType)}</td>
+          <td>${this._renderImpact(f.impact)}</td>
+          <td><span class="wcag">${wcag}</span></td>
+          <td class="summary">${f.help || ''}</td>
+          <td class="problem">${problem}</td>
+          <td class="expected">${f.description || ''}</td>
+          <td>
+            ${f.html ? html`<code class="snippet">${this._truncate(f.html, 200)}</code>` : ''}
+            ${target ? html`<div class="target">${target}</div>` : ''}
+          </td>
+          <td><span class="muted">Not available</span></td>
+          <td>${this._renderRemediation(key)}</td>
+        </tr>
+      `;
+    }
+
+    _renderPageGroup(pageUrl, items) {
+      // Assign a stable issue number based on the original (unsorted) order so
+      // the localStorage key doesn't drift when the user re-sorts the table.
+      const numbered = items.map((f, i) => ({ ...f, _issue: i + 1 }));
+      const sorted = [...numbered].sort((a, b) => {
+        const va = this._sortKey(this._sortColumn, a, pageUrl, a._issue);
+        const vb = this._sortKey(this._sortColumn, b, pageUrl, b._issue);
+        if (va < vb) return this._sortDir === 'asc' ? -1 : 1;
+        if (va > vb) return this._sortDir === 'asc' ? 1 : -1;
+        return a._issue - b._issue;
+      });
+      return html`
+        <details open>
+          <summary>${pageUrl}<span class="count">— ${items.length} ${items.length === 1 ? 'issue' : 'issues'}</span></summary>
+          <div class="table-wrap">
+            <table>
+              <caption class="sr-only">Findings for ${pageUrl}</caption>
+              <thead>
+                <tr>
+                  ${this._renderHeader('issue', 'Issue #')}
+                  ${this._renderHeader('testType', 'Test Type')}
+                  ${this._renderHeader('impact', 'Impact')}
+                  ${this._renderHeader('wcag', 'WCAG SC')}
+                  ${this._renderHeader('summary', 'Summary')}
+                  ${this._renderHeader('problem', 'Problem')}
+                  ${this._renderHeader('expected', 'Expected')}
+                  ${this._renderHeader('failingElement', 'Failing element')}
+                  ${this._renderHeader('screenshot', 'Screenshot')}
+                  ${this._renderHeader('remediation', 'Remediation')}
+                </tr>
+              </thead>
+              <tbody>
+                ${sorted.map(f => this._renderRow(f, pageUrl, f._issue))}
+              </tbody>
+            </table>
+          </div>
+        </details>
+      `;
+    }
+
+    render() {
+      if (!this.findings || !this.findings.length) {
+        return html`<p class="empty">No detailed findings available.</p>`;
+      }
+      const groups = this._groupByPage(this.findings);
+      return html`${[...groups].map(([url, items]) => this._renderPageGroup(url, items))}`;
+    }
+  }
+
+  customElements.define('e11y-audit-table', E11yAuditTable);
+</script>
+
 </body>
 </html>
