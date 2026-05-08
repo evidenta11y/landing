@@ -172,11 +172,73 @@
     .stats { grid-template-columns: repeat(2, 1fr); }
   }
 
+  /* ---------- Signup modal ---------- */
+  .modal-backdrop {
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(10,15,46,0.55);
+    -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 1rem;
+  }
+  .modal-backdrop[hidden] { display: none; }
+  .modal {
+    position: relative;
+    width: min(460px, 100%); max-height: 92vh; overflow: auto;
+    background: #ffffff; color: var(--text);
+    border-radius: 14px; padding: 1.75rem 1.75rem 1.5rem;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.28);
+  }
+  .modal-close {
+    position: absolute; top: 0.5rem; right: 0.7rem;
+    background: transparent; border: 0; padding: 0.3rem 0.55rem;
+    font-size: 1.5rem; line-height: 1; color: var(--muted); cursor: pointer; border-radius: 4px;
+  }
+  .modal-close:hover { color: var(--text); }
+  .modal-close:focus-visible { outline: 2px solid var(--navy); outline-offset: 1px; }
+  .modal-title { font-family: var(--serif); font-size: 1.3rem; line-height: 1.25; color: var(--text); margin: 0 0 0.4rem; }
+  .modal-sub { color: var(--muted); font-size: 0.88rem; line-height: 1.55; margin: 0 0 1.1rem; }
+  .modal .field { margin-bottom: 0.85rem; }
+  .modal label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text); margin-bottom: 0.3rem; }
+  .modal input {
+    width: 100%; padding: 0.6rem 0.75rem;
+    border: 1px solid var(--rule); border-radius: 6px;
+    font-family: inherit; font-size: 0.9rem; color: var(--text);
+    background: #ffffff;
+  }
+  .modal input:focus { outline: 2px solid var(--navy); outline-offset: 1px; border-color: var(--navy); }
+  .field-hint { font-size: 0.72rem; color: var(--muted); margin: 0.25rem 0 0; }
+  .modal-error {
+    color: var(--bad); font-size: 0.85rem; line-height: 1.45;
+    margin: 0.6rem 0 0; min-height: 1em;
+  }
+  .modal-error:empty { display: none; }
+  .modal-actions { margin-top: 1.1rem; }
+  .modal-submit {
+    background: var(--navy); color: #ffffff; border: 0;
+    padding: 0.75rem 1.25rem; font: inherit; font-weight: 600; font-size: 0.95rem;
+    border-radius: 8px; cursor: pointer; width: 100%;
+  }
+  .modal-submit:hover:not(:disabled) { filter: brightness(1.15); }
+  .modal-submit:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+  .modal-submit:disabled { opacity: 0.65; cursor: progress; }
+  .modal-note { color: var(--muted); font-size: 0.8rem; text-align: center; margin: 1rem 0 0; }
+  .modal-note a { color: var(--navy); font-weight: 500; }
+
+  .success-banner {
+    position: fixed; top: 1rem; left: 50%; transform: translateX(-50%);
+    z-index: 200; max-width: calc(100% - 2rem);
+    background: var(--good); color: #ffffff; font-size: 0.9rem; font-weight: 500;
+    padding: 0.7rem 1.1rem; border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+  }
+  .success-banner[hidden] { display: none; }
+
   /* ---------- Print ---------- */
   @media print {
     @page { margin: 0.6in; }
     body { background: #ffffff; color: #000000; font-family: Georgia, 'Times New Roman', serif; line-height: 1.5; }
-    .page-header, .pdf-btn, .calendly-cta, .page-footer, .no-print { display: none !important; }
+    .page-header, .pdf-btn, .calendly-cta, .page-footer, .no-print,
+    .modal-backdrop, .success-banner { display: none !important; }
     main { max-width: 100%; padding: 0; }
     h1, h2, h3 { font-family: Georgia, 'Times New Roman', serif; color: #000; page-break-after: avoid; }
     p { color: #000; }
@@ -214,6 +276,89 @@
   &nbsp;|&nbsp;
   760-790-8076
 </footer>
+
+<!-- Toast that fires after a successful signup -->
+<div id="successBanner" class="success-banner" role="status" aria-live="polite" hidden></div>
+
+<!-- Signup modal: opened by `evi-signup-required` events from <evi-audit-table> -->
+<div
+  id="signupModal"
+  class="modal-backdrop"
+  hidden
+  role="presentation"
+>
+  <div
+    class="modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="signupTitle"
+    aria-describedby="signupSub signupError"
+  >
+    <button
+      type="button"
+      class="modal-close"
+      aria-label="Close signup dialog"
+      data-signup-close
+    >&times;</button>
+
+    <h2 id="signupTitle" class="modal-title">Create a free account to track remediation</h2>
+    <p id="signupSub" class="modal-sub">
+      Save your progress on every issue. No credit card required — your free account never expires.
+    </p>
+
+    <form id="signupForm" novalidate>
+      <div class="field">
+        <label for="signup-name">Name</label>
+        <input
+          id="signup-name"
+          name="name"
+          type="text"
+          autocomplete="name"
+          required
+          minlength="1"
+          maxlength="255"
+          aria-required="true"
+        >
+      </div>
+      <div class="field">
+        <label for="signup-email">Email</label>
+        <input
+          id="signup-email"
+          name="email"
+          type="email"
+          autocomplete="email"
+          required
+          aria-required="true"
+        >
+      </div>
+      <div class="field">
+        <label for="signup-password">Password</label>
+        <input
+          id="signup-password"
+          name="password"
+          type="password"
+          autocomplete="new-password"
+          required
+          minlength="8"
+          aria-required="true"
+          aria-describedby="signup-password-hint"
+        >
+        <p id="signup-password-hint" class="field-hint">At least 8 characters.</p>
+      </div>
+
+      <p id="signupError" class="modal-error" role="alert" aria-live="assertive"></p>
+
+      <div class="modal-actions">
+        <button type="submit" class="modal-submit">Create account</button>
+      </div>
+
+      <p class="modal-note">
+        Already have an account?
+        <a href="https://evidenta11y.com/login">Log in</a>
+      </p>
+    </form>
+  </div>
+</div>
 
 <script>
   const API_BASE = 'https://platform-production-ace5.up.railway.app';
@@ -425,13 +570,189 @@
     }
   }
 
-  // Bubbled from the locked remediation dropdown when the report isn't claimed.
-  // Wired to a placeholder for now; replace with the real signup modal handler
-  // when the front-end auth flow is ready.
-  document.addEventListener('evi-signup-required', () => {
-    // TODO: open signup modal
-    console.info('evi-signup-required — open signup modal here');
+  // ---------- Signup modal ----------
+  let __signupReturnFocus = null;
+
+  function openSignup(triggerEl) {
+    const modal = document.getElementById('signupModal');
+    if (!modal) return;
+    __signupReturnFocus = triggerEl || document.activeElement;
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    // Reset error + button label from any previous attempt
+    const errEl = document.getElementById('signupError');
+    if (errEl) errEl.textContent = '';
+    const submitBtn = modal.querySelector('button[type="submit"]');
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Create account';
+    }
+    // Focus the first input — wait a tick so the element is actually shown
+    setTimeout(() => {
+      const first = modal.querySelector('input');
+      if (first) first.focus();
+    }, 0);
+    document.addEventListener('keydown', _signupKeyHandler);
+  }
+
+  function closeSignup() {
+    const modal = document.getElementById('signupModal');
+    if (!modal || modal.hidden) return;
+    modal.hidden = true;
+    document.body.style.overflow = '';
+    document.removeEventListener('keydown', _signupKeyHandler);
+    // Return focus to whatever opened the modal, if it's still in the DOM.
+    if (
+      __signupReturnFocus &&
+      __signupReturnFocus.isConnected &&
+      typeof __signupReturnFocus.focus === 'function'
+    ) {
+      try { __signupReturnFocus.focus(); } catch { /* ignore */ }
+    }
+    __signupReturnFocus = null;
+  }
+
+  function _focusableInModal() {
+    const modal = document.getElementById('signupModal');
+    if (!modal) return [];
+    return Array.from(
+      modal.querySelectorAll(
+        'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter(el => !el.hasAttribute('hidden'));
+  }
+
+  function _signupKeyHandler(e) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      closeSignup();
+      return;
+    }
+    if (e.key !== 'Tab') return;
+    const items = _focusableInModal();
+    if (!items.length) return;
+    const first = items[0];
+    const last = items[items.length - 1];
+    const active = document.activeElement;
+    if (e.shiftKey && (active === first || !items.includes(active))) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && active === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
+
+  // Trigger 1: locked remediation dropdown inside the audit table
+  document.addEventListener('evi-signup-required', (e) => {
+    // composedPath()[0] is the actual element inside the shadow DOM that
+    // fired the click. Calling .focus() on a held reference still works
+    // across the shadow boundary, so we capture it for return-focus.
+    const trigger = (e.composedPath && e.composedPath()[0]) || document.activeElement;
+    openSignup(trigger);
   });
+
+  // Trigger 2 + close-button delegation
+  document.addEventListener('click', (e) => {
+    const t = e.target instanceof Element ? e.target.closest('[data-open-signup]') : null;
+    if (t) {
+      e.preventDefault();
+      openSignup(t);
+      return;
+    }
+    const c = e.target instanceof Element ? e.target.closest('[data-signup-close]') : null;
+    if (c) {
+      e.preventDefault();
+      closeSignup();
+    }
+  });
+
+  // Backdrop click closes (clicks inside the .modal don't bubble to the backdrop
+  // because we check e.target === backdrop)
+  const signupBackdrop = document.getElementById('signupModal');
+  if (signupBackdrop) {
+    signupBackdrop.addEventListener('click', (e) => {
+      if (e.target === signupBackdrop) closeSignup();
+    });
+  }
+
+  // Submit handler
+  const signupForm = document.getElementById('signupForm');
+  if (signupForm) {
+    signupForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errEl = document.getElementById('signupError');
+      const submitBtn = signupForm.querySelector('button[type="submit"]');
+      if (!errEl || !submitBtn) return;
+      errEl.textContent = '';
+
+      const name = (signupForm.elements.namedItem('name')?.value || '').trim();
+      const email = (signupForm.elements.namedItem('email')?.value || '').trim().toLowerCase();
+      const password = signupForm.elements.namedItem('password')?.value || '';
+      const token = getToken() || '';
+
+      if (!token) {
+        errEl.textContent = "We couldn't read this report's token. Please reload the page.";
+        return;
+      }
+      if (!name || !email || password.length < 8) {
+        errEl.textContent = 'Please complete all fields. Passwords must be at least 8 characters.';
+        return;
+      }
+
+      submitBtn.disabled = true;
+      const prevLabel = submitBtn.textContent;
+      submitBtn.textContent = 'Creating account…';
+
+      try {
+        const res = await fetch(`${API_BASE}/v1/public/report/claim`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, name, email, password }),
+        });
+        const json = await res.json().catch(() => ({}));
+
+        if (res.status === 409) {
+          errEl.textContent = 'An account with this email already exists. Please log in.';
+          return;
+        }
+        if (!res.ok) {
+          errEl.textContent = 'Something went wrong. Please try again.';
+          return;
+        }
+
+        try {
+          if (json.token) localStorage.setItem('evi-auth-token', json.token);
+          if (json.customer_id) localStorage.setItem('evi-auth-customer-id', json.customer_id);
+          if (json.email) localStorage.setItem('evi-auth-email', json.email);
+        } catch { /* localStorage may be unavailable */ }
+
+        // Flip the audit table to claimed so dropdowns become editable.
+        const table = document.querySelector('#auditTable');
+        if (table) table.claimed = true;
+
+        closeSignup();
+        showSuccessBanner(
+          'Account created! Your remediation progress will now be saved.'
+        );
+        signupForm.reset();
+      } catch {
+        errEl.textContent = 'Something went wrong. Please try again.';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = prevLabel;
+      }
+    });
+  }
+
+  function showSuccessBanner(text) {
+    const banner = document.getElementById('successBanner');
+    if (!banner) return;
+    banner.textContent = text;
+    banner.hidden = false;
+    clearTimeout(showSuccessBanner._t);
+    showSuccessBanner._t = setTimeout(() => { banner.hidden = true; }, 6000);
+  }
 
   function renderCriticalCallout(critical) {
     if (!critical.length) return '';
