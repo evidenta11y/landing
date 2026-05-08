@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accessibility Report — Evidenta11y</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #0a0f2e;
+    --teal: #00d4a0;
+    --text: #1a1a1a;
+    --muted: #555555;
+    --rule: #cccccc;
+    --soft-rule: #eaeaea;
+    --card-bg: #fafafa;
+    --tag-bg: #f5f5f5;
+    --good: #1a7a5e;
+    --warn: #8a5a00;
+    --bad: #c0392b;
+    --info-blue: #1a5276;
+    --serif: 'DM Serif Display', Georgia, serif;
+    --sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  html { scroll-behavior: smooth; }
+  body { background: #ffffff; color: var(--text); font-family: var(--sans); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+  /* Top brand bar */
+  .page-header {
+    background: var(--navy); color: #ffffff;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem 1.5rem; gap: 1rem; flex-wrap: wrap;
+  }
+  .page-header .logo {
+    font-family: var(--serif); font-size: 1.4rem; color: var(--teal);
+    text-decoration: none; letter-spacing: -0.02em;
+  }
+  .page-header .home-link { color: rgba(255,255,255,0.78); font-size: 0.85rem; text-decoration: none; }
+  .page-header .home-link:hover { color: #ffffff; }
+  .pdf-btn {
+    background: var(--teal); color: var(--navy);
+    font-family: var(--sans); font-weight: 600; font-size: 0.85rem;
+    padding: 0.55rem 1.2rem; border: none; border-radius: 6px; cursor: pointer;
+  }
+  .pdf-btn:hover { filter: brightness(0.95); }
+
+  main {
+    max-width: 880px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem;
+  }
+
+  /* States */
+  .state {
+    margin: 4rem auto; max-width: 480px; text-align: center;
+    padding: 2rem; border: 1px solid var(--soft-rule); border-radius: 12px; background: var(--card-bg);
+  }
+  .state h2 { font-family: var(--serif); font-size: 1.4rem; margin-bottom: 0.5rem; color: var(--text); }
+  .state p { color: var(--muted); font-size: 0.95rem; }
+
+  /* Report header */
+  .report-header { margin-bottom: 1.75rem; }
+  .report-header .label { color: var(--muted); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.5rem; }
+  h1 { font-family: var(--serif); font-size: clamp(1.6rem, 3vw, 2.2rem); line-height: 1.15; color: var(--text); margin-bottom: 0.75rem; }
+  .report-header .meta { color: var(--muted); font-size: 0.9rem; }
+  .report-header .meta strong { color: var(--text); font-weight: 500; }
+  .report-header .url { word-break: break-all; }
+
+  /* Sections */
+  section { margin-bottom: 2rem; }
+  h2 { font-family: var(--serif); font-size: 1.3rem; color: var(--text); margin-bottom: 0.75rem; }
+  h3 { font-family: var(--sans); font-weight: 600; font-size: 1rem; color: var(--text); margin-bottom: 0.5rem; }
+  p { color: var(--text); font-size: 0.95rem; line-height: 1.6; }
+  p.muted { color: var(--muted); }
+
+  /* Avg-score block */
+  .avg-score {
+    text-align: center; padding: 1.25rem 1.5rem; border: 1px solid var(--soft-rule);
+    border-radius: 12px; background: var(--card-bg); margin-bottom: 1rem;
+    display: inline-block;
+  }
+  .avg-score .label { font-size: 0.75rem; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.3rem; }
+  .avg-score .value { font-family: var(--serif); font-size: 3rem; line-height: 1; font-weight: 700; }
+
+  /* Stat tiles row */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem; margin-bottom: 1.25rem; }
+  .stat-tile { padding: 0.9rem 1rem; border: 1px solid var(--soft-rule); border-radius: 10px; background: var(--card-bg); text-align: center; }
+  .stat-tile .v { font-family: var(--serif); font-size: 1.6rem; line-height: 1; font-weight: 700; color: var(--text); }
+  .stat-tile .l { font-size: 0.78rem; color: var(--muted); margin-top: 0.3rem; }
+
+  /* Disclaimer / callouts */
+  .callout { padding: 1rem 1.15rem; border-radius: 10px; border: 1px solid var(--soft-rule); background: var(--card-bg); margin-bottom: 1rem; }
+  .callout p { font-size: 0.875rem; line-height: 1.55; }
+  .callout strong { color: var(--text); }
+  .critical-callout { border: 1px solid var(--bad); background: #fde8e8; }
+  .critical-callout .heading { color: var(--bad); font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .critical-callout ul { list-style: none; margin: 0; padding: 0; }
+  .critical-callout li { color: var(--text); font-size: 0.9rem; padding: 0.25rem 0; }
+  .critical-callout li strong { font-weight: 700; }
+  .critical-callout li .meta { color: var(--muted); }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 0.5rem; }
+  caption { text-align: left; font-weight: 600; padding: 0.5rem 0; color: var(--text); }
+  th, td { text-align: left; padding: 0.6rem 0.5rem; border-bottom: 1px solid var(--soft-rule); vertical-align: top; word-break: break-word; }
+  th { background: var(--tag-bg); font-weight: 600; color: var(--text); border-bottom: 1px solid var(--rule); }
+  th.num, td.num { text-align: right; white-space: nowrap; width: 8rem; }
+
+  /* Bar chart for "most common" */
+  .bar-track { height: 8px; background: #e5e5e5; border-radius: 4px; overflow: hidden; }
+  .bar-fill { height: 100%; background: var(--good); }
+
+  /* Top priority list */
+  ol.priority { margin: 0; padding-left: 0; list-style: none; }
+  ol.priority li { padding: 0.4rem 0; color: var(--text); font-size: 0.95rem; line-height: 1.55; border-bottom: 1px dashed var(--soft-rule); }
+  ol.priority li:last-child { border-bottom: none; }
+  ol.priority li strong { font-weight: 700; }
+  ol.priority li .meta { color: var(--muted); }
+
+  /* Estimate card */
+  .estimate { padding: 1rem 1.15rem; background: var(--card-bg); border: 1px solid var(--soft-rule); border-radius: 10px; }
+  .estimate .h { font-weight: 700; font-size: 1rem; color: var(--text); margin-bottom: 0.3rem; }
+  .estimate .b { font-size: 0.88rem; color: var(--muted); line-height: 1.55; }
+
+  /* Per-page sections */
+  .page-section { padding-top: 1.25rem; border-top: 1px solid var(--soft-rule); margin-top: 1.25rem; }
+  .page-section .head { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; flex-wrap: wrap; margin-bottom: 0.6rem; }
+  .page-section .head .url { font-weight: 500; color: var(--text); word-break: break-all; flex: 1; min-width: 220px; }
+  .page-section .head .score { color: var(--muted); font-size: 0.88rem; }
+  .page-section .head .score strong { font-weight: 600; }
+  .no-violations { color: var(--muted); font-style: italic; font-size: 0.9rem; padding: 0.5rem 0; }
+
+  /* Severity badge */
+  .badge {
+    display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 6px;
+    border-radius: 3px; vertical-align: middle; white-space: nowrap;
+  }
+  .badge-critical { background: #fde8e8; color: var(--bad); border: 1px solid var(--bad); }
+  .badge-serious  { background: #fef3e2; color: var(--warn); border: 1px solid var(--warn); }
+  .badge-moderate { background: #e8f4fd; color: var(--info-blue); border: 1px solid var(--info-blue); }
+  .badge-minor    { background: #f0f0f0; color: var(--muted); border: 1px solid #aaaaaa; }
+
+  /* Failing-element snippet */
+  .snippet {
+    display: block; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.78rem; color: var(--text); background: var(--tag-bg);
+    padding: 0.4rem 0.55rem; border-radius: 4px; word-break: break-all;
+    white-space: pre-wrap; max-height: 6rem; overflow: hidden;
+  }
+  .target { color: var(--good); font-size: 0.78rem; margin-top: 0.25rem; word-break: break-all; }
+
+  /* Calendly CTA */
+  .calendly-cta { margin-top: 2.5rem; padding: 1.5rem 1.75rem; border-radius: 12px; background: var(--card-bg); border: 1px solid var(--soft-rule); text-align: center; }
+  .calendly-cta h2 { margin-bottom: 0.4rem; font-size: 1.2rem; }
+  .calendly-cta p { color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem; }
+  .calendly-cta a {
+    display: inline-block; background: var(--navy); color: #ffffff; font-weight: 600; font-size: 0.95rem;
+    padding: 0.7rem 1.4rem; border-radius: 8px; text-decoration: none;
+  }
+  .calendly-cta a:hover { filter: brightness(1.15); }
+
+  /* Page footer */
+  .page-footer { max-width: 880px; margin: 0 auto; padding: 1.5rem; text-align: center; color: var(--muted); font-size: 0.82rem; border-top: 1px solid var(--soft-rule); }
+  .page-footer a { color: var(--muted); text-decoration: none; }
+  .page-footer a:hover { color: var(--text); }
+
+  @media (max-width: 600px) {
+    .page-header .home-link { display: none; }
+    h1 { font-size: 1.45rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ---------- Print ---------- */
+  @media print {
+    @page { margin: 0.6in; }
+    body { background: #ffffff; color: #000000; font-family: Georgia, 'Times New Roman', serif; line-height: 1.5; }
+    .page-header, .pdf-btn, .calendly-cta, .page-footer, .no-print { display: none !important; }
+    main { max-width: 100%; padding: 0; }
+    h1, h2, h3 { font-family: Georgia, 'Times New Roman', serif; color: #000; page-break-after: avoid; }
+    p { color: #000; }
+    .avg-score, .stat-tile, .callout, .estimate, .calendly-cta, .critical-callout, .page-section, table { background: transparent !important; box-shadow: none !important; }
+    .stat-tile, .avg-score, .estimate, .callout, .critical-callout { border: 1px solid #999; }
+    .badge { border: 1px solid #555; color: #000 !important; background: transparent !important; }
+    .snippet { background: #f4f4f4; color: #000; }
+    table, tr, .page-section, .critical-callout, .estimate { page-break-inside: avoid; }
+    th { background: transparent !important; border-bottom: 1.5px solid #000; }
+    a { color: #000; text-decoration: underline; }
+    .target { color: #000; }
+    .bar-fill { background: #555 !important; }
+    .bar-track { background: #ddd !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <div style="display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap">
+    <a href="https://evidenta11y.com" class="logo">Evidenta11y</a>
+    <a href="https://evidenta11y.com" class="home-link">evidenta11y.com</a>
+  </div>
+  <button class="pdf-btn no-print" type="button" onclick="window.print()">Download as PDF</button>
+</header>
+
+<main id="report-root" aria-live="polite">
+  <p class="state" role="status">Loading report…</p>
+</main>
+
+<footer class="page-footer">
+  <a href="https://evidenta11y.com">Evidenta11y.com</a>
+  &nbsp;|&nbsp;
+  <a href="mailto:help@evidenta11y.com">help@evidenta11y.com</a>
+  &nbsp;|&nbsp;
+  760-790-8076
+</footer>
+
+<script>
+  const API_BASE = 'https://platform-production-ace5.up.railway.app';
+
+  // ---------- entry ----------
+  function getToken() {
+    const m = window.location.pathname.match(/^\/reports\/([^/?#]+)/);
+    return m ? decodeURIComponent(m[1]) : null;
+  }
+
+  async function init() {
+    const root = document.getElementById('report-root');
+    const token = getToken();
+    if (!token) {
+      renderState(root, 'No report token', 'The link is missing a report identifier.');
+      return;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/v1/public/report/view/${encodeURIComponent(token)}`);
+      if (res.status === 404) {
+        renderState(root, 'Report not found', 'The link may be invalid.');
+        return;
+      }
+      if (res.status === 410) {
+        renderState(root, 'Report expired', 'This report has expired. Reports are available for 30 days.');
+        return;
+      }
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      renderReport(root, data);
+    } catch (err) {
+      renderState(root, "Couldn't load report", (err && err.message) || 'Please try again later.');
+    }
+  }
+
+  function renderState(root, heading, body) {
+    root.innerHTML = `
+      <div class="state" role="status">
+        <h2>${escapeHtml(heading)}</h2>
+        <p>${escapeHtml(body)}</p>
+      </div>`;
+  }
+
+  // ---------- helpers ----------
+  function escapeHtml(value) {
+    return String(value == null ? '' : value).replace(/[&<>'"]/g, c =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[c]);
+  }
+
+  function safeHostname(url) {
+    try { return new URL(url).hostname; } catch { return url || ''; }
+  }
+
+  function formatDateLong(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return '—';
+    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  // Score color thresholds — all WCAG 2.1 AA on white:
+  //   #1a7a5e (5.28:1)  #8a5a00 (5.94:1)  #c0392b (5.50:1)
+  function scoreColor(score) {
+    if (score == null) return 'var(--muted)';
+    if (score >= 80) return 'var(--good)';
+    if (score >= 50) return 'var(--warn)';
+    return 'var(--bad)';
+  }
+
+  function impactBadge(impact) {
+    const cls = ['critical', 'serious', 'moderate', 'minor'].includes(impact) ? impact : 'minor';
+    const label = (cls || 'unknown').toUpperCase();
+    return `<span class="badge badge-${cls}">${label}</span>`;
+  }
+
+  function cleanFailureSummary(text) {
+    return String(text || '')
+      .replace(/^Fix any of the following:\s*\n?/i, '')
+      .replace(/^Fix all of the following:\s*\n?/i, '')
+      .trim();
+  }
+
+  function formatWcagTags(tags) {
+    const scMap = {
+      wcag111:'1.1.1', wcag121:'1.2.1', wcag122:'1.2.2', wcag123:'1.2.3',
+      wcag124:'1.2.4', wcag125:'1.2.5', wcag131:'1.3.1', wcag132:'1.3.2',
+      wcag133:'1.3.3', wcag134:'1.3.4', wcag135:'1.3.5', wcag141:'1.4.1',
+      wcag142:'1.4.2', wcag143:'1.4.3', wcag144:'1.4.4', wcag145:'1.4.5',
+      wcag1410:'1.4.10', wcag1411:'1.4.11', wcag1412:'1.4.12', wcag1413:'1.4.13',
+      wcag211:'2.1.1', wcag212:'2.1.2', wcag214:'2.1.4', wcag221:'2.2.1',
+      wcag222:'2.2.2', wcag231:'2.3.1', wcag241:'2.4.1', wcag242:'2.4.2',
+      wcag243:'2.4.3', wcag244:'2.4.4', wcag245:'2.4.5', wcag246:'2.4.6',
+      wcag247:'2.4.7', wcag251:'2.5.1', wcag252:'2.5.2', wcag253:'2.5.3',
+      wcag254:'2.5.4', wcag311:'3.1.1', wcag312:'3.1.2', wcag321:'3.2.1',
+      wcag322:'3.2.2', wcag323:'3.2.3', wcag324:'3.2.4', wcag331:'3.3.1',
+      wcag332:'3.3.2', wcag333:'3.3.3', wcag334:'3.3.4', wcag411:'4.1.1',
+      wcag412:'4.1.2', wcag413:'4.1.3'
+    };
+    const lvlMap = {
+      wcag2a:'WCAG 2.0 A', wcag2aa:'WCAG 2.0 AA', wcag2aaa:'WCAG 2.0 AAA',
+      wcag21a:'WCAG 2.1 A', wcag21aa:'WCAG 2.1 AA', wcag21aaa:'WCAG 2.1 AAA',
+      wcag22aa:'WCAG 2.2 AA'
+    };
+    const out = [];
+    (tags || []).forEach(t => {
+      if (lvlMap[t]) out.push(lvlMap[t]);
+      else if (scMap[t]) out.push(`SC ${scMap[t]}`);
+    });
+    return out;
+  }
+
+  // ---------- aggregation ----------
+  function aggregateViolations(pages) {
+    const map = new Map();
+    for (const page of (pages || [])) {
+      const violations = Array.isArray(page.violations) ? page.violations : [];
+      const seen = new Set();
+      for (const v of violations) {
+        if (!v || !v.id) continue;
+        let agg = map.get(v.id);
+        if (!agg) {
+          agg = { id: v.id, help: v.help || v.id, impact: v.impact, total_nodes: 0, pages_affected: 0 };
+          map.set(v.id, agg);
+        }
+        const nodes = Array.isArray(v.nodes) ? v.nodes.length : 0;
+        agg.total_nodes += nodes;
+        if (!seen.has(v.id)) { agg.pages_affected += 1; seen.add(v.id); }
+      }
+    }
+    return Array.from(map.values());
+  }
+
+  function topByNodes(arr, n) { return [...arr].sort((a,b) => b.total_nodes - a.total_nodes).slice(0, n); }
+  function topByPages(arr, n) {
+    return [...arr].sort((a,b) => b.pages_affected - a.pages_affected || b.total_nodes - a.total_nodes).slice(0, n);
+  }
+
+  function estimateRemediation(total) {
+    if (total <= 0) return null;
+    if (total < 20) return '2–4 hours';
+    if (total <= 50) return '4–8 hours';
+    if (total <= 100) return '8–16 hours';
+    return '16–32 hours';
+  }
+
+  // ---------- rendering ----------
+  function renderReport(root, data) {
+    const domain = safeHostname(data.url || '');
+    document.title = `Accessibility Report for ${domain} — Evidenta11y`;
+
+    const totalViolations = data.total_violations ?? 0;
+    const aggregated = aggregateViolations(data.pages);
+    const criticalAgg = aggregated.filter(v => v.impact === 'critical');
+
+    const avg = data.avg_score == null ? '—' : data.avg_score;
+    const avgClr = scoreColor(data.avg_score);
+
+    root.innerHTML = `
+      <header class="report-header">
+        <p class="label">Accessibility report</p>
+        <h1>Accessibility Report for ${escapeHtml(domain)}</h1>
+        <p class="meta url"><strong>URL:</strong> <a href="${escapeHtml(data.url || '#')}" target="_blank" rel="noopener">${escapeHtml(data.url || '')}</a></p>
+        <p class="meta"><strong>Scanned:</strong> ${escapeHtml(formatDateLong(data.scanned_at))}</p>
+        <p class="meta"><strong>Report expires:</strong> ${escapeHtml(formatDateLong(data.expires_at))}</p>
+      </header>
+
+      <section aria-labelledby="summary-h">
+        <h2 id="summary-h" class="sr-only">Summary</h2>
+        <div class="avg-score">
+          <div class="label">Average score</div>
+          <div class="value" style="color:${avgClr}">${escapeHtml(String(avg))}</div>
+        </div>
+        <div class="stats" role="presentation">
+          <div class="stat-tile"><div class="v">${escapeHtml(`${data.pages_scanned ?? 0}/${data.pages_total ?? 0}`)}</div><div class="l">Pages scanned</div></div>
+          <div class="stat-tile"><div class="v">${escapeHtml(String(totalViolations))}</div><div class="l">Total violations</div></div>
+          <div class="stat-tile"><div class="v" style="color:${(data.critical_count ?? 0) > 0 ? 'var(--bad)' : 'var(--text)'}">${escapeHtml(String(data.critical_count ?? 0))}</div><div class="l">Critical</div></div>
+          <div class="stat-tile"><div class="v" style="color:${(data.serious_count ?? 0) > 0 ? 'var(--warn)' : 'var(--text)'}">${escapeHtml(String(data.serious_count ?? 0))}</div><div class="l">Serious</div></div>
+        </div>
+      </section>
+
+      <section aria-labelledby="disclaimer-h">
+        <h2 id="disclaimer-h" class="sr-only">Disclaimer</h2>
+        <div class="callout">
+          <p><strong>About this report:</strong> this is an automated accessibility scan. Automated testing catches roughly 30–40% of accessibility issues; the remainder require manual review by a specialist. A passing score does not guarantee compliance with WCAG or the ADA.</p>
+        </div>
+      </section>
+
+      ${renderCriticalCallout(criticalAgg)}
+      ${renderCommonIssues(aggregated)}
+      ${renderTopPriority(aggregated)}
+      ${renderEstimate(totalViolations)}
+      ${renderPerPage(data.pages || [])}
+
+      <section class="calendly-cta" aria-labelledby="cta-h">
+        <h2 id="cta-h">Want help with these results?</h2>
+        <p>Book a free 30-minute consultation to walk through the findings and discuss next steps.</p>
+        <a href="https://calendly.com/hello-evidenta11y/30min" target="_blank" rel="noopener">Speak with a pro &rarr;</a>
+      </section>
+    `;
+  }
+
+  function renderCriticalCallout(critical) {
+    if (!critical.length) return '';
+    const items = critical.map(v => {
+      const word = v.pages_affected === 1 ? 'page' : 'pages';
+      return `<li><strong>${escapeHtml(v.help)}</strong><span class="meta"> — found on ${v.pages_affected} ${word}</span></li>`;
+    }).join('');
+    return `
+      <section class="critical-callout" aria-labelledby="critical-h">
+        <h2 id="critical-h" class="heading">🔴 Critical Issues — Immediate Attention Required</h2>
+        <p style="font-size:0.875rem;margin-bottom:0.6rem">These violations represent the most severe barriers for users with disabilities and must be resolved before claiming WCAG compliance.</p>
+        <ul>${items}</ul>
+      </section>`;
+  }
+
+  function renderCommonIssues(aggregated) {
+    if (!aggregated.length) return '';
+    const top = topByNodes(aggregated, 5);
+    const max = Math.max(1, ...top.map(v => v.total_nodes));
+    const rows = top.map(v => {
+      const pct = Math.max(4, Math.round((v.total_nodes / max) * 100));
+      const word = v.total_nodes === 1 ? 'instance' : 'instances';
+      return `
+        <tr>
+          <td>${escapeHtml(v.help)}</td>
+          <td><div role="presentation" aria-hidden="true" class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div></td>
+          <td class="num">${v.total_nodes} ${word}</td>
+        </tr>`;
+    }).join('');
+    return `
+      <section aria-labelledby="common-h">
+        <h2 id="common-h">Most common issues</h2>
+        <p class="muted" style="margin-bottom:0.5rem">Total instances found across all scanned pages.</p>
+        <table>
+          <caption class="sr-only">Top 5 most common violations across all pages</caption>
+          <thead><tr><th scope="col">Issue</th><th scope="col">Distribution</th><th scope="col" class="num">Instances</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </section>`;
+  }
+
+  function renderTopPriority(aggregated) {
+    if (!aggregated.length) return '';
+    const top = topByPages(aggregated, 3);
+    const items = top.map((v, i) => {
+      const word = v.pages_affected === 1 ? 'page' : 'pages';
+      return `<li><strong>${i + 1}. ${escapeHtml(v.help)}</strong><span class="meta"> — found on ${v.pages_affected} ${word}</span></li>`;
+    }).join('');
+    return `
+      <section aria-labelledby="priority-h">
+        <h2 id="priority-h">Top priority fixes</h2>
+        <p class="muted" style="margin-bottom:0.5rem">Resolving these will eliminate the most violations across the most pages.</p>
+        <ol class="priority">${items}</ol>
+      </section>`;
+  }
+
+  function renderEstimate(totalViolations) {
+    const est = estimateRemediation(totalViolations);
+    if (!est) return '';
+    return `
+      <section aria-labelledby="estimate-h">
+        <h2 id="estimate-h" class="sr-only">Remediation estimate</h2>
+        <div class="estimate">
+          <div class="h">Estimated remediation: ${escapeHtml(est)}</div>
+          <div class="b">Many issues likely stem from your sitewide template. Fixing the template once could resolve issues across multiple pages simultaneously.</div>
+        </div>
+      </section>`;
+  }
+
+  function renderPerPage(pages) {
+    if (!pages.length) return '';
+    const sections = pages.map((p, idx) => renderPageBlock(p, idx)).join('');
+    return `
+      <section aria-labelledby="pages-h">
+        <h2 id="pages-h">Per-page results</h2>
+        ${sections}
+      </section>`;
+  }
+
+  function renderPageBlock(page, idx) {
+    const violations = Array.isArray(page.violations) ? page.violations : [];
+    const issueCount = page.violation_count ?? violations.length;
+    const captionId = `page-${idx}-caption`;
+
+    let body;
+    if (violations.length === 0) {
+      body = `<p class="no-violations">No violations recorded for this page${issueCount > 0 ? ' (detailed data unavailable)' : ''}.</p>`;
+    } else {
+      // Order violations by impact severity within the page
+      const order = ['critical', 'serious', 'moderate', 'minor'];
+      const sorted = [...violations].sort((a, b) => {
+        const ai = order.indexOf(a.impact); const bi = order.indexOf(b.impact);
+        return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
+      });
+      // One row per (violation, node) — capped at 5 nodes per violation
+      const rows = sorted.flatMap(v => {
+        const nodes = Array.isArray(v.nodes) ? v.nodes.slice(0, 5) : [];
+        const remaining = (v.nodes?.length || 0) - nodes.length;
+        const tags = formatWcagTags(v.tags);
+        const tagsHtml = tags.length ? `<div style="margin-top:0.3rem;font-size:0.72rem;color:var(--muted)">${tags.map(t => escapeHtml(t)).join(' · ')}</div>` : '';
+        const cells = nodes.map(node => {
+          const fail = node.failureSummary ? `<div style="font-size:0.78rem;margin-bottom:0.3rem;color:var(--text)">${escapeHtml(cleanFailureSummary(node.failureSummary))}</div>` : '';
+          const target = Array.isArray(node.target) && node.target.length
+            ? `<div class="target"><strong>Target:</strong> ${escapeHtml(node.target.join(', '))}</div>` : '';
+          const html = node.html
+            ? `<code class="snippet">${escapeHtml(String(node.html).slice(0, 200))}${String(node.html).length > 200 ? '…' : ''}</code>` : '';
+          return `
+            <tr>
+              <td>
+                <div style="font-weight:500">${escapeHtml(v.help || v.id || '')}</div>
+                ${tagsHtml}
+              </td>
+              <td>${impactBadge(v.impact)}</td>
+              <td>
+                ${fail}
+                ${html}
+                ${target}
+              </td>
+            </tr>`;
+        }).join('');
+        const moreRow = remaining > 0
+          ? `<tr><td colspan="3" style="color:var(--muted);font-size:0.8rem;font-style:italic">+ ${remaining} more failing element${remaining !== 1 ? 's' : ''} for this rule</td></tr>`
+          : '';
+        return cells + moreRow;
+      }).join('');
+      body = `
+        <table>
+          <caption id="${captionId}" class="sr-only">Violations on ${escapeHtml(page.url || '')}</caption>
+          <thead>
+            <tr>
+              <th scope="col">Issue</th>
+              <th scope="col">Severity</th>
+              <th scope="col">Failing element</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    }
+
+    return `
+      <article class="page-section" aria-labelledby="${captionId}">
+        <div class="head">
+          <span class="url">${escapeHtml(page.url || '')}</span>
+          <span class="score">Score: <strong style="color:${scoreColor(page.score)}">${escapeHtml(page.score == null ? '—' : String(page.score))}</strong> · ${issueCount} issue${issueCount !== 1 ? 's' : ''}</span>
+        </div>
+        ${body}
+      </article>`;
+  }
+
+  init();
+</script>
+</body>
+</html>
