@@ -428,9 +428,9 @@
   // Bubbled from the locked remediation dropdown when the report isn't claimed.
   // Wired to a placeholder for now; replace with the real signup modal handler
   // when the front-end auth flow is ready.
-  document.addEventListener('e11y-signup-required', () => {
+  document.addEventListener('evi-signup-required', () => {
     // TODO: open signup modal
-    console.info('e11y-signup-required — open signup modal here');
+    console.info('evi-signup-required — open signup modal here');
   });
 
   function renderCriticalCallout(critical) {
@@ -514,7 +514,7 @@
     return `
       <section aria-labelledby="pages-h">
         <h2 id="pages-h">Per-page results</h2>
-        <e11y-audit-table id="auditTable"></e11y-audit-table>
+        <evi-audit-table id="auditTable"></evi-audit-table>
       </section>`;
   }
 
@@ -569,7 +569,7 @@
     wcag412:'4.1.2', wcag413:'4.1.3'
   };
 
-  class E11yAuditTable extends LitElement {
+  class EviAuditTable extends LitElement {
     static properties = {
       findings: { type: Array },
       mode: { type: String },
@@ -755,7 +755,7 @@
 
     _onLockedClick(e) {
       e.preventDefault();
-      this.dispatchEvent(new CustomEvent('e11y-signup-required', {
+      this.dispatchEvent(new CustomEvent('evi-signup-required', {
         bubbles: true, composed: true,
       }));
     }
@@ -901,7 +901,7 @@
     }
   }
 
-  customElements.define('e11y-audit-table', E11yAuditTable);
+  customElements.define('evi-audit-table', EviAuditTable);
 </script>
 
 </body>
