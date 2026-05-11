@@ -2451,7 +2451,13 @@
         } else {
           newAttrs = `${newAttrs} class="${classes}"`;
         }
-        if (styleStr) newAttrs += ` style="${styleStr}"`;
+        if (styleStr) {
+          if (/style="/.test(newAttrs)) {
+            newAttrs = newAttrs.replace(/style="([^"]*)"/, `style="$1;${styleStr}"`);
+          } else {
+            newAttrs += ` style="${styleStr}"`;
+          }
+        }
         return `<td${newAttrs}>`;
       });
     };
