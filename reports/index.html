@@ -1,1262 +1,3736 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Accessibility Report — Evidenta11y</title>
-<meta name="robots" content="noindex">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Accessibility findings — cityofgrayson.org</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet" />
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --navy: #0a0f2e;
-    --teal: #00d4a0;
-    --text: #1a1a1a;
-    --muted: #555555;
-    --rule: #cccccc;
-    --soft-rule: #eaeaea;
-    --card-bg: #fafafa;
-    --tag-bg: #f5f5f5;
-    --good: #1a7a5e;
-    --warn: #8a5a00;
-    --bad: #c0392b;
-    --info-blue: #1a5276;
-    --serif: 'DM Serif Display', Georgia, serif;
-    --sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --bg: #f0f2f8;
+    --surface: #ffffff;
+    --surface-2: #f0f2f8;
+    --surface-3: #e4e8f0;
+    --ink: #0a0f2e;
+    --ink-2: #2d3561;
+    --ink-3: #5c6589;
+    --ink-4: #9ca3af;
+    --line: #e2e8f0;
+    --line-strong: #cbd5e1;
+    --accent: #00d4a0;
+    --serious-bg: #FAEEDA;
+    --serious-fg: #6B3A05;
+    --serious-line: #E8B86E;
+    --critical-bg: #FCEBEB;
+    --critical-fg: #791F1F;
+    --moderate-bg: #E6F1FB;
+    --moderate-fg: #0C447C;
+    --minor-bg: #F1EFE8;
+    --minor-fg: #444441;
+    --status-todo-fg: #6B6963;
+    --status-progress-fg: #8B5400;
+    --status-progress-bg: #FAEEDA;
+    --status-done-fg: #2D6B2D;
+    --status-done-bg: #E5F0DD;
+    --status-wontfix-fg: #525049;
+    --status-wontfix-bg: #ECEAE2;
+    --font-display: 'Inter Tight', -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
   }
-  html { scroll-behavior: smooth; }
-  body { background: #ffffff; color: var(--text); font-family: var(--sans); line-height: 1.55; -webkit-font-smoothing: antialiased; }
-  a { color: inherit; }
-  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
-
-  /* Top brand bar */
-  .page-header {
-    background: var(--navy); color: #ffffff;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 1rem 1.5rem; gap: 1rem; flex-wrap: wrap;
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
-  .page-header .logo {
-    font-family: var(--serif); font-size: 1.4rem; color: var(--teal);
-    text-decoration: none; letter-spacing: -0.02em;
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-feature-settings: "ss01", "cv11";
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    padding: 32px 24px 64px;
   }
-  .page-header .home-link { color: rgba(255,255,255,0.78); font-size: 0.85rem; text-decoration: none; }
-  .page-header .home-link:hover { color: #ffffff; }
-  .pdf-btn {
-    background: var(--teal); color: var(--navy);
-    font-family: var(--sans); font-weight: 600; font-size: 0.85rem;
-    padding: 0.55rem 1.2rem; border: none; border-radius: 6px; cursor: pointer;
+  .wrap { max-width: 1240px; margin: 0 auto; }
+
+  /* Top bar */
+  .topbar {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--line-strong);
+    margin-bottom: 24px;
   }
-  .pdf-btn:hover { filter: brightness(0.95); }
-
-  main {
-    max-width: 880px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem;
+  .brand {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    margin: 0 0 8px;
   }
-
-  /* States */
-  .state {
-    margin: 4rem auto; max-width: 480px; text-align: center;
-    padding: 2rem; border: 1px solid var(--soft-rule); border-radius: 12px; background: var(--card-bg);
+  .topbar h1 {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin: 0;
   }
-  .state h2 { font-family: var(--serif); font-size: 1.4rem; margin-bottom: 0.5rem; color: var(--text); }
-  .state p { color: var(--muted); font-size: 0.95rem; }
+  .target {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--ink-2);
+    margin: 6px 0 0;
+  }
+  .topbar-actions { display: flex; gap: 8px; }
 
-  /* Report header */
-  .report-header { margin-bottom: 1.75rem; }
-  .report-header .label { color: var(--muted); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.5rem; }
-  h1 { font-family: var(--serif); font-size: clamp(1.6rem, 3vw, 2.2rem); line-height: 1.15; color: var(--text); margin-bottom: 0.75rem; }
-  .report-header .meta { color: var(--muted); font-size: 0.9rem; }
-  .report-header .meta strong { color: var(--text); font-weight: 500; }
-  .report-header .url { word-break: break-all; }
+  /* Stats strip */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--surface);
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .stat {
+    padding: 14px 18px;
+    border-right: 1px solid var(--line);
+  }
+  .stat:last-child { border-right: none; }
+  .stat-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 6px 0 0;
+  }
+  .stat-value {
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    margin: 0;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat-value.serious { color: var(--serious-fg); }
 
-  /* Sections */
-  section { margin-bottom: 2rem; }
-  h2 { font-family: var(--serif); font-size: 1.3rem; color: var(--text); margin-bottom: 0.75rem; }
-  h3 { font-family: var(--sans); font-weight: 600; font-size: 1rem; color: var(--text); margin-bottom: 0.5rem; }
-  p { color: var(--text); font-size: 0.95rem; line-height: 1.6; }
-  p.muted { color: var(--muted); }
+  /* Toolbar */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .search {
+    flex: 1;
+    min-width: 220px;
+    position: relative;
+  }
+  .search input {
+    width: 100%;
+    height: 32px;
+    padding: 0 10px 0 30px;
+    border: 1px solid var(--line-strong);
+    border-radius: 4px;
+    background: var(--surface);
+    font: inherit;
+    font-size: 13px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.1s;
+  }
+  .search input:focus { border-color: var(--ink); }
+  .search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ink-3);
+    pointer-events: none;
+    width: 14px;
+    height: 14px;
+  }
+  .control-group {
+    display: inline-flex;
+    border: 1px solid var(--line-strong);
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .control-group .label {
+    padding: 0 10px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    display: inline-flex;
+    align-items: center;
+    border-right: 1px solid var(--line-strong);
+    background: var(--surface-2);
+  }
+  .seg {
+    padding: 0 12px;
+    height: 30px;
+    border: none;
+    background: transparent;
+    font: inherit;
+    font-size: 13px;
+    color: var(--ink-2);
+    cursor: pointer;
+    border-right: 1px solid var(--line);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+  .seg:last-child { border-right: none; }
+  .seg:hover { background: var(--surface-2); color: var(--ink); }
+  .seg.active {
+    background: var(--ink);
+    color: var(--surface);
+  }
+  .seg .count {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    opacity: 0.7;
+  }
+  .toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    height: 32px;
+    border: 1px solid var(--line-strong);
+    border-radius: 4px;
+    background: var(--surface);
+    font: inherit;
+    font-size: 13px;
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+  .toggle:hover { color: var(--ink); }
+  .toggle input { margin: 0; accent-color: var(--ink); }
+  .toggle.active { color: var(--ink); border-color: var(--ink); }
 
-  /* Avg-score block */
-  .avg-score {
-    text-align: center; padding: 1.25rem 1.5rem; border: 1px solid var(--soft-rule);
-    border-radius: 12px; background: var(--card-bg); margin-bottom: 1rem;
+  /* Dropdown filters */
+  .dropdown {
+    position: relative;
     display: inline-block;
   }
-  .avg-score .label { font-size: 0.75rem; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.3rem; }
-  .avg-score .value { font-family: var(--serif); font-size: 3rem; line-height: 1; font-weight: 700; }
-
-  /* Stat tiles row */
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem; margin-bottom: 1.25rem; }
-  .stat-tile { padding: 0.9rem 1rem; border: 1px solid var(--soft-rule); border-radius: 10px; background: var(--card-bg); text-align: center; }
-  .stat-tile .v { font-family: var(--serif); font-size: 1.6rem; line-height: 1; font-weight: 700; color: var(--text); }
-  .stat-tile .l { font-size: 0.78rem; color: var(--muted); margin-top: 0.3rem; }
-
-  /* Disclaimer / callouts */
-  .callout { padding: 1rem 1.15rem; border-radius: 10px; border: 1px solid var(--soft-rule); background: var(--card-bg); margin-bottom: 1rem; }
-  .callout p { font-size: 0.875rem; line-height: 1.55; }
-  .callout strong { color: var(--text); }
-  .critical-callout { border: 1px solid var(--bad); background: #fde8e8; }
-  .critical-callout .heading { color: var(--bad); font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
-  .critical-callout ul { list-style: none; margin: 0; padding: 0; }
-  .critical-callout li { color: var(--text); font-size: 0.9rem; padding: 0.25rem 0; }
-  .critical-callout li strong { font-weight: 700; }
-  .critical-callout li .meta { color: var(--muted); }
-
-  /* Tables */
-  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 0.5rem; }
-  caption { text-align: left; font-weight: 600; padding: 0.5rem 0; color: var(--text); }
-  th, td { text-align: left; padding: 0.6rem 0.5rem; border-bottom: 1px solid var(--soft-rule); vertical-align: top; word-break: break-word; }
-  th { background: var(--tag-bg); font-weight: 600; color: var(--text); border-bottom: 1px solid var(--rule); }
-  th.num, td.num { text-align: right; white-space: nowrap; width: 8rem; }
-
-  /* Bar chart for "most common" */
-  .bar-track { height: 8px; background: #e5e5e5; border-radius: 4px; overflow: hidden; }
-  .bar-fill { height: 100%; background: var(--good); }
-
-  /* Top priority list */
-  ol.priority { margin: 0; padding-left: 0; list-style: none; }
-  ol.priority li { padding: 0.4rem 0; color: var(--text); font-size: 0.95rem; line-height: 1.55; border-bottom: 1px dashed var(--soft-rule); }
-  ol.priority li:last-child { border-bottom: none; }
-  ol.priority li strong { font-weight: 700; }
-  ol.priority li .meta { color: var(--muted); }
-
-  /* Estimate card */
-  .estimate { padding: 1rem 1.15rem; background: var(--card-bg); border: 1px solid var(--soft-rule); border-radius: 10px; }
-  .estimate .h { font-weight: 700; font-size: 1rem; color: var(--text); margin-bottom: 0.3rem; }
-  .estimate .b { font-size: 0.88rem; color: var(--muted); line-height: 1.55; }
-
-  /* Per-page sections */
-  .page-section { padding-top: 1.25rem; border-top: 1px solid var(--soft-rule); margin-top: 1.25rem; }
-  .page-section .head { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; flex-wrap: wrap; margin-bottom: 0.6rem; }
-  .page-section .head .url { font-weight: 500; color: var(--text); word-break: break-all; flex: 1; min-width: 220px; }
-  .page-section .head .score { color: var(--muted); font-size: 0.88rem; }
-  .page-section .head .score strong { font-weight: 600; }
-  .no-violations { color: var(--muted); font-style: italic; font-size: 0.9rem; padding: 0.5rem 0; }
-
-  /* Severity badge */
-  .badge {
-    display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 6px;
-    border-radius: 3px; vertical-align: middle; white-space: nowrap;
+  .dropdown-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 32px;
+    padding: 0 8px 0 10px;
+    border: 1px solid var(--line-strong);
+    border-radius: 4px;
+    background: var(--surface);
+    font: inherit;
+    font-size: 13px;
+    color: var(--ink);
+    cursor: pointer;
+    white-space: nowrap;
+    position: relative;
   }
-  .badge-critical { background: #fde8e8; color: var(--bad); border: 1px solid var(--bad); }
-  .badge-serious  { background: #fef3e2; color: var(--warn); border: 1px solid var(--warn); }
-  .badge-moderate { background: #e8f4fd; color: var(--info-blue); border: 1px solid var(--info-blue); }
-  .badge-minor    { background: #f0f0f0; color: var(--muted); border: 1px solid #aaaaaa; }
-
-  /* Failing-element snippet */
-  .snippet {
-    display: block; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 0.78rem; color: var(--text); background: var(--tag-bg);
-    padding: 0.4rem 0.55rem; border-radius: 4px; word-break: break-all;
-    white-space: pre-wrap; max-height: 6rem; overflow: hidden;
+  .dropdown-trigger:hover { background: var(--surface-2); }
+  .dropdown[data-open="true"] .dropdown-trigger {
+    border-color: var(--ink);
+    background: var(--surface-2);
   }
-  .target { color: var(--good); font-size: 0.78rem; margin-top: 0.25rem; word-break: break-all; }
-
-  /* Calendly CTA */
-  .calendly-cta { margin-top: 2.5rem; padding: 1.5rem 1.75rem; border-radius: 12px; background: var(--card-bg); border: 1px solid var(--soft-rule); text-align: center; }
-  .calendly-cta h2 { margin-bottom: 0.4rem; font-size: 1.2rem; }
-  .calendly-cta p { color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem; }
-  .calendly-cta a {
-    display: inline-block; background: var(--navy); color: #ffffff; font-weight: 600; font-size: 0.95rem;
-    padding: 0.7rem 1.4rem; border-radius: 8px; text-decoration: none;
+  .dropdown-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
   }
-  .calendly-cta a:hover { filter: brightness(1.15); }
+  /* Inline value (used by Group dropdown only — single-select, label is meaningful) */
+  .dropdown-value {
+    color: var(--ink);
+    font-weight: 500;
+  }
+  /* Corner count badge (used by multi-select dropdowns) */
+  .dropdown-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 9px;
+    background: var(--ink);
+    color: var(--surface);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 18px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    border: 2px solid var(--bg);
+    box-sizing: content-box;
+  }
+  .dropdown-badge[hidden] { display: none; }
+  .dropdown-chevron {
+    width: 12px;
+    height: 12px;
+    color: var(--ink-3);
+    transition: transform 0.15s;
+  }
+  .dropdown[data-open="true"] .dropdown-chevron {
+    transform: rotate(180deg);
+  }
+  .dropdown-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    z-index: 30;
+    min-width: 180px;
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .dropdown-menu[hidden] { display: none; }
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 6px 10px 6px 6px;
+    border: none;
+    background: transparent;
+    font: inherit;
+    font-size: 13px;
+    color: var(--ink);
+    cursor: pointer;
+    border-radius: 4px;
+    text-align: left;
+    width: 100%;
+    gap: 8px;
+  }
+  .dropdown-item[hidden] { display: none; }
+  .dropdown-item:hover { background: var(--surface-2); }
+  .dropdown-item:focus-visible {
+    outline: none;
+    background: var(--surface-2);
+    box-shadow: inset 0 0 0 2px var(--ink);
+  }
+  .check-icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    color: var(--ink);
+    visibility: hidden;
+  }
+  .dropdown-item[aria-checked="true"] .check-icon {
+    visibility: visible;
+  }
+  .dropdown-item-label {
+    flex: 1;
+  }
+  /* Radio variant (single-select group dropdown) — uses left-edge active indicator instead of checkmark */
+  .dropdown-item--radio { padding-left: 12px; }
+  .dropdown-item--radio[aria-checked="true"] {
+    background: var(--ink);
+    color: var(--surface);
+  }
+  .dropdown-item--radio[aria-checked="true"]:hover {
+    background: var(--ink);
+    color: var(--surface);
+  }
+  .dropdown-item--radio[aria-checked="true"] .count {
+    color: var(--surface);
+    opacity: 0.7;
+  }
+  .dropdown-item .count {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+    margin-left: auto;
+  }
+  .dropdown-divider {
+    height: 1px;
+    background: var(--line);
+    margin: 4px 0;
+  }
+  .dropdown-clear {
+    display: block;
+    width: 100%;
+    padding: 6px 10px 6px 28px;
+    border: none;
+    background: transparent;
+    font: inherit;
+    font-size: 12px;
+    color: var(--ink-3);
+    cursor: pointer;
+    border-radius: 4px;
+    text-align: left;
+  }
+  .dropdown-clear:hover { background: var(--surface-2); color: var(--ink); }
+  .dropdown-clear:disabled { color: var(--ink-4); cursor: not-allowed; }
+  .dropdown-clear:disabled:hover { background: transparent; }
 
-  /* Page footer */
-  .page-footer { max-width: 880px; margin: 0 auto; padding: 1.5rem; text-align: center; color: var(--muted); font-size: 0.82rem; border-top: 1px solid var(--soft-rule); }
-  .page-footer a { color: var(--muted); text-decoration: none; }
-  .page-footer a:hover { color: var(--text); }
+  /* Active filters: own row beneath toolbar */
+  .active-filters {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 0 12px;
+    flex-wrap: wrap;
+  }
+  .active-filters[hidden] { display: none; }
+  .active-filters-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .active-filters-clear {
+    background: transparent;
+    border: none;
+    color: var(--ink-3);
+    cursor: pointer;
+    font: inherit;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 3px;
+    margin-left: auto;
+  }
+  .active-filters-clear:hover { color: var(--ink); background: var(--surface-2); }
 
-  @media (max-width: 600px) {
-    .page-header .home-link { display: none; }
-    h1 { font-size: 1.45rem; }
-    .stats { grid-template-columns: repeat(2, 1fr); }
+  /* Filter chip strip — shows active filters inline next to search */
+  .filter-chips {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .filter-chips:empty { display: none; }
+  .filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 30px;
+    padding: 0 4px 0 10px;
+    background: var(--surface);
+    border: 1px solid var(--ink);
+    border-radius: 4px;
+    font-size: 13px;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .filter-chip-kind {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .filter-chip-values {
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .filter-chip-remove {
+    background: transparent;
+    border: none;
+    color: var(--ink-3);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .filter-chip-remove:hover { background: var(--surface-2); color: var(--ink); }
+  .filter-chip-remove svg { width: 12px; height: 12px; }
+
+  /* Filter dropdown trigger — icon-led "+ Filter" variant */
+  .dropdown-trigger--filter { padding: 0 10px; }
+  .dropdown-trigger--filter .filter-icon { width: 13px; height: 13px; color: var(--ink-2); }
+
+  /* Filter popover holds multiple sections */
+  .dropdown-menu--filter {
+    min-width: 220px;
+  }
+  .filter-section {
+    padding: 4px 0;
+  }
+  .filter-section-label {
+    padding: 4px 10px 6px 10px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    font-weight: 500;
   }
 
-  /* ---------- Signup modal ---------- */
+  /* Table */
+  .table-wrap {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--surface);
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+  table.findings {
+    width: 100%;
+    min-width: 1510px;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  table.findings thead th {
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    font-weight: 500;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line-strong);
+    background: var(--surface-2);
+    position: sticky; top: 0; z-index: 2;
+  }
+  table.findings thead th.sortable { cursor: pointer; user-select: none; }
+  table.findings thead th.sortable:hover { color: var(--ink); }
+  table.findings thead th .sort {
+    display: inline-block;
+    margin-left: 4px;
+    opacity: 0;
+    font-size: 9px;
+  }
+  table.findings thead th.sorted .sort { opacity: 1; }
+
+  /* Header inner layout — label + sort + kebab */
+  .th-inner {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .th-label {
+    flex: 1;
+  }
+  .th-menu-btn {
+    background: transparent;
+    border: none;
+    color: var(--ink-3);
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 3px;
+    width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.1s;
+  }
+  table.findings thead th:hover .th-menu-btn,
+  .th-menu-btn:focus-visible {
+    opacity: 1;
+  }
+  .th-menu-btn:hover {
+    color: var(--ink);
+    background: var(--surface-3);
+  }
+  .th-menu-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+  .th-expand { padding: 0; }
+
+  /* Pinned columns — sticky positioning during horizontal scroll */
+  table.findings th.pin-left,
+  table.findings td.pin-left {
+    position: sticky;
+    z-index: 2;
+    background: var(--surface);
+  }
+  table.findings th.pin-left {
+    z-index: 3; /* header pin must layer above body pin AND scrolling rows */
+  }
+  /* Edge divider — subtle shadow at the right edge of the rightmost left-pinned column */
+  table.findings th.pin-edge-left,
+  table.findings td.pin-edge-left {
+    box-shadow: 1px 0 0 var(--line);
+  }
+  /* Hover/expanded rows still need their background on pinned cells */
+  table.findings tbody tr:hover td.pin-left {
+    background: var(--surface-2);
+  }
+  table.findings tbody tr.expanded td.pin-left {
+    background: var(--surface-2);
+  }
+  /* Detail and group rows aren't part of the pin layout — they span the full table */
+  table.findings tr.detail-row td,
+  table.findings tr.group-row td {
+    position: static !important;
+    box-shadow: none !important;
+  }
+
+  /* Column kebab menu (positioned absolutely, single instance) */
+  .column-menu {
+    position: absolute;
+    z-index: 40;
+    min-width: 180px;
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .column-menu[hidden] { display: none; }
+  .column-menu .dropdown-item.is-current {
+    background: var(--surface-2);
+  }
+  .column-menu .dropdown-item.is-current .check-icon {
+    visibility: visible;
+  }
+  table.findings tbody td {
+    padding: 14px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  table.findings tbody tr:last-child td { border-bottom: none; }
+  table.findings tbody tr:hover { background: var(--surface-2); }
+  table.findings tbody tr.expanded { background: var(--surface-2); }
+
+  .col-expand { width: 40px; padding-left: 8px !important; padding-right: 4px !important; }
+  /* Unread-note indicator: 2px left accent on the chevron cell.
+     Padding-left is reduced by 2px to keep the chevron in the same x-position as rows without the accent. */
+  table.findings tbody tr.has-unread-notes td.col-expand {
+    border-left: 2px solid var(--moderate-fg);
+    padding-left: 6px !important;
+  }
+  .col-issue-num { width: 96px; min-width: 96px; max-width: 96px; overflow: hidden; }
+  .col-impact { width: 90px; }
+  .col-rule { width: 200px; }
+  .col-element { width: 280px; }
+  .col-pages { width: 120px; }
+
+  .col-status { width: 130px; }
+
+  .problem-cell {
+    font-size: 12px;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+  .problem-cell-text {
+    white-space: pre-line;
+    /* Cap at 5 lines so the bullet list of check failures doesn't balloon row heights */
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .howtofix-cell {
+    font-size: 12px;
+    color: var(--ink-2);
+    line-height: 1.5;
+  }
+  .howtofix-cell-text {
+    /* Cap at ~5 lines to keep rows from ballooning */
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Element selector cell — inline copy button next to the selector text */
+  .element-selector-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    min-width: 0;
+  }
+  .element-selector-row .element-selector {
+    min-width: 0;
+    flex: 1;
+  }
+  .copy-icon-btn--inline {
+    flex-shrink: 0;
+    padding: 2px;
+    width: 20px;
+    height: 20px;
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--ink-3);
+    border-radius: 3px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.1s;
+  }
+  table.findings tbody tr:hover .copy-icon-btn--inline,
+  .copy-icon-btn--inline:focus-visible {
+    opacity: 1;
+  }
+  .copy-icon-btn--inline:hover {
+    color: var(--ink);
+    background: var(--surface-3);
+    border-color: var(--line);
+  }
+  .copy-icon-btn--inline .icon { width: 12px; height: 12px; }
+
+  .expand-btn {
+    background: none;
+    border: none;
+    color: var(--ink-3);
+    cursor: pointer;
+    padding: 2px;
+    width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s;
+  }
+  .expand-btn:hover { color: var(--ink); }
+  .expand-btn.open { transform: rotate(90deg); color: var(--ink); }
+
+  .row-notes-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    width: fit-content;
+    max-width: 100%;
+    margin-top: 6px;
+    padding: 3px 7px 3px 6px;
+    border-radius: 4px;
+    background: var(--surface-2);
+    color: var(--ink-3);
+    font-size: 11px;
+    line-height: 1;
+    border: 1px solid transparent;
+  }
+  .row-notes-badge .icon { width: 12px; height: 12px; }
+  .row-notes-badge.has-unread {
+    background: var(--moderate-bg);
+    color: var(--moderate-fg);
+    border-color: rgba(12, 68, 124, 0.15);
+  }
+  .row-notes-badge.has-unread strong {
+    font-weight: 500;
+    color: var(--moderate-fg);
+  }
+
+  /* Per-note unread accent */
+  .note.is-unread .note-text {
+    border-left: 2px solid var(--moderate-fg);
+    background: var(--moderate-bg);
+  }
+  .new-pill {
+    display: inline-block;
+    background: var(--moderate-fg);
+    color: var(--surface);
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 3px;
+    line-height: 1;
+    vertical-align: 1px;
+  }
+
+  /* Impact badge */
+  .impact {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .impact.critical { background: var(--critical-bg); color: var(--critical-fg); }
+  .impact.serious { background: var(--serious-bg); color: var(--serious-fg); }
+  .impact.moderate { background: var(--moderate-bg); color: var(--moderate-fg); }
+  .impact.minor { background: var(--minor-bg); color: var(--minor-fg); }
+
+  /* Issue number cell */
+  .issue-num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+  }
+
+  /* Rule cell */
+  .rule-name { font-weight: 500; margin: 0; font-size: 13px; }
+  .bp-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: var(--surface-3);
+    color: var(--ink-2);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    vertical-align: 1px;
+    cursor: help;
+  }
+
+  /* Element cell */
+  .element-selector {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink);
+    background: var(--surface-2);
+    padding: 3px 6px;
+    border-radius: 3px;
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: top;
+  }
+  .copy-btn {
+    background: none;
+    border: 1px solid var(--line);
+    color: var(--ink-3);
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    margin-left: 4px;
+    vertical-align: top;
+  }
+  .copy-btn:hover { color: var(--ink); border-color: var(--line-strong); }
+
+  /* Pages cell */
+  .pages-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .page-pill {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-2);
+    padding: 2px 6px;
+    background: var(--surface-2);
+    border-radius: 3px;
+    display: inline-block;
+    width: fit-content;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .pages-count {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-3);
+    margin-top: 2px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .swatches { display: inline-flex; gap: 3px; margin-top: 6px; }
+  .swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    border: 1px solid var(--line);
+  }
+  .color-pair {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .color-swatch {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    border: 1px solid var(--line-strong);
+    flex-shrink: 0;
+  }
+
+  /* Status pill */
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 500;
+    border: 1px solid transparent;
+    cursor: pointer;
+    background: transparent;
+    font-family: inherit;
+  }
+  .status::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  .status.todo { color: var(--status-todo-fg); border-color: var(--line-strong); }
+  .status.progress { color: var(--status-progress-fg); background: var(--status-progress-bg); }
+  .status.done { color: var(--status-done-fg); background: var(--status-done-bg); }
+  .status.wontfix { color: var(--status-wontfix-fg); background: var(--status-wontfix-bg); }
+  .status:hover { filter: brightness(0.97); }
+
+  /* Group header rows */
+  tr.group-row td {
+    background: var(--surface-3) !important;
+    padding: 10px 14px !important;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    border-bottom: 1px solid var(--line-strong) !important;
+    border-top: 1px solid var(--line-strong);
+  }
+  tr.group-row .group-count {
+    color: var(--ink-3);
+    margin-left: 8px;
+    font-weight: 400;
+  }
+
+  /* Detail (expanded) row */
+  tr.detail-row td {
+    padding: 0 !important;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--line);
+  }
+  .detail {
+    padding: 18px 24px 22px 50px;
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 8px 16px;
+    font-size: 13px;
+  }
+  .detail dt {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    padding-top: 4px;
+  }
+  .detail dd {
+    margin: 0;
+    color: var(--ink);
+  }
+  .code-block {
+    position: relative;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    background: var(--surface);
+    padding: 8px 44px 8px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    line-height: 1.55;
+    color: var(--ink);
+    min-height: 36px;
+    max-width: 640px;
+    display: flex;
+    align-items: center;
+  }
+  .code-block-content {
+    white-space: pre-wrap;
+    word-break: break-all;
+    flex: 1;
+    min-width: 0;
+  }
+  .code-block .copy-icon-btn {
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    transform: translateY(-50%);
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--ink-3);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.1s, color 0.1s, border-color 0.1s;
+  }
+  .code-block .copy-icon-btn:hover {
+    color: var(--ink);
+    background: var(--surface-2);
+    border-color: var(--line);
+  }
+  .code-block .copy-icon-btn.copied {
+    color: var(--status-done-fg);
+    background: var(--status-done-bg);
+    border-color: var(--status-done-bg);
+  }
+  .code-block .copy-icon-btn .icon {
+    width: 14px;
+    height: 14px;
+  }
+  .detail-instances {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .detail-instances .page-pill { font-size: 12px; }
+  .detail-actions { display: flex; gap: 8px; margin-top: 4px; }
+  .wcag-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--line-strong);
+    padding-bottom: 1px;
+    transition: border-color 0.1s, color 0.1s;
+  }
+  .wcag-link:hover {
+    color: var(--moderate-fg);
+    border-bottom-color: var(--moderate-fg);
+  }
+  .wcag-link:focus-visible {
+    outline: 2px solid var(--moderate-fg);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+  .wcag-link .icon {
+    width: 12px;
+    height: 12px;
+    color: var(--ink-3);
+  }
+  .wcag-link:hover .icon {
+    color: var(--moderate-fg);
+  }
+
+  .how-to-fix {
+    background: #E1F5EE;
+    border: 1px solid #9FE1CB;
+    border-left: 3px solid #1D9E75;
+    color: #04342C;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.55;
+    max-width: 640px;
+  }
+  .how-to-fix code {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    background: rgba(255, 255, 255, 0.6);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+  .detail-action {
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    color: var(--ink);
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .detail-action:hover { background: var(--surface-2); }
+
+  /* Notes thread */
+  .dt-count {
+    display: inline-block;
+    background: var(--surface-3);
+    color: var(--ink-2);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    margin-left: 4px;
+    vertical-align: 1px;
+  }
+  .notes-thread {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 640px;
+  }
+  .note {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .note-body {
+    flex: 1;
+    min-width: 0;
+  }
+  .note-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+    font-size: 12px;
+  }
+  .note-author {
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .note-timestamp {
+    color: var(--ink-3);
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+  .note-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 2px;
+    opacity: 0;
+    transition: opacity 0.1s;
+  }
+  .note:hover .note-actions,
+  .note:focus-within .note-actions { opacity: 1; }
+  .note-action {
+    background: none;
+    border: none;
+    color: var(--ink-3);
+    cursor: pointer;
+    padding: 3px 5px;
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .note-action:hover { background: var(--surface-3); color: var(--ink); }
+  .note-action:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 1px;
+    color: var(--ink);
+  }
+  .note-text {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 8px 12px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .note-composing .note-body,
+  .note-editing {
+    flex: 1;
+  }
+  .note-composing .note-body { display: flex; flex-direction: column; gap: 8px; }
+  .note-editing { display: flex; flex-direction: column; gap: 8px; padding-left: 38px; }
+  .note-textarea {
+    width: 100%;
+    min-height: 72px;
+    padding: 10px 12px;
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    background: var(--surface);
+    font: inherit;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--ink);
+    outline: none;
+    resize: vertical;
+    transition: border-color 0.1s, box-shadow 0.1s;
+  }
+  .note-textarea:focus {
+    border-color: var(--ink);
+    box-shadow: 0 0 0 3px rgba(26, 26, 23, 0.06);
+  }
+  .note-composer-actions {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+  }
+  .btn-primary,
+  .btn-secondary {
+    font: inherit;
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    font-family: inherit;
+  }
+  .btn-primary {
+    background: var(--ink);
+    color: var(--surface);
+    border: 1px solid var(--ink);
+  }
+  .btn-primary:hover { background: #000; }
+  .btn-secondary {
+    background: transparent;
+    color: var(--ink-2);
+    border: 1px solid var(--line-strong);
+  }
+  .btn-secondary:hover { background: var(--surface-2); color: var(--ink); }
+  .btn-danger {
+    background: var(--critical-bg);
+    color: var(--critical-fg);
+    border: 1px solid var(--critical-fg);
+    font: inherit;
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    font-family: inherit;
+  }
+  .btn-danger:hover { background: var(--critical-fg); color: var(--surface); }
+  .btn-small { height: 24px; padding: 3px 10px; font-size: 11px; }
+  .note-add-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px 6px 8px;
+    background: transparent;
+    border: 1px dashed var(--line-strong);
+    border-radius: 6px;
+    color: var(--ink-2);
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    width: fit-content;
+    align-self: flex-start;
+    font-family: inherit;
+  }
+  .note-add-trigger:hover {
+    border-color: var(--ink-3);
+    border-style: solid;
+    color: var(--ink);
+    background: var(--surface);
+  }
+  .note-add-trigger .icon { width: 12px; height: 12px; }
+
+  /* Pagination */
+  .pagination {
+    margin-top: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .pagination-summary {
+    font-size: 12px;
+    color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .pagination-summary strong {
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .page-size-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--ink-2);
+  }
+  #page-size {
+    height: 28px;
+    padding: 0 6px;
+    border: 1px solid var(--line-strong);
+    border-radius: 4px;
+    background: var(--surface);
+    font: inherit;
+    font-size: 12px;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+  }
+  .page-nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    border: 1px solid var(--line-strong);
+    border-radius: 4px;
+    background: var(--surface);
+    padding: 2px;
+  }
+  .page-btn {
+    min-width: 28px;
+    height: 24px;
+    padding: 0 8px;
+    border: none;
+    background: transparent;
+    font: inherit;
+    font-size: 12px;
+    color: var(--ink-2);
+    border-radius: 3px;
+    cursor: pointer;
+    font-variant-numeric: tabular-nums;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .page-btn:hover:not(:disabled):not(.active) {
+    background: var(--surface-2);
+    color: var(--ink);
+  }
+  .page-btn.active {
+    background: var(--ink);
+    color: var(--surface);
+  }
+  .page-btn:disabled {
+    color: var(--ink-4);
+    cursor: not-allowed;
+  }
+  .page-btn .icon {
+    width: 14px;
+    height: 14px;
+  }
+  .page-ellipsis {
+    color: var(--ink-3);
+    padding: 0 4px;
+    font-size: 12px;
+    user-select: none;
+  }
+
+  /* Infinite scroll */
+  .pagination-summary .hint {
+    color: var(--ink-3);
+  }
+  .infinite-sentinel {
+    width: 100%;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .loading-dots {
+    display: inline-flex;
+    gap: 4px;
+  }
+  .loading-dots span {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--ink-3);
+    animation: loadingDot 1.2s ease-in-out infinite;
+  }
+  .loading-dots span:nth-child(2) { animation-delay: 0.15s; }
+  .loading-dots span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes loadingDot {
+    0%, 80%, 100% { opacity: 0.25; transform: scale(0.85); }
+    40% { opacity: 1; transform: scale(1); }
+  }
+
+  /* Modal */
   .modal-backdrop {
-    position: fixed; inset: 0; z-index: 100;
-    background: rgba(10,15,46,0.55);
-    -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
-    display: flex; align-items: center; justify-content: center;
-    padding: 1rem;
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 20, 18, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 24px;
+    animation: modalFadeIn 0.12s ease-out;
   }
   .modal-backdrop[hidden] { display: none; }
+  @keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
   .modal {
-    position: relative;
-    width: min(460px, 100%); max-height: 92vh; overflow: auto;
-    background: #ffffff; color: var(--text);
-    border-radius: 14px; padding: 1.75rem 1.75rem 1.5rem;
-    box-shadow: 0 24px 60px rgba(0,0,0,0.28);
+    background: var(--surface);
+    border-radius: 10px;
+    width: 100%;
+    max-width: 520px;
+    max-height: calc(100vh - 48px);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+    animation: modalSlideIn 0.16s ease-out;
+  }
+  @keyframes modalSlideIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 22px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .modal-title {
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0;
+    letter-spacing: -0.01em;
   }
   .modal-close {
-    position: absolute; top: 0.5rem; right: 0.7rem;
-    background: transparent; border: 0; padding: 0.3rem 0.55rem;
-    font-size: 1.5rem; line-height: 1; color: var(--muted); cursor: pointer; border-radius: 4px;
+    background: transparent;
+    border: none;
+    color: var(--ink-3);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
-  .modal-close:hover { color: var(--text); }
-  .modal-close:focus-visible { outline: 2px solid var(--navy); outline-offset: 1px; }
-  .modal-title { font-family: var(--serif); font-size: 1.3rem; line-height: 1.25; color: var(--text); margin: 0 0 0.4rem; }
-  .modal-sub { color: var(--muted); font-size: 0.88rem; line-height: 1.55; margin: 0 0 1.1rem; }
-  .modal .field { margin-bottom: 0.85rem; }
-  .modal label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text); margin-bottom: 0.3rem; }
-  .modal input {
-    width: 100%; padding: 0.6rem 0.75rem;
-    border: 1px solid var(--rule); border-radius: 6px;
-    font-family: inherit; font-size: 0.9rem; color: var(--text);
-    background: #ffffff;
+  .modal-close:hover { color: var(--ink); background: var(--surface-2); }
+  .modal-close .icon { width: 16px; height: 16px; }
+  .modal-body {
+    padding: 18px 22px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
   }
-  .modal input:focus { outline: 2px solid var(--navy); outline-offset: 1px; border-color: var(--navy); }
-  .field-hint { font-size: 0.72rem; color: var(--muted); margin: 0.25rem 0 0; }
-  .modal-error {
-    color: var(--bad); font-size: 0.85rem; line-height: 1.45;
-    margin: 0.6rem 0 0; min-height: 1em;
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 14px 22px 18px;
+    border-top: 1px solid var(--line);
   }
-  .modal-error:empty { display: none; }
-  .modal-actions { margin-top: 1.1rem; }
-  .modal-submit {
-    background: var(--navy); color: #ffffff; border: 0;
-    padding: 0.75rem 1.25rem; font: inherit; font-weight: 600; font-size: 0.95rem;
-    border-radius: 8px; cursor: pointer; width: 100%;
+  .settings-group {
+    border: none;
+    margin: 0;
+    padding: 0;
   }
-  .modal-submit:hover:not(:disabled) { filter: brightness(1.15); }
-  .modal-submit:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
-  .modal-submit:disabled { opacity: 0.65; cursor: progress; }
-  .modal-note { color: var(--muted); font-size: 0.8rem; text-align: center; margin: 1rem 0 0; }
-  .modal-note a { color: var(--navy); font-weight: 500; }
+  .settings-group legend {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 4px;
+    padding: 0;
+  }
+  .settings-help {
+    font-size: 12px;
+    color: var(--ink-3);
+    margin: 0 0 10px;
+    line-height: 1.5;
+  }
+  .radio-row {
+    display: flex;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: background-color 0.1s, border-color 0.1s;
+  }
+  .radio-row:hover { background: var(--surface-2); }
+  .radio-row:has(input:checked) {
+    border-color: var(--ink);
+    background: var(--surface-2);
+  }
+  .radio-row input[type="radio"] {
+    margin: 3px 0 0;
+    accent-color: var(--ink);
+    flex-shrink: 0;
+  }
+  .radio-title {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .radio-desc {
+    font-size: 12px;
+    color: var(--ink-3);
+    line-height: 1.5;
+  }
+  .settings-pill {
+    display: inline-block;
+    background: var(--moderate-bg);
+    color: var(--moderate-fg);
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+  .seg-row {
+    display: inline-flex;
+    border: 1px solid var(--line-strong);
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .seg-radio {
+    padding: 0 14px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    font: inherit;
+    font-size: 13px;
+    color: var(--ink-2);
+    cursor: pointer;
+    border-right: 1px solid var(--line);
+    font-variant-numeric: tabular-nums;
+  }
+  .seg-radio:last-child { border-right: none; }
+  .seg-radio:hover:not(.active) { background: var(--surface-2); color: var(--ink); }
+  .seg-radio.active {
+    background: var(--ink);
+    color: var(--surface);
+  }
+  #page-size-group.disabled {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  .switch-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .switch-row:hover { background: var(--surface-2); }
+  .switch-label { flex: 1; }
+  .switch-title {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 2px;
+  }
+  .switch-desc {
+    display: block;
+    font-size: 12px;
+    color: var(--ink-3);
+    line-height: 1.5;
+  }
+  .switch {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .switch input {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    cursor: pointer;
+    z-index: 1;
+  }
+  .switch-track {
+    position: absolute;
+    inset: 0;
+    background: var(--line-strong);
+    border-radius: 999px;
+    transition: background 0.15s;
+  }
+  .switch-track::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background: var(--surface);
+    border-radius: 50%;
+    transition: transform 0.15s;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  }
+  .switch input:checked ~ .switch-track {
+    background: var(--ink);
+  }
+  .switch input:checked ~ .switch-track::after {
+    transform: translateX(16px);
+  }
 
-  .success-banner {
-    position: fixed; top: 1rem; left: 50%; transform: translateX(-50%);
-    z-index: 200; max-width: calc(100% - 2rem);
-    background: var(--good); color: #ffffff; font-size: 0.9rem; font-weight: 500;
-    padding: 0.7rem 1.1rem; border-radius: 8px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+  .empty {
+    padding: 40px;
+    text-align: center;
+    color: var(--ink-3);
+    font-size: 13px;
   }
-  .success-banner[hidden] { display: none; }
 
-  /* ---------- Print ---------- */
-  @media print {
-    @page { margin: 0.6in; }
-    body { background: #ffffff; color: #000000; font-family: Georgia, 'Times New Roman', serif; line-height: 1.5; }
-    .page-header, .pdf-btn, .calendly-cta, .page-footer, .no-print,
-    .modal-backdrop, .success-banner { display: none !important; }
-    main { max-width: 100%; padding: 0; }
-    h1, h2, h3 { font-family: Georgia, 'Times New Roman', serif; color: #000; page-break-after: avoid; }
-    p { color: #000; }
-    .avg-score, .stat-tile, .callout, .estimate, .calendly-cta, .critical-callout, .page-section, table { background: transparent !important; box-shadow: none !important; }
-    .stat-tile, .avg-score, .estimate, .callout, .critical-callout { border: 1px solid #999; }
-    .badge { border: 1px solid #555; color: #000 !important; background: transparent !important; }
-    .snippet { background: #f4f4f4; color: #000; }
-    table, tr, .page-section, .critical-callout, .estimate { page-break-inside: avoid; }
-    th { background: transparent !important; border-bottom: 1.5px solid #000; }
-    a { color: #000; text-decoration: underline; }
-    .target { color: #000; }
-    .bar-fill { background: #555 !important; }
-    .bar-track { background: #ddd !important; }
+  /* Icon helper */
+  .icon { width: 14px; height: 14px; display: inline-block; vertical-align: -2px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+
+  @media (max-width: 900px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .stat { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .col-pages { display: none; }
   }
 </style>
 </head>
 <body>
+<div class="wrap">
 
-<header class="page-header">
-  <div style="display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap">
-    <a href="https://evidenta11y.com" class="logo">Evidenta11y</a>
-    <a href="https://evidenta11y.com" class="home-link">evidenta11y.com</a>
+  <!-- Top bar -->
+  <header class="topbar">
+    <div>
+      <p class="brand" style="color:#00d4a0;">Evidenta11y</p>
+      <h1>Accessibility Report</h1>
+      <p class="target" id="report-meta">Loading…</p>
+    </div>
+    <div class="topbar-actions">
+      <button class="toggle" id="settings-trigger">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </button>
+    </div>
+  </header>
+
+  <!-- Stats -->
+  <section class="stats">
+    <div class="stat">
+      <p class="stat-value" id="stat-score">86</p>
+      <p class="stat-label">Average Score</p>
+    </div>
+    <div class="stat">
+      <p class="stat-value" id="stat-pages">7</p>
+      <p class="stat-label">Pages Scanned</p>
+    </div>
+    <div class="stat">
+      <p class="stat-value" id="stat-violations">24</p>
+      <p class="stat-label">Total Violations</p>
+    </div>
+    <div class="stat">
+      <p class="stat-value" id="stat-critical">3</p>
+      <p class="stat-label">Critical</p>
+    </div>
+    <div class="stat">
+      <p class="stat-value" id="stat-serious">10</p>
+      <p class="stat-label">Serious</p>
+    </div>
+  </section>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="search">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="search" type="text" placeholder="Search by issue #, rule, selector, color, impact, page…" />
+    </div>
+
+    <!-- Single Filter dropdown holds all filter dimensions -->
+    <div class="dropdown" data-dropdown="filter">
+      <button class="dropdown-trigger dropdown-trigger--filter" id="dropdown-filter-trigger" aria-haspopup="menu" aria-expanded="false">
+        <svg class="filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+        <span>Filter</span>
+        <svg class="dropdown-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-menu dropdown-menu--filter" role="menu" aria-labelledby="dropdown-filter-trigger" hidden>
+        <div class="filter-section">
+          <div class="filter-section-label" id="filter-section-impact">Impact</div>
+          <div role="group" aria-labelledby="filter-section-impact">
+            <button class="dropdown-item" role="menuitemcheckbox" aria-checked="false" data-filter="impact" data-value="critical">
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+              <span class="dropdown-item-label">Critical</span>
+              <span class="count"></span>
+            </button>
+            <button class="dropdown-item" role="menuitemcheckbox" aria-checked="false" data-filter="impact" data-value="serious">
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+              <span class="dropdown-item-label">Serious</span>
+              <span class="count"></span>
+            </button>
+            <button class="dropdown-item" role="menuitemcheckbox" aria-checked="false" data-filter="impact" data-value="moderate">
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+              <span class="dropdown-item-label">Moderate</span>
+              <span class="count"></span>
+            </button>
+            <button class="dropdown-item" role="menuitemcheckbox" aria-checked="false" data-filter="impact" data-value="minor">
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+              <span class="dropdown-item-label">Minor</span>
+              <span class="count"></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="dropdown-divider" role="separator"></div>
+
+        <div class="filter-section">
+          <div class="filter-section-label" id="filter-section-testType">Test type</div>
+          <div role="group" aria-labelledby="filter-section-testType">
+            <button class="dropdown-item" role="menuitemcheckbox" aria-checked="false" data-filter="testType" data-value="automated">
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+              <span class="dropdown-item-label">Automated</span>
+              <span class="count"></span>
+            </button>
+            <button class="dropdown-item" role="menuitemcheckbox" aria-checked="false" data-filter="testType" data-value="ai">
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+              <span class="dropdown-item-label">AI</span>
+              <span class="count"></span>
+            </button>
+            <button class="dropdown-item" role="menuitemcheckbox" aria-checked="false" data-filter="testType" data-value="manual">
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+              <span class="dropdown-item-label">Manual</span>
+              <span class="count"></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="dropdown-divider" role="separator"></div>
+
+        <div class="filter-section">
+          <div class="filter-section-label" id="filter-section-conformance">Conformance</div>
+          <div role="group" aria-labelledby="filter-section-conformance">
+            <button class="dropdown-item" role="menuitemcheckbox" aria-checked="false" data-filter="conformance" data-value="wcag-a">
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+              <span class="dropdown-item-label">WCAG A</span>
+              <span class="count"></span>
+            </button>
+            <button class="dropdown-item" role="menuitemcheckbox" aria-checked="false" data-filter="conformance" data-value="wcag-aa">
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+              <span class="dropdown-item-label">WCAG AA</span>
+              <span class="count"></span>
+            </button>
+            <button class="dropdown-item" role="menuitemcheckbox" aria-checked="false" data-filter="conformance" data-value="wcag-aaa">
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+              <span class="dropdown-item-label">WCAG AAA</span>
+              <span class="count"></span>
+            </button>
+            <button class="dropdown-item" role="menuitemcheckbox" aria-checked="false" data-filter="conformance" data-value="best-practice" data-bp-only hidden>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+              <span class="dropdown-item-label">Best Practice</span>
+              <span class="count"></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="dropdown-divider" role="separator"></div>
+        <button class="dropdown-clear" data-clear="all">Clear all filters</button>
+      </div>
+    </div>
+
+    <div class="dropdown" data-dropdown="columns">
+      <button class="dropdown-trigger" id="dropdown-columns-trigger" aria-haspopup="menu" aria-expanded="false">
+        <span class="dropdown-label">Columns</span>
+        <svg class="dropdown-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        <span class="dropdown-badge" id="dropdown-columns-badge" hidden>0</span>
+      </button>
+      <div class="dropdown-menu" id="dropdown-columns-menu" role="menu" aria-labelledby="dropdown-columns-trigger" hidden></div>
+    </div>
+
+    <div class="dropdown" data-dropdown="group">
+      <button class="dropdown-trigger" id="dropdown-group-trigger" aria-haspopup="menu" aria-expanded="false">
+        <span class="dropdown-label">Group</span>
+        <span class="dropdown-value" id="dropdown-group-value">None</span>
+        <svg class="dropdown-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-menu" role="menu" aria-labelledby="dropdown-group-trigger" hidden>
+        <button class="dropdown-item dropdown-item--radio active" role="menuitemradio" aria-checked="true" data-group="none"><span class="dropdown-item-label">None</span></button>
+        <button class="dropdown-item dropdown-item--radio" role="menuitemradio" aria-checked="false" data-group="rule"><span class="dropdown-item-label">Rule</span></button>
+        <button class="dropdown-item dropdown-item--radio" role="menuitemradio" aria-checked="false" data-group="element"><span class="dropdown-item-label">Element</span></button>
+        <button class="dropdown-item dropdown-item--radio" role="menuitemradio" aria-checked="false" data-group="page"><span class="dropdown-item-label">Page</span></button>
+        <button class="dropdown-item dropdown-item--radio" role="menuitemradio" aria-checked="false" data-group="testType"><span class="dropdown-item-label">Test type</span></button>
+      </div>
+    </div>
   </div>
-  <button class="pdf-btn no-print" type="button" onclick="window.print()">Download as PDF</button>
-</header>
 
-<main id="report-root" aria-live="polite">
-  <p class="state" role="status">Loading report…</p>
-</main>
+  <!-- Active filter chips: own row, hidden when empty -->
+  <div class="active-filters" id="active-filters" role="group" aria-label="Active filters" hidden>
+    <span class="active-filters-label">Filters:</span>
+    <div class="filter-chips" id="filter-chips"></div>
+    <button class="active-filters-clear" id="active-filters-clear">Clear all</button>
+  </div>
 
-<footer class="page-footer">
-  <a href="https://evidenta11y.com">Evidenta11y.com</a>
-  &nbsp;|&nbsp;
-  <a href="mailto:help@evidenta11y.com">help@evidenta11y.com</a>
-  &nbsp;|&nbsp;
-  760-790-8076
-</footer>
+  <!-- Table -->
+  <div class="table-wrap" id="table-wrap">
+    <table class="findings">
+      <colgroup id="thead-colgroup"></colgroup>
+      <thead>
+        <tr id="thead-row"></tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
 
-<!-- Toast that fires after a successful signup -->
-<div id="successBanner" class="success-banner" role="status" aria-live="polite" hidden></div>
+  <!-- Column kebab menu (single instance, repositioned per column) -->
+  <div id="column-menu" class="column-menu" role="menu" hidden></div>
 
-<!-- Signup modal: opened by `evi-signup-required` events from <evi-audit-table> -->
-<div
-  id="signupModal"
-  class="modal-backdrop"
-  hidden
-  role="presentation"
->
-  <div
-    class="modal"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="signupTitle"
-    aria-describedby="signupSub signupError"
-  >
-    <button
-      type="button"
-      class="modal-close"
-      aria-label="Close signup dialog"
-      data-signup-close
-    >&times;</button>
+  <div id="pagination" class="pagination"></div>
 
-    <h2 id="signupTitle" class="modal-title">Create a free account to track remediation</h2>
-    <p id="signupSub" class="modal-sub">
-      Save your progress on every issue. No credit card required — your free account never expires.
-    </p>
+</div>
 
-    <form id="signupForm" novalidate>
-      <div class="field">
-        <label for="signup-name">Name</label>
-        <input
-          id="signup-name"
-          name="name"
-          type="text"
-          autocomplete="name"
-          required
-          minlength="1"
-          maxlength="255"
-          aria-required="true"
-        >
-      </div>
-      <div class="field">
-        <label for="signup-email">Email</label>
-        <input
-          id="signup-email"
-          name="email"
-          type="email"
-          autocomplete="email"
-          required
-          aria-required="true"
-        >
-      </div>
-      <div class="field">
-        <label for="signup-password">Password</label>
-        <input
-          id="signup-password"
-          name="password"
-          type="password"
-          autocomplete="new-password"
-          required
-          minlength="8"
-          aria-required="true"
-          aria-describedby="signup-password-hint"
-        >
-        <p id="signup-password-hint" class="field-hint">At least 8 characters.</p>
-      </div>
+<!-- Settings modal -->
+<div id="settings-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="settings-title" hidden>
+  <div class="modal">
+    <header class="modal-header">
+      <h2 id="settings-title" class="modal-title">Display settings</h2>
+      <button class="modal-close" id="settings-close" aria-label="Close settings">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </header>
 
-      <p id="signupError" class="modal-error" role="alert" aria-live="assertive"></p>
+    <div class="modal-body">
+      <fieldset class="settings-group">
+        <legend>Display mode</legend>
+        <p class="settings-help">How rows are loaded and navigated.</p>
+        <label class="radio-row">
+          <input type="radio" name="displayMode" value="paginated" />
+          <div>
+            <div class="radio-title">Numbered pages <span class="settings-pill">Default</span></div>
+            <div class="radio-desc">Splits findings into pages of a fixed size. Better for citing, printing, and navigating known issues.</div>
+          </div>
+        </label>
+        <label class="radio-row">
+          <input type="radio" name="displayMode" value="infinite" />
+          <div>
+            <div class="radio-title">Infinite scroll</div>
+            <div class="radio-desc">Loads more findings as you scroll. Better for triaging or browsing without losing place.</div>
+          </div>
+        </label>
+      </fieldset>
 
-      <div class="modal-actions">
-        <button type="submit" class="modal-submit">Create account</button>
-      </div>
+      <fieldset class="settings-group" id="page-size-group">
+        <legend>Rows per page</legend>
+        <p class="settings-help">Used in paginated mode. Infinite scroll loads 10 rows at a time regardless.</p>
+        <div class="seg-row">
+          <button class="seg-radio" data-page-size="25">25</button>
+          <button class="seg-radio" data-page-size="50">50</button>
+          <button class="seg-radio" data-page-size="100">100</button>
+          <button class="seg-radio" data-page-size="250">250</button>
+        </div>
+      </fieldset>
 
-      <p class="modal-note">
-        Already have an account?
-        <a href="https://evidenta11y.com/login">Log in</a>
-      </p>
-    </form>
+      <fieldset class="settings-group">
+        <legend>Repeated elements</legend>
+        <p class="settings-help">When the same element fails on multiple pages, group those instances into one row.</p>
+        <label class="switch-row">
+          <span class="switch-label">
+            <span class="switch-title">Group repeated elements</span>
+            <span class="switch-desc">Collapses duplicate findings across pages into a single row with an instance count.</span>
+          </span>
+          <span class="switch">
+            <input type="checkbox" id="settings-dedup" />
+            <span class="switch-track" aria-hidden="true"></span>
+          </span>
+        </label>
+      </fieldset>
+
+      <fieldset class="settings-group">
+        <legend>Best practices</legend>
+        <p class="settings-help">Best practice findings reflect community consensus on accessibility quality, but don't map to specific WCAG success criteria.</p>
+        <label class="switch-row">
+          <span class="switch-label">
+            <span class="switch-title">Include best practices in totals</span>
+            <span class="switch-desc">When off, best practice findings are excluded from the violation count and accessibility score.</span>
+          </span>
+          <span class="switch">
+            <input type="checkbox" id="settings-include-bp" />
+            <span class="switch-track" aria-hidden="true"></span>
+          </span>
+        </label>
+        <label class="switch-row">
+          <span class="switch-label">
+            <span class="switch-title">Show best practices in the table</span>
+            <span class="switch-desc">When off, best practice findings are hidden from the table entirely. Disabled while best practices are included in totals.</span>
+          </span>
+          <span class="switch">
+            <input type="checkbox" id="settings-show-bp" />
+            <span class="switch-track" aria-hidden="true"></span>
+          </span>
+        </label>
+      </fieldset>
+    </div>
+
+    <footer class="modal-footer">
+      <button class="btn-secondary" id="settings-cancel">Cancel</button>
+      <button class="btn-primary" id="settings-apply">Apply</button>
+    </footer>
   </div>
 </div>
 
 <script>
-  const API_BASE = 'https://platform-production-ace5.up.railway.app';
+  // The signed-in user. In a production app this comes from the auth context.
+  // Used to gate per-note edit/delete affordances — you can only edit/delete your own notes.
+  const CURRENT_USER = { author: 'Joe L.', initials: 'JL' };
 
-  // ---------- entry ----------
-  function getToken() {
-    const m = window.location.pathname.match(/^\/reports\/([^/?#]+)/);
-    return m ? decodeURIComponent(m[1]) : null;
-  }
+  // Whether the user has already claimed this report via the signup flow.
+  // Token-scoped so multiple reports on the same browser don't clobber each other.
+  const claimed = !!localStorage.getItem(`e11y_token_${window.location.pathname.split('/').filter(Boolean).pop()}`);
 
-  async function init() {
-    const root = document.getElementById('report-root');
-    const token = getToken();
-    if (!token) {
-      renderState(root, 'No report token', 'The link is missing a report identifier.');
-      return;
+  // Real data from the audit screenshot for cityofgrayson.org
+  // 2 unique issues across 3 instances:
+  //   - Search input (#elementor-search-form-91a33ae) appears on / and /home
+  //   - Post date (.elementor-post-date) appears only on /
+  const token = window.location.pathname.split('/').filter(Boolean).pop();
+  let RAW = [];
+
+  async function loadReport() {
+    const tbody = document.getElementById('tbody');
+    if (tbody) {
+      tbody.innerHTML = `<tr><td colspan="10" class="empty">Loading report…</td></tr>`;
     }
     try {
-      const res = await fetch(`${API_BASE}/v1/public/report/view/${encodeURIComponent(token)}`);
-      if (res.status === 404) {
-        renderState(root, 'Report not found', 'The link may be invalid.');
-        return;
-      }
-      if (res.status === 410) {
-        renderState(root, 'Report expired', 'This report has expired. Reports are available for 30 days.');
-        return;
-      }
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const res = await fetch(
+        `https://platform-production-ace5.up.railway.app/v1/public/report/view/${token}`
+      );
+      if (res.status === 404) { showError('Report not found. The link may be invalid.'); return; }
+      if (res.status === 410) { showError('This report has expired. Reports are available for 30 days.'); return; }
+      if (!res.ok) { showError('Failed to load report. Please try again.'); return; }
       const data = await res.json();
-      renderReport(root, data);
+
+      const meta = document.getElementById('report-meta');
+      if (meta) {
+        let domain = '';
+        try { domain = new URL(data.url).hostname; } catch { domain = data.url || ''; }
+        const scanned = data.scanned_at || data.created_at
+          ? new Date(data.scanned_at || data.created_at).toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' })
+          : '—';
+        const expires = data.expires_at
+          ? `Expires ${new Date(data.expires_at).toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' })}`
+          : 'No expiration';
+        meta.textContent = `${domain} · Scanned ${scanned} · ${expires}`;
+      }
+
+      RAW = buildRaw(data);
+      render();
+      updateStats();
+      updateDropdownLabels();
+      updateHiddenColumnsControl();
     } catch (err) {
-      renderState(root, "Couldn't load report", (err && err.message) || 'Please try again later.');
+      showError('Failed to load report. Please try again.');
     }
   }
 
-  function renderState(root, heading, body) {
-    root.innerHTML = `
-      <div class="state" role="status">
-        <h2>${escapeHtml(heading)}</h2>
-        <p>${escapeHtml(body)}</p>
-      </div>`;
+  function showError(msg) {
+    const tbody = document.getElementById('tbody');
+    if (tbody) tbody.innerHTML = `<tr><td colspan="10" class="empty">${msg}</td></tr>`;
   }
 
-  // ---------- helpers ----------
-  function escapeHtml(value) {
-    return String(value == null ? '' : value).replace(/[&<>'"]/g, c =>
-      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[c]);
-  }
+  function buildRaw(data) {
+    const findings = [];
+    let issueNumber = 1;
 
-  function safeHostname(url) {
-    try { return new URL(url).hostname; } catch { return url || ''; }
-  }
+    (data.pages || []).forEach(page => {
+      (page.violations || []).forEach(violation => {
+        (violation.nodes || []).forEach(node => {
+          const any0 = node.any && node.any[0] && node.any[0].data || {};
+          const all0 = node.all && node.all[0] && node.all[0].data || {};
+          const d = Object.keys(any0).length ? any0 : all0;
+          const selector = Array.isArray(node.target) ? node.target.join(', ') : (node.target || '—');
+          const savedStatus = localStorage.getItem(`${token}:f${issueNumber}`);
+          findings.push({
+            id: `f${issueNumber}`,
+            issueNumber: issueNumber++,
+            testType: 'automated',
+            impact: violation.impact || 'minor',
+            rule: violation.help || violation.id,
+            wcag: formatWcagTags(violation.tags || []),
+            helpUrl: violation.helpUrl || '',
+            selector,
+            html: node.html || '',
+            fg: d.fgColor || '—',
+            bg: d.bgColor || '—',
+            size: d.fontSize || '—',
+            weight: d.fontWeight || '—',
+            contrast: typeof d.contrastRatio === 'number' ? d.contrastRatio : 21,
+            target: 4.5,
+            expected: violation.description || '',
+            howToFix: (node.failureSummary || '')
+              .replace(/^Fix any of the following:\s*/i, '')
+              .replace(/^Fix all of the following:\s*/i, ''),
+            pages: [page.url],
+            status: savedStatus || 'todo',
+            notes: [],
+          });
+        });
+      });
 
-  function formatDateLong(iso) {
-    if (!iso) return '—';
-    const d = new Date(iso);
-    if (isNaN(d.getTime())) return '—';
-    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-  }
+      (page.claude_findings || []).forEach(f => {
+        const savedStatus = localStorage.getItem(`${token}:ai${issueNumber}`);
+        findings.push({
+          id: `ai${issueNumber}`,
+          issueNumber: issueNumber++,
+          testType: 'ai',
+          impact: f.severity || 'moderate',
+          rule: f.issue || '',
+          wcag: f.wcag_sc ? `WCAG 2.2 · ${f.wcag_sc}` : 'WCAG 2.2',
+          helpUrl: '',
+          selector: f.element || '—',
+          html: f.element || '',
+          fg: '—', bg: '—', size: '—', weight: '—',
+          contrast: 21, target: 4.5,
+          expected: f.fix || '',
+          howToFix: `Confidence: ${f.confidence || 'medium'}. ${f.fix || ''}`,
+          pages: [page.url],
+          status: savedStatus || 'todo',
+          notes: [],
+        });
+      });
+    });
 
-  // Score color thresholds — all WCAG 2.1 AA on white:
-  //   #1a7a5e (5.28:1)  #8a5a00 (5.94:1)  #c0392b (5.50:1)
-  function scoreColor(score) {
-    if (score == null) return 'var(--muted)';
-    if (score >= 80) return 'var(--good)';
-    if (score >= 50) return 'var(--warn)';
-    return 'var(--bad)';
-  }
-
-  function impactBadge(impact) {
-    const cls = ['critical', 'serious', 'moderate', 'minor'].includes(impact) ? impact : 'minor';
-    const label = (cls || 'unknown').toUpperCase();
-    return `<span class="badge badge-${cls}">${label}</span>`;
-  }
-
-  function cleanFailureSummary(text) {
-    return String(text || '')
-      .replace(/^Fix any of the following:\s*\n?/i, '')
-      .replace(/^Fix all of the following:\s*\n?/i, '')
-      .trim();
+    return findings;
   }
 
   function formatWcagTags(tags) {
-    const scMap = {
-      wcag111:'1.1.1', wcag121:'1.2.1', wcag122:'1.2.2', wcag123:'1.2.3',
-      wcag124:'1.2.4', wcag125:'1.2.5', wcag131:'1.3.1', wcag132:'1.3.2',
-      wcag133:'1.3.3', wcag134:'1.3.4', wcag135:'1.3.5', wcag141:'1.4.1',
-      wcag142:'1.4.2', wcag143:'1.4.3', wcag144:'1.4.4', wcag145:'1.4.5',
-      wcag1410:'1.4.10', wcag1411:'1.4.11', wcag1412:'1.4.12', wcag1413:'1.4.13',
-      wcag211:'2.1.1', wcag212:'2.1.2', wcag214:'2.1.4', wcag221:'2.2.1',
-      wcag222:'2.2.2', wcag231:'2.3.1', wcag241:'2.4.1', wcag242:'2.4.2',
-      wcag243:'2.4.3', wcag244:'2.4.4', wcag245:'2.4.5', wcag246:'2.4.6',
-      wcag247:'2.4.7', wcag251:'2.5.1', wcag252:'2.5.2', wcag253:'2.5.3',
-      wcag254:'2.5.4', wcag311:'3.1.1', wcag312:'3.1.2', wcag321:'3.2.1',
-      wcag322:'3.2.2', wcag323:'3.2.3', wcag324:'3.2.4', wcag331:'3.3.1',
-      wcag332:'3.3.2', wcag333:'3.3.3', wcag334:'3.3.4', wcag411:'4.1.1',
-      wcag412:'4.1.2', wcag413:'4.1.3'
-    };
-    const lvlMap = {
-      wcag2a:'WCAG 2.0 A', wcag2aa:'WCAG 2.0 AA', wcag2aaa:'WCAG 2.0 AAA',
-      wcag21a:'WCAG 2.1 A', wcag21aa:'WCAG 2.1 AA', wcag21aaa:'WCAG 2.1 AAA',
-      wcag22aa:'WCAG 2.2 AA'
-    };
+    const scNums = {};
+    tags.forEach(tag => {
+      const m = tag.match(/^wcag(\d)(\d)(\d+)$/);
+      if (m) scNums[`${m[1]}.${m[2]}.${m[3]}`] = true;
+    });
+    const level = tags.includes('wcag2aaa') ? 'AAA' : tags.includes('wcag2aa') ? 'AA' : 'A';
+    const scs = Object.keys(scNums).join(', ');
+    return scs ? `WCAG 2.2 ${level} · ${scs}` : 'WCAG 2.2';
+  }
+
+
+  // Expand to per-page rows for "show all instances" mode
+  function expandedRows() {
     const out = [];
-    (tags || []).forEach(t => {
-      if (lvlMap[t]) out.push(lvlMap[t]);
-      else if (scMap[t]) out.push(`SC ${scMap[t]}`);
+    RAW.forEach(r => r.pages.forEach(p => out.push({ ...r, page: p, totalPages: r.pages.length })));
+    return out;
+  }
+
+  // State
+  // Column definitions — drives header rendering and visibility
+  const COLUMNS = [
+    { id: 'expand', label: '', width: 40, sortable: false, fixed: true },        // chevron column, never hideable
+    { id: 'issueNumber', label: '#', width: 96, sortable: true, sortKey: 'issueNumber' },
+    { id: 'impact', label: 'Impact', width: 90, sortable: true, sortKey: 'impact' },
+    { id: 'rule', label: 'Rule', width: 200, sortable: true, sortKey: 'rule' },
+    { id: 'problem', label: 'Problem', width: 320, sortable: false },
+    { id: 'howToFix', label: 'How to fix', width: 260, sortable: false },
+    { id: 'element', label: 'Failing element', width: 280, sortable: false },
+    { id: 'pages', label: 'Page', width: 120, sortable: true, sortKey: 'instances' },
+    { id: 'status', label: 'Status', width: 130, sortable: false }
+  ];
+
+  let state = {
+    displayMode: 'paginated', // 'paginated' | 'infinite'
+    dedup: true,
+    group: 'none',
+    impact: new Set(),
+    testType: new Set(),
+    conformance: new Set(),
+    search: '',
+    sort: { key: 'issueNumber', dir: 'asc' },
+    expandedRow: null,
+    composingNote: null,
+    editingNote: null,
+    page: 1,
+    pageSize: 25,
+    loadedCount: 25,  // initial; reset on display-mode change via resetWindow()
+    settingsOpen: false,
+    hiddenColumns: new Set(),
+    pinnedLeft: new Set(),
+    columnMenuFor: null,  // column id whose kebab menu is currently open
+    includeBP: false, // include best-practice findings in stats totals + score
+    showBP: false     // show best-practice findings in the table (off = hidden)
+  };
+
+  function visibleColumns() {
+    return COLUMNS.filter(c => !state.hiddenColumns.has(c.id));
+  }
+  function getColspan() {
+    return visibleColumns().length;
+  }
+
+  // Compute sticky offsets for pinned columns. Returns a map keyed by column id.
+  // The expand chevron rides along with the pinned block at left:0 whenever any data column is pinned.
+  function computePinOffsets() {
+    const cols = visibleColumns();
+    const out = {};
+    let leftAccum = 0;
+    const anyPinned = state.pinnedLeft.size > 0;
+    cols.forEach(c => {
+      const pinned = c.id === 'expand' ? anyPinned : state.pinnedLeft.has(c.id);
+      if (pinned) {
+        out[c.id] = { side: 'left', offset: leftAccum };
+        leftAccum += c.width;
+      }
     });
     return out;
   }
 
-  // ---------- aggregation ----------
-  function aggregateViolations(pages) {
-    const map = new Map();
-    for (const page of (pages || [])) {
-      const violations = Array.isArray(page.violations) ? page.violations : [];
-      const seen = new Set();
-      for (const v of violations) {
-        if (!v || !v.id) continue;
-        let agg = map.get(v.id);
-        if (!agg) {
-          agg = { id: v.id, help: v.help || v.id, impact: v.impact, total_nodes: 0, pages_affected: 0 };
-          map.set(v.id, agg);
-        }
-        const nodes = Array.isArray(v.nodes) ? v.nodes.length : 0;
-        agg.total_nodes += nodes;
-        if (!seen.has(v.id)) { agg.pages_affected += 1; seen.add(v.id); }
+  function pinClass(colId, offsets) {
+    return offsets[colId] ? 'pin-left' : '';
+  }
+
+  function pinStyle(colId, offsets) {
+    const p = offsets[colId];
+    return p ? `left:${p.offset}px` : '';
+  }
+
+  // The rightmost left-pinned column gets a divider shadow to mark where the sticky group ends.
+  // Walks visible columns in order, treating the chevron as pinned when any data column is.
+  function pinEdges() {
+    const cols = visibleColumns();
+    const anyPinned = state.pinnedLeft.size > 0;
+    const pinnedCols = cols.filter(c =>
+      c.id === 'expand' ? anyPinned : state.pinnedLeft.has(c.id)
+    );
+    return {
+      lastLeft: pinnedCols.length ? pinnedCols[pinnedCols.length - 1].id : null
+    };
+  }
+
+  const tbody = document.getElementById('tbody');
+
+  // Infinite scroll: bumps loadedCount when sentinel near bottom comes into view
+  let infiniteObserver = null;
+  let infiniteLoading = false;
+  const INFINITE_BATCH = 10;       // load this many at a time (smaller than paginated pageSize for visible demo)
+  const INFINITE_DELAY_MS = 350;   // simulated load delay so loading dots animate visibly
+  function setupInfiniteScroll(totalRows) {
+    // Tear down any previous observer
+    if (infiniteObserver) {
+      infiniteObserver.disconnect();
+      infiniteObserver = null;
+    }
+    if (state.displayMode !== 'infinite' || state.group !== 'none') return;
+    if (state.loadedCount >= totalRows) return; // nothing left to load
+
+    const sentinel = document.getElementById('infinite-sentinel');
+    if (!sentinel) return;
+
+    infiniteObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        if (infiniteLoading) return;
+        if (state.loadedCount >= totalRows) return;
+        infiniteLoading = true;
+        // Brief artificial delay so the loading indicator has time to be perceived
+        setTimeout(() => {
+          state.loadedCount = Math.min(totalRows, state.loadedCount + INFINITE_BATCH);
+          infiniteLoading = false;
+          render();
+        }, INFINITE_DELAY_MS);
+      });
+    }, { rootMargin: '100px' });
+
+    infiniteObserver.observe(sentinel);
+  }
+
+  function impactRank(i) { return { critical: 4, serious: 3, moderate: 2, minor: 1 }[i] || 0; }
+
+  // Returns { rows: paged rows, totalRows: count after filters before pagination }
+  function getRows() {
+    // If grouping by page OR dedup is off, expand to per-page rows.
+    const expanded = state.group === 'page' || !state.dedup;
+    let rows = expanded ? expandedRows() : RAW.map(r => ({ ...r }));
+
+    // Hide best-practice findings entirely when the Show BP setting is off (default)
+    if (!state.showBP) rows = rows.filter(r => conformanceFor(r) !== 'best-practice');
+
+    if (state.impact.size > 0) rows = rows.filter(r => state.impact.has(r.impact));
+    if (state.testType.size > 0) rows = rows.filter(r => state.testType.has(r.testType));
+    if (state.conformance.size > 0) rows = rows.filter(r => state.conformance.has(conformanceFor(r)));
+    if (state.search.trim()) {
+      const q = state.search.toLowerCase();
+      // Pad query the same way for suffix queries like "-a" / "-ai" / "-m"
+      const qPadded = q.startsWith('-') ? ' ' + q + ' ' : q;
+      rows = rows.filter(r => {
+        const paddedNum = r.issueNumber ? '#' + String(r.issueNumber).padStart(3, '0') : '';
+        const suffix = r.testType ? '-' + testTypeSuffix(r.testType) : '';
+        const fullId = paddedNum + suffix; // e.g. #001-A, #003-AI
+        // Suffix is space-padded so "-A" doesn't match "-AI" rows
+        const paddedSuffix = suffix ? ' ' + suffix + ' ' : '';
+        const haystack = [
+          r.selector, r.html, r.fg, r.bg, r.pages.join(' '), r.rule,
+          r.impact || '', r.testType || '', r.expected || '', r.howToFix || '',
+          '#' + r.issueNumber, paddedNum, fullId, paddedSuffix,
+          r.wcag || '', r.status || ''
+        ].join(' ').toLowerCase();
+        return haystack.includes(qPadded);
+      });
+    }
+    const dir = state.sort.dir === 'asc' ? 1 : -1;
+    rows.sort((a, b) => {
+      switch (state.sort.key) {
+        case 'issueNumber': return ((a.issueNumber || 0) - (b.issueNumber || 0)) * dir;
+        case 'impact': return (impactRank(a.impact) - impactRank(b.impact)) * dir;
+        case 'rule': return a.rule.localeCompare(b.rule) * dir;
+        case 'instances': return ((a.pages?.length || 1) - (b.pages?.length || 1)) * dir;
+        case 'notes': return (((a.notes && a.notes.length) || 0) - ((b.notes && b.notes.length) || 0)) * dir;
+        default: return 0;
+      }
+    });
+
+    const totalRows = rows.length;
+
+    // Slice based on display mode
+    if (state.group === 'none') {
+      if (state.displayMode === 'paginated') {
+        const start = (state.page - 1) * state.pageSize;
+        rows = rows.slice(start, start + state.pageSize);
+      } else if (state.displayMode === 'infinite') {
+        rows = rows.slice(0, state.loadedCount);
       }
     }
-    return Array.from(map.values());
+    return { rows, totalRows };
   }
 
-  function topByNodes(arr, n) { return [...arr].sort((a,b) => b.total_nodes - a.total_nodes).slice(0, n); }
-  function topByPages(arr, n) {
-    return [...arr].sort((a,b) => b.pages_affected - a.pages_affected || b.total_nodes - a.total_nodes).slice(0, n);
+  function groupKey(r) {
+    switch (state.group) {
+      case 'rule': return r.rule;
+      case 'element': return r.selector;
+      case 'page': return r.page;
+      case 'testType': return r.testType;
+      default: return null;
+    }
   }
 
-  function estimateRemediation(total) {
-    if (total <= 0) return null;
-    if (total < 20) return '2–4 hours';
-    if (total <= 50) return '4–8 hours';
-    if (total <= 100) return '8–16 hours';
-    return '16–32 hours';
+  function testTypeLabel(t) {
+    return { automated: 'Automated', ai: 'AI', manual: 'Manual' }[t] || 'Automated';
+  }
+  function testTypeSuffix(t) {
+    return { automated: 'A', ai: 'AI', manual: 'M' }[t] || 'A';
   }
 
-  // ---------- rendering ----------
-  function renderReport(root, data) {
-    const domain = safeHostname(data.url || '');
-    document.title = `Accessibility Report for ${domain} — Evidenta11y`;
-
-    const totalViolations = data.total_violations ?? 0;
-    const aggregated = aggregateViolations(data.pages);
-    const criticalAgg = aggregated.filter(v => v.impact === 'critical');
-
-    const avg = data.avg_score == null ? '—' : data.avg_score;
-    const avgClr = scoreColor(data.avg_score);
-
-    root.innerHTML = `
-      <header class="report-header">
-        <p class="label">Accessibility report</p>
-        <h1>Accessibility Report for ${escapeHtml(domain)}</h1>
-        <p class="meta url"><strong>URL:</strong> <a href="${escapeHtml(data.url || '#')}" target="_blank" rel="noopener">${escapeHtml(data.url || '')}</a></p>
-        <p class="meta"><strong>Scanned:</strong> ${escapeHtml(formatDateLong(data.scanned_at))}</p>
-        <p class="meta"><strong>Report expires:</strong> ${escapeHtml(formatDateLong(data.expires_at))}</p>
-      </header>
-
-      <section aria-labelledby="summary-h">
-        <h2 id="summary-h" class="sr-only">Summary</h2>
-        <div class="avg-score">
-          <div class="label">Average score</div>
-          <div class="value" style="color:${avgClr}">${escapeHtml(String(avg))}</div>
+  function renderRow(r, index) {
+    const expanded = state.expandedRow === r.id + (r.page || '');
+    // If we're in per-page mode (group=page), show only that page; otherwise show all affected pages
+    const pagesHtml = r.page
+      ? `<span class="page-pill" title="${r.page}">${r.page}</span>`
+      : `<div class="pages-list">
+          ${r.pages.slice(0, 2).map(p => `<span class="page-pill" title="${p}">${p}</span>`).join('')}
+          ${r.pages.length > 2 ? `<span class="pages-count">+${r.pages.length - 2} more</span>` : ''}
         </div>
-        <div class="stats" role="presentation">
-          <div class="stat-tile"><div class="v">${escapeHtml(`${data.pages_scanned ?? 0}/${data.pages_total ?? 0}`)}</div><div class="l">Pages scanned</div></div>
-          <div class="stat-tile"><div class="v">${escapeHtml(String(totalViolations))}</div><div class="l">Total violations</div></div>
-          <div class="stat-tile"><div class="v" style="color:${(data.critical_count ?? 0) > 0 ? 'var(--bad)' : 'var(--text)'}">${escapeHtml(String(data.critical_count ?? 0))}</div><div class="l">Critical</div></div>
-          <div class="stat-tile"><div class="v" style="color:${(data.serious_count ?? 0) > 0 ? 'var(--warn)' : 'var(--text)'}">${escapeHtml(String(data.serious_count ?? 0))}</div><div class="l">Serious</div></div>
+        ${r.pages.length > 1 ? `<p class="pages-count">${r.pages.length} pages</p>` : '<p class="pages-count">1 page</p>'}`;
+
+    const statusLabel = { todo: 'Not started', progress: 'In progress', done: 'Fixed', wontfix: "Won't fix" }[r.status];
+
+    const composing = state.composingNote === r.id;
+    const notesHtml = (r.notes || []).map(n => {
+      const isEditing = state.editingNote === r.id + ':' + n.id;
+      return isEditing ? `
+        <div class="note note-editing" data-note-edit="${r.id}:${n.id}">
+          <textarea class="note-textarea" data-note-textarea>${escapeHtml(n.body)}</textarea>
+          <div class="note-composer-actions">
+            <button class="btn-secondary" data-note-cancel>Cancel</button>
+            <button class="btn-primary" data-note-save="${r.id}:${n.id}">Save changes</button>
+          </div>
         </div>
-      </section>
-
-      <section aria-labelledby="disclaimer-h">
-        <h2 id="disclaimer-h" class="sr-only">Disclaimer</h2>
-        <div class="callout">
-          <p><strong>About this report:</strong> this is an automated accessibility scan. Automated testing catches roughly 30–40% of accessibility issues; the remainder require manual review by a specialist. A passing score does not guarantee compliance with WCAG or the ADA.</p>
+      ` : `
+        <div class="note ${n.read ? '' : 'is-unread'}">
+          <div class="note-body">
+            <div class="note-meta">
+              <span class="note-author">${n.author}</span>
+              ${!n.read ? '<span class="new-pill">New</span>' : ''}
+              <span class="note-timestamp">${n.timestamp}</span>
+              ${n.author === CURRENT_USER.author ? `
+                <div class="note-actions">
+                  <button class="note-action" data-note-edit-trigger="${r.id}:${n.id}" aria-label="Edit note">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                  </button>
+                  <button class="note-action" data-note-delete="${r.id}:${n.id}" aria-label="Delete note">
+                    <svg class="icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                  </button>
+                </div>
+              ` : ''}
+            </div>
+            <p class="note-text">${escapeHtml(n.body)}</p>
+          </div>
         </div>
-      </section>
+      `;
+    }).join('');
 
-      ${renderCriticalCallout(criticalAgg)}
-      ${renderCommonIssues(aggregated)}
-      ${renderTopPriority(aggregated)}
-      ${renderEstimate(totalViolations)}
-      ${renderPerPage(data.pages || [])}
+    const composerHtml = composing ? `
+      <div class="note note-composing">
+        <div class="note-body">
+          <textarea class="note-textarea" data-note-textarea placeholder="Add context, share progress, or note a workaround…" autofocus></textarea>
+          <div class="note-composer-actions">
+            <button class="btn-secondary" data-note-cancel>Cancel</button>
+            <button class="btn-primary" data-note-add="${r.id}">Post note</button>
+          </div>
+        </div>
+      </div>
+    ` : '';
 
-      <section class="calendly-cta" aria-labelledby="cta-h">
-        <h2 id="cta-h">Want help with these results?</h2>
-        <p>Book a free 30-minute consultation to walk through the findings and discuss next steps.</p>
-        <a href="https://calendly.com/hello-evidenta11y/30min" target="_blank" rel="noopener">Speak with a pro &rarr;</a>
-      </section>
+    const addNoteTrigger = !composing ? `
+      <button class="note-add-trigger" data-add-note="${r.id}">
+        <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add a note
+      </button>
+    ` : '';
+
+    const detailHtml = expanded ? `
+      <tr class="detail-row" id="detail-${r.id}${r.page || ''}" data-detail="${r.id}">
+        <td colspan="${getColspan()}">
+          <dl class="detail">
+            <dt>HTML</dt>
+            <dd>
+              <div class="code-block"><span class="code-block-content">${escapeHtml(r.html)}</span><button class="copy-icon-btn" data-copy="${escapeHtml(r.html)}" aria-label="Copy HTML"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>
+            </dd>
+            <dt>CSS selector</dt>
+            <dd>
+              <div class="code-block"><span class="code-block-content">${escapeHtml(r.selector)}</span><button class="copy-icon-btn" data-copy="${escapeAttr(r.selector)}" aria-label="Copy selector"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>
+            </dd>
+            <dt>Foreground</dt>
+            <dd><span class="color-pair"><span class="color-swatch" style="background:${escapeAttr(r.fg)}"></span><code>${escapeHtml(r.fg)}</code></span></dd>
+            <dt>Background</dt>
+            <dd><span class="color-pair"><span class="color-swatch" style="background:${escapeAttr(r.bg)}"></span><code>${escapeHtml(r.bg)}</code></span></dd>
+            <dt>Typography</dt>
+            <dd>${escapeHtml(r.size)}, weight: ${escapeHtml(r.weight)}</dd>
+            <dt>Contrast ratio</dt>
+            <dd><strong style="color:var(--critical-fg)">${r.contrast.toFixed(2)}:1</strong> · target <strong>${r.target}:1</strong> · short by <strong>${(r.target - r.contrast).toFixed(2)}</strong></dd>
+            <dt>WCAG</dt>
+            <dd>
+              <a href="${escapeAttr(r.helpUrl)}" target="_blank" rel="noopener noreferrer" class="wcag-link">
+                ${escapeHtml(r.wcag)}
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                <span class="sr-only">(opens in new tab)</span>
+              </a>
+            </dd>
+            <dt>Found on</dt>
+            <dd><div class="detail-instances">${(r.pages || [r.page]).map(p => `<span class="page-pill">${p}</span>`).join('')}</div></dd>
+            <dt>Notes ${r.notes && r.notes.length ? `<span class="dt-count">${r.notes.length}</span>` : ''}</dt>
+            <dd>
+              <div class="notes-thread">
+                ${notesHtml}
+                ${composerHtml}
+                ${addNoteTrigger}
+              </div>
+            </dd>
+            <dt>Actions</dt>
+            <dd>
+              <div class="detail-actions">
+                <button class="detail-action"><svg class="icon" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> Open in DevTools</button>
+              </div>
+            </dd>
+          </dl>
+        </td>
+      </tr>` : '';
+
+    const unreadCount = (r.notes || []).filter(n => !n.read).length;
+    const totalNotes = (r.notes || []).length;
+    const detailRowId = `detail-${r.id}${r.page || ''}`;
+    const ruleShort = r.rule.length > 60 ? r.rule.slice(0, 60) + '…' : r.rule;
+    const chevronLabel = expanded
+      ? `Hide details for ${ruleShort} on ${r.selector}`
+      : `Show details for ${ruleShort} on ${r.selector}`;
+
+    const cells = {
+      expand: `
+        <td class="col-expand" data-col="expand">
+          <button class="expand-btn ${expanded ? 'open' : ''}"
+                  aria-label="${escapeAttr(chevronLabel)}"
+                  aria-expanded="${expanded ? 'true' : 'false'}"
+                  aria-controls="${detailRowId}"
+                  data-toggle="${r.id + (r.page || '')}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </td>`,
+      issueNumber: `
+        <td class="col-issue-num" data-col="issueNumber" style="vertical-align:top;">
+          <div style="display:flex;flex-direction:column;align-items:flex-start;gap:6px;">
+            <span class="issue-num">#${String(r.issueNumber).padStart(3, '0')}-${testTypeSuffix(r.testType)}</span>
+            ${totalNotes > 0 ? `
+              <div class="row-notes-badge ${unreadCount > 0 ? 'has-unread' : ''}"
+                   role="status" aria-live="polite" aria-atomic="true">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <span aria-hidden="true">${totalNotes}${unreadCount > 0 ? ` · <strong>${unreadCount} new</strong>` : ''}</span>
+                <span class="sr-only">${totalNotes} note${totalNotes === 1 ? '' : 's'}${unreadCount > 0 ? `, ${unreadCount} unread` : ', all read'}</span>
+              </div>
+            ` : ''}
+          </div>
+        </td>`,
+      impact: `
+        <td data-col="impact">
+          <span class="impact ${r.impact}">${r.impact}</span>
+        </td>`,
+      rule: `
+        <td data-col="rule">
+          <p class="rule-name">${escapeHtml(r.rule)}${conformanceFor(r) === 'best-practice' ? '<span class="bp-badge" title="Best Practice">BP</span>' : ''}</p>
+        </td>`,
+      problem: `<td class="problem-cell" data-col="problem"><div class="problem-cell-text">${escapeHtml(failureSummaryFor(r))}</div></td>`,
+      howToFix: `<td class="howtofix-cell" data-col="howToFix"><div class="howtofix-cell-text">${escapeHtml(howToFixFor(r))}</div></td>`,
+      element: `
+        <td data-col="element">
+          <div class="element-selector-row">
+            <span class="element-selector" title="${escapeAttr(r.selector)}">${escapeHtml(r.selector)}</span>
+            <button class="copy-icon-btn copy-icon-btn--inline" data-copy="${escapeAttr(r.selector)}" aria-label="Copy selector">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+        </td>`,
+      pages: `<td data-col="pages">${pagesHtml}</td>`,
+      status: `
+        <td data-col="status">
+          <button class="status ${r.status}" data-status-row="${r.id}${r.page || ''}"${claimed ? '' : ' aria-disabled="true" title="Create a free account to track remediation progress" data-status-locked="1"'}>${statusLabel}</button>
+        </td>`
+    };
+
+    // Apply pin classes and inline left/right offsets to each cell
+    const offsets = computePinOffsets();
+    const edges = pinEdges();
+    const decorate = (id, html) => {
+      const pin = pinClass(id, offsets);
+      const styleStr = pinStyle(id, offsets);
+      const edgeClass = id === edges.lastLeft ? 'pin-edge-left' : '';
+      if (!pin && !edgeClass) return html;
+      // Insert into the existing <td ...> opening tag. Match the first one in the cell.
+      return html.replace(/<td([^>]*?)>/, (m, attrs) => {
+        // Append pin classes to existing class attribute, or add a new one
+        const classes = [pin, edgeClass].filter(Boolean).join(' ');
+        let newAttrs = attrs;
+        if (/class="/.test(newAttrs)) {
+          newAttrs = newAttrs.replace(/class="([^"]*)"/, `class="$1 ${classes}"`);
+        } else {
+          newAttrs = `${newAttrs} class="${classes}"`;
+        }
+        if (styleStr) newAttrs += ` style="${styleStr}"`;
+        return `<td${newAttrs}>`;
+      });
+    };
+
+    return `
+      <tr class="${expanded ? 'expanded' : ''} ${unreadCount > 0 ? 'has-unread-notes' : ''}" data-row="${r.id + (r.page || '')}">
+        ${visibleColumns().map(c => decorate(c.id, cells[c.id] || '')).join('')}
+      </tr>
+      ${detailHtml}
     `;
-
-    // Hand data to the Lit table component (it may not be upgraded yet — Lit
-    // applies the properties when the custom element registers).
-    const table = root.querySelector('#auditTable');
-    if (table) {
-      table.findings = flattenFindings(data.pages || []);
-      table.mode = 'report';
-      table.claimed = !!data.claimed;
-      table.token = getToken() || '';
-    }
   }
 
-  // ---------- Signup modal ----------
-  let __signupReturnFocus = null;
-
-  function openSignup(triggerEl) {
-    const modal = document.getElementById('signupModal');
-    if (!modal) return;
-    __signupReturnFocus = triggerEl || document.activeElement;
-    modal.hidden = false;
-    document.body.style.overflow = 'hidden';
-    // Reset error + button label from any previous attempt
-    const errEl = document.getElementById('signupError');
-    if (errEl) errEl.textContent = '';
-    const submitBtn = modal.querySelector('button[type="submit"]');
-    if (submitBtn) {
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Create account';
-    }
-    // Focus the first input — wait a tick so the element is actually shown
-    setTimeout(() => {
-      const first = modal.querySelector('input');
-      if (first) first.focus();
-    }, 0);
-    document.addEventListener('keydown', _signupKeyHandler);
+  function renderGroupHeader(label, count) {
+    return `<tr class="group-row"><td colspan="${getColspan()}">${label} <span class="group-count">${count} issue${count === 1 ? '' : 's'}</span></td></tr>`;
   }
 
-  function closeSignup() {
-    const modal = document.getElementById('signupModal');
-    if (!modal || modal.hidden) return;
-    modal.hidden = true;
-    document.body.style.overflow = '';
-    document.removeEventListener('keydown', _signupKeyHandler);
-    // Return focus to whatever opened the modal, if it's still in the DOM.
-    if (
-      __signupReturnFocus &&
-      __signupReturnFocus.isConnected &&
-      typeof __signupReturnFocus.focus === 'function'
-    ) {
-      try { __signupReturnFocus.focus(); } catch { /* ignore */ }
+  // Mirrors axe-core's per-node `failureSummary` field. In a real Evidenta11y data flow,
+  // each finding from axe-core arrives with this string already populated. For the demo,
+  // we centralize them in a lookup map so we don't have to touch each finding object.
+  // Authoring guide: keep these identical in shape to what axe emits — start with
+  // "Fix any of the following:" or "Fix all of the following:", then a newline and
+  // space-indented bullet lines stating the specific check failures and measured data.
+  const FAILURE_SUMMARIES = {
+    A: 'Fix any of the following:\n  Element has insufficient color contrast of 4.29 (foreground color: #7a7a7a, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1',
+    B: 'Fix any of the following:\n  Element has insufficient color contrast of 2.24 (foreground color: #adadad, background color: #ffffff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1',
+    C: 'Fix any of the following:\n  Form element does not have an associated <label>\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist or references missing element\n  Element has no implicit (wrapped) <label>\n  Element has no explicit <label>',
+    D: 'Fix the following:\n  Tab order does not match visual order: focus moves from search input directly to the first nav item, skipping over preceding elements\n  Reorder DOM source or remove positive tabindex values',
+    E: 'Fix any of the following:\n  alt attribute "image" is not descriptive of image content\n  Decorative images should use alt="" or role="presentation"',
+    F: 'Fix all of the following:\n  Document does not have a non-empty <title> element',
+    G: 'Fix any of the following:\n  Form element does not have an associated <label>\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist or references missing element\n  Element has no implicit (wrapped) <label>\n  Element has no explicit <label>\n  Element has no title attribute',
+    H: 'Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist or references missing element\n  Element has no title attribute',
+    I: 'Fix the following:\n  Heading order invalid: <h4> follows <h2>, skipping <h3>',
+    J: 'Fix any of the following:\n  Element is in tab order and does not have accessible text\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist or references missing element',
+    K: 'Fix the following:\n  Page does not contain a skip-to-content link as the first focusable element',
+    L: 'Fix the following:\n  ARIA attribute is misspelled or invalid: aria-labeledby (should be aria-labelledby)',
+    M: 'Fix any of the following:\n  alt attribute "Photo of staff member John Doe — Photo" repeats text content\n  Image filename appears in alt text',
+    N: 'Fix any of the following:\n  Document does not have a <main> landmark or role="main"',
+    O: 'Fix the following:\n  Cancellation status is conveyed only by red color and strikethrough; no text or icon indicates the state',
+    P: 'Fix the following:\n  Video element has no captions track\n  No <track kind="captions"> child element found',
+    Q: 'Fix the following:\n  <html> element does not have a lang attribute',
+    R: 'Fix any of the following:\n  Document has multiple elements with id="search" (3 occurrences)',
+    S: 'Fix the following:\n  Touch target is 24×24 CSS pixels, below the 24×24 minimum (WCAG 2.5.8)\n  Adjacent targets within 8px contribute to insufficient spacing',
+    T: 'Fix any of the following:\n  Element has no visible focus indicator (outline removed via CSS without replacement)\n  Focus indicator does not meet 3:1 contrast against adjacent colors',
+    U: 'Fix the following:\n  Heading element <h2> contains no text content',
+    V: 'Fix any of the following:\n  Table does not have a <caption> element\n  Table has no aria-label or aria-labelledby attribute',
+    W: 'Fix the following:\n  Article exceeds 1,200 words with no <h2>/<h3> subheadings to break up content',
+    X: 'Fix any of the following:\n  Element has insufficient color contrast of 3.54 (foreground color: #888888, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1',
+    Y: 'Fix any of the following:\n  iframe element has no title attribute\n  iframe element has no aria-label or aria-labelledby attribute',
+    Z: 'Fix the following:\n  Video element has autoplay attribute and no user-accessible pause/stop control within first 5 seconds',
+    AA: 'Fix the following:\n  <ul> contains a <div> child; only <li>, <script>, or <template> are valid direct children',
+    AB: 'Fix the following:\n  Modal does not trap focus: Tab from the last focusable element moves focus outside the modal\n  No keydown handler restores focus to the modal',
+    AC: 'Fix any of the following:\n  Element has insufficient color contrast of 2.65 (foreground color: #999999, background color: #f5f5f5, font size: 10.0pt (13px), font weight: normal). Expected contrast ratio of 4.5:1',
+    AD: 'Fix any of the following:\n  Phone number input has no autocomplete="tel" attribute\n  Input has no inputmode or pattern attribute to suggest expected format',
+    AE: 'Fix any of the following:\n  Required field has visual asterisk but no required attribute, aria-required, or programmatic indication\n  Screen readers will not announce this field as required',
+    AF: 'Fix the following:\n  Hero banner background image contains text "Welcome to City of Grayson" which is not present in DOM\n  Text in images is not selectable, translatable, or scalable'
+  };
+
+  // Synthesizes a failureSummary when one isn't authored — last-resort fallback so
+  // the demo never shows empty cells. Real axe-core data should always have failureSummary.
+  function deriveFailureSummary(r) {
+    const rule = r.rule || '';
+    if (/contrast/i.test(rule) && typeof r.contrast === 'number' && typeof r.target === 'number') {
+      return `Fix any of the following:\n  Element has insufficient color contrast of ${r.contrast.toFixed(2)} (foreground color: ${r.fg}, background color: ${r.bg}, font size: ${r.size}, font weight: ${r.weight}). Expected contrast ratio of ${r.target.toFixed(1)}:1`;
     }
-    __signupReturnFocus = null;
+    return `Fix the following:\n  ${rule}`;
   }
 
-  function _focusableInModal() {
-    const modal = document.getElementById('signupModal');
-    if (!modal) return [];
-    return Array.from(
-      modal.querySelectorAll(
-        'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-      )
-    ).filter(el => !el.hasAttribute('hidden'));
+  // Axe-core ships a `help` field on each rule — the imperative "what to do" directive.
+  // Authored from axe-core's actual rule metadata. In real Evidenta11y data flow each
+  // finding arrives with `help` populated; this map is the demo equivalent.
+  const HELP = {
+    A: 'Elements must meet minimum color contrast ratio thresholds',
+    B: 'Elements must meet minimum color contrast ratio thresholds',
+    C: 'Form elements must have labels',
+    D: 'Tab order should match visual order',
+    E: 'Images must have meaningful alternate text',
+    F: 'Documents must have <title> element to aid in navigation',
+    G: 'Form elements must have labels',
+    H: 'Buttons must have discernible text',
+    I: 'Heading levels should only increase by one',
+    J: 'Links must have discernible text',
+    K: 'Page must contain a skip-to-content link',
+    L: 'ARIA attribute must be valid',
+    M: 'Image alt text must not contain redundant words like "image" or filename',
+    N: 'Document must have one main landmark',
+    O: 'Information conveyed by color must also be available by another means',
+    P: 'Video elements must have captions',
+    Q: '<html> element must have a lang attribute',
+    R: 'IDs of active elements must be unique',
+    S: 'Touch targets must have sufficient size and spacing',
+    T: 'Focusable elements must have a visible focus indicator',
+    U: 'Headings must contain text content',
+    V: 'Tables must have a caption or accessible name',
+    W: 'Long content should be broken up with headings',
+    X: 'Elements must meet minimum color contrast ratio thresholds',
+    Y: 'iframe elements must have a title attribute or accessible name',
+    Z: 'Auto-playing media must be pausable, stoppable, or short',
+    AA: 'List elements (<ul>, <ol>) must contain only valid list children',
+    AB: 'Modal dialogs must trap keyboard focus while open',
+    AC: 'Elements must meet minimum color contrast ratio thresholds',
+    AD: 'Form inputs should use autocomplete and inputmode attributes for expected formats',
+    AE: 'Required form fields must be programmatically marked as required',
+    AF: 'Text in images must also be available in actual text'
+  };
+
+  // Axe-core distinguishes WCAG-conformance rules from Best Practice rules.
+  // Best Practice rules don't map to a specific WCAG SC — they reflect community
+  // consensus on accessibility quality. Failing one isn't technically a WCAG failure.
+  // Possible values: 'wcag-a' | 'wcag-aa' | 'wcag-aaa' | 'best-practice'
+  // For real axe-core data, this is determined by the presence of 'best-practice' in
+  // the rule's tags array. For the demo we centralize the 7 best-practice findings here.
+  const CONFORMANCE_OVERRIDES = {
+    D: 'best-practice',   // focus-order-semantics / tabindex
+    I: 'best-practice',   // heading-order
+    K: 'best-practice',   // skip-link
+    M: 'best-practice',   // image-redundant-alt
+    N: 'best-practice',   // landmark-one-main / region
+    U: 'best-practice',   // empty-heading
+    V: 'best-practice',   // table-caption
+    W: 'best-practice'    // heading-density
+  };
+
+  function conformanceFor(r) {
+    if (r.conformance) return r.conformance;
+    if (CONFORMANCE_OVERRIDES[r.id]) return CONFORMANCE_OVERRIDES[r.id];
+    // Derive from existing wcag string ("WCAG 2.2 A · 1.1.1" → "wcag-a", etc.)
+    const w = r.wcag || '';
+    if (/AAA/.test(w)) return 'wcag-aaa';
+    if (/AA/.test(w)) return 'wcag-aa';
+    if (/\sA\s/.test(w) || /\sA\s\u00B7/.test(w)) return 'wcag-a';
+    return 'wcag-a';
   }
 
-  function _signupKeyHandler(e) {
-    if (e.key === 'Escape') {
-      e.preventDefault();
-      closeSignup();
-      return;
-    }
-    if (e.key !== 'Tab') return;
-    const items = _focusableInModal();
-    if (!items.length) return;
-    const first = items[0];
-    const last = items[items.length - 1];
-    const active = document.activeElement;
-    if (e.shiftKey && (active === first || !items.includes(active))) {
-      e.preventDefault();
-      last.focus();
-    } else if (!e.shiftKey && active === last) {
-      e.preventDefault();
-      first.focus();
-    }
+  const CONFORMANCE_LABELS = {
+    'wcag-a': 'WCAG A',
+    'wcag-aa': 'WCAG AA',
+    'wcag-aaa': 'WCAG AAA',
+    'best-practice': 'Best Practice'
+  };
+
+  function failureSummaryFor(r) {
+    return r.failureSummary || FAILURE_SUMMARIES[r.id] || deriveFailureSummary(r);
   }
 
-  // Trigger 1: locked remediation dropdown inside the audit table
-  document.addEventListener('evi-signup-required', (e) => {
-    // composedPath()[0] is the actual element inside the shadow DOM that
-    // fired the click. Calling .focus() on a held reference still works
-    // across the shadow boundary, so we capture it for return-focus.
-    const trigger = (e.composedPath && e.composedPath()[0]) || document.activeElement;
-    openSignup(trigger);
-  });
+  // How-to-fix in the column: shows axe-core's `help` directive — the imperative
+  // shipped with each rule. Short, scannable, always present.
+  // Hand-authored Evidenta11y guidance (r.howToFix) is longer and lives in the
+  // detail panel rather than the column, where there's room for the deeper dive.
+  function howToFixFor(r) {
+    if (r.help) return r.help;
+    if (HELP[r.id]) return HELP[r.id];
+    return r.rule || '';
+  }
 
-  // Trigger 2 + close-button delegation
-  document.addEventListener('click', (e) => {
-    const t = e.target instanceof Element ? e.target.closest('[data-open-signup]') : null;
-    if (t) {
-      e.preventDefault();
-      openSignup(t);
-      return;
-    }
-    const c = e.target instanceof Element ? e.target.closest('[data-signup-close]') : null;
-    if (c) {
-      e.preventDefault();
-      closeSignup();
-    }
-  });
+  function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+  const escapeAttr = escapeHtml;
 
-  // Backdrop click closes (clicks inside the .modal don't bubble to the backdrop
-  // because we check e.target === backdrop)
-  const signupBackdrop = document.getElementById('signupModal');
-  if (signupBackdrop) {
-    signupBackdrop.addEventListener('click', (e) => {
-      if (e.target === signupBackdrop) closeSignup();
+  function renderHeader() {
+    const colgroup = document.getElementById('thead-colgroup');
+    const headerRow = document.getElementById('thead-row');
+    if (!colgroup || !headerRow) return;
+
+    colgroup.innerHTML = visibleColumns()
+      .map(c => `<col data-col="${c.id}" style="width:${c.width}px" />`)
+      .join('');
+
+    const offsets = computePinOffsets();
+    const edges = pinEdges();
+
+    headerRow.innerHTML = visibleColumns().map(c => {
+      const sorted = state.sort.key === c.sortKey;
+      const arrow = sorted ? (state.sort.dir === 'asc' ? '▲' : '▼') : '▼';
+      const sortClass = c.sortable ? 'sortable' : '';
+      const sortedClass = sorted ? 'sorted' : '';
+      const sortAttr = c.sortable ? `data-sort="${c.sortKey}"` : '';
+      const pin = pinClass(c.id, offsets);
+      const pinStyleStr = pinStyle(c.id, offsets);
+      const edgeClass = c.id === edges.lastLeft ? 'pin-edge-left' : '';
+      const styleAttr = pinStyleStr ? `style="${pinStyleStr}"` : '';
+
+      // The expand column has no label and no menu
+      if (c.id === 'expand') {
+        return `<th class="th-expand ${pin} ${edgeClass}" data-col="expand" ${styleAttr}></th>`;
+      }
+
+      return `
+        <th class="${sortClass} ${sortedClass} ${pin} ${edgeClass}" ${sortAttr} data-col="${c.id}" ${styleAttr}>
+          <div class="th-inner">
+            <span class="th-label">${escapeHtml(c.label)}</span>
+            ${c.sortable ? `<span class="sort">${arrow}</span>` : ''}
+            <button class="th-menu-btn" data-col-menu="${c.id}" aria-label="Column options for ${escapeAttr(c.label)}" aria-haspopup="menu">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+            </button>
+          </div>
+        </th>
+      `;
+    }).join('');
+
+    bindHeaderEvents();
+  }
+
+  function bindHeaderEvents() {
+    // Sort on header click (excluding clicks on the menu button)
+    document.querySelectorAll('th.sortable').forEach(th => {
+      th.addEventListener('click', e => {
+        if (e.target.closest('.th-menu-btn')) return;
+        const key = th.dataset.sort;
+        if (state.sort.key === key) {
+          state.sort.dir = state.sort.dir === 'asc' ? 'desc' : 'asc';
+        } else {
+          state.sort.key = key;
+          state.sort.dir = 'desc';
+        }
+        render();
+      });
+    });
+    // Kebab opens column menu
+    document.querySelectorAll('[data-col-menu]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        openColumnMenu(btn.dataset.colMenu, btn);
+      });
     });
   }
 
-  // Submit handler
-  const signupForm = document.getElementById('signupForm');
-  if (signupForm) {
-    signupForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const errEl = document.getElementById('signupError');
-      const submitBtn = signupForm.querySelector('button[type="submit"]');
-      if (!errEl || !submitBtn) return;
-      errEl.textContent = '';
+  function openColumnMenu(colId, anchor) {
+    const menu = document.getElementById('column-menu');
+    if (!menu) return;
+    const col = COLUMNS.find(c => c.id === colId);
+    if (!col) return;
 
-      const name = (signupForm.elements.namedItem('name')?.value || '').trim();
-      const email = (signupForm.elements.namedItem('email')?.value || '').trim().toLowerCase();
-      const password = signupForm.elements.namedItem('password')?.value || '';
-      const token = getToken() || '';
+    state.columnMenuFor = colId;
 
-      if (!token) {
-        errEl.textContent = "We couldn't read this report's token. Please reload the page.";
-        return;
+    const items = [];
+    if (col.sortable) {
+      const isAsc = state.sort.key === col.sortKey && state.sort.dir === 'asc';
+      const isDesc = state.sort.key === col.sortKey && state.sort.dir === 'desc';
+      items.push(`
+        <button class="dropdown-item ${isAsc ? 'is-current' : ''}" data-col-action="sort-asc">
+          <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          <span class="dropdown-item-label">Sort ascending</span>
+        </button>
+        <button class="dropdown-item ${isDesc ? 'is-current' : ''}" data-col-action="sort-desc">
+          <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          <span class="dropdown-item-label">Sort descending</span>
+        </button>
+        <div class="dropdown-divider" role="separator"></div>
+      `);
+    }
+
+    // Pin action — left only. Pinning extends the pinned block to this column;
+    // unpinning shrinks the block by removing this and everything to the right.
+    const isPinnedLeft = state.pinnedLeft.has(colId);
+    const pinLabel = isPinnedLeft ? 'Unpin from here' : 'Pin up to here';
+    items.push(`
+      <button class="dropdown-item ${isPinnedLeft ? 'is-current' : ''}" data-col-action="pin-left">
+        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        <span class="dropdown-item-label">${pinLabel}</span>
+      </button>
+      <div class="dropdown-divider" role="separator"></div>
+    `);
+
+    items.push(`
+      <button class="dropdown-item" data-col-action="autofit">
+        <span class="dropdown-item-label" style="padding-left:22px">Auto-fit width</span>
+      </button>
+      <button class="dropdown-item" data-col-action="hide" ${colId === 'expand' ? 'disabled' : ''}>
+        <span class="dropdown-item-label" style="padding-left:22px">Hide column</span>
+      </button>
+    `);
+
+    menu.innerHTML = items.join('');
+
+    // Position the menu under the anchor button
+    const rect = anchor.getBoundingClientRect();
+    menu.style.top = `${window.scrollY + rect.bottom + 4}px`;
+    menu.style.left = `${window.scrollX + rect.right - 180}px`; // right-align to button
+    menu.hidden = false;
+
+    // Bind item clicks
+    menu.querySelectorAll('[data-col-action]').forEach(item => {
+      item.addEventListener('click', e => {
+        e.stopPropagation();
+        const action = item.dataset.colAction;
+        handleColumnAction(colId, action);
+        closeColumnMenu();
+      });
+    });
+  }
+
+  function closeColumnMenu() {
+    const menu = document.getElementById('column-menu');
+    if (menu) menu.hidden = true;
+    state.columnMenuFor = null;
+  }
+
+  function handleColumnAction(colId, action) {
+    const col = COLUMNS.find(c => c.id === colId);
+    switch (action) {
+      case 'sort-asc':
+        state.sort.key = col.sortKey;
+        state.sort.dir = 'asc';
+        break;
+      case 'sort-desc':
+        state.sort.key = col.sortKey;
+        state.sort.dir = 'desc';
+        break;
+      case 'pin-left': {
+        // Pin only operates over data columns; the expand chevron is excluded.
+        const cols = visibleColumns().filter(c => c.id !== 'expand');
+        const idx = cols.findIndex(c => c.id === colId);
+        if (idx === -1) break;
+        if (state.pinnedLeft.has(colId)) {
+          // Unpin: cascade to all columns at this index AND to the right
+          for (let i = idx; i < cols.length; i++) {
+            state.pinnedLeft.delete(cols[i].id);
+          }
+        } else {
+          // Pin: extend the pinned block to include this column AND all preceding data columns
+          for (let i = 0; i <= idx; i++) {
+            state.pinnedLeft.add(cols[i].id);
+          }
+        }
+        break;
       }
-      if (!name || !email || password.length < 8) {
-        errEl.textContent = 'Please complete all fields. Passwords must be at least 8 characters.';
-        return;
+      case 'hide':
+        state.hiddenColumns.add(colId);
+        state.pinnedLeft.delete(colId);
+        break;
+      case 'autofit':
+        autofitColumn(colId);
+        break;
+    }
+    render();
+    updateHiddenColumnsControl();
+  }
+
+  function autofitColumn(colId) {
+    // Measure content width by temporarily setting width:auto and reading offsetWidth
+    const cells = document.querySelectorAll(`td[data-col="${colId}"], th[data-col="${colId}"]`);
+    if (!cells.length) return;
+    let max = 0;
+    cells.forEach(cell => {
+      const prev = cell.style.whiteSpace;
+      cell.style.whiteSpace = 'nowrap';
+      max = Math.max(max, cell.scrollWidth);
+      cell.style.whiteSpace = prev;
+    });
+    const col = COLUMNS.find(c => c.id === colId);
+    if (col) col.width = Math.min(Math.max(max + 24, 80), 600);
+  }
+
+  function showColumn(colId) {
+    state.hiddenColumns.delete(colId);
+    render();
+    updateHiddenColumnsControl();
+  }
+
+  function updateHiddenColumnsControl() {
+    const trigger = document.getElementById('dropdown-columns-trigger');
+    const menu = document.getElementById('dropdown-columns-menu');
+    if (!trigger || !menu) return;
+    const hiddenCount = state.hiddenColumns.size;
+    const badge = document.getElementById('dropdown-columns-badge');
+    if (badge) {
+      if (hiddenCount > 0) {
+        badge.hidden = false;
+        badge.textContent = hiddenCount;
+      } else {
+        badge.hidden = true;
       }
+    }
+    // Render menu options for each hideable column
+    menu.innerHTML = COLUMNS.filter(c => c.id !== 'expand').map(c => {
+      const checked = !state.hiddenColumns.has(c.id);
+      return `
+        <button class="dropdown-item" role="menuitemcheckbox" aria-checked="${checked}" data-toggle-col="${c.id}">
+          <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          <span class="dropdown-item-label">${escapeHtml(c.label)}</span>
+        </button>
+      `;
+    }).join('');
+    menu.querySelectorAll('[data-toggle-col]').forEach(item => {
+      item.addEventListener('click', e => {
+        e.stopPropagation();
+        const id = item.dataset.toggleCol;
+        if (state.hiddenColumns.has(id)) state.hiddenColumns.delete(id);
+        else state.hiddenColumns.add(id);
+        render();
+        updateHiddenColumnsControl();
+      });
+    });
+  }
 
-      submitBtn.disabled = true;
-      const prevLabel = submitBtn.textContent;
-      submitBtn.textContent = 'Creating account…';
+  // Recomputes the 5 stat-panel numbers from RAW. Respects state.includeBP — when off
+  // (the default), best-practice findings are excluded from violation totals and from
+  // the score's weighted sum.
+  function updateStats() {
+    const findings = state.includeBP ? RAW : RAW.filter(r => conformanceFor(r) !== 'best-practice');
+    const total = findings.length;
+    const critical = findings.filter(r => r.impact === 'critical').length;
+    const serious = findings.filter(r => r.impact === 'serious').length;
+    const moderate = findings.filter(r => r.impact === 'moderate').length;
+    const minor = findings.filter(r => r.impact === 'minor').length;
+    // Pages scanned is derived from the union of all pages in scope
+    const pageSet = new Set();
+    findings.forEach(r => (r.pages || [r.page]).forEach(p => p && pageSet.add(p)));
+    const pages = pageSet.size;
+    // Score: weighted issue points per page, subtracted from 100
+    const weighted = critical * 10 + serious * 5 + moderate * 2 + minor * 1;
+    const score = Math.max(0, Math.min(100, Math.round(100 - (pages > 0 ? weighted / pages : weighted))));
 
-      try {
-        const res = await fetch(`${API_BASE}/v1/public/report/claim`, {
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    set('stat-score', score);
+    set('stat-pages', pages);
+    set('stat-violations', total);
+    set('stat-critical', critical);
+    set('stat-serious', serious);
+  }
+
+  function render() {
+    renderHeader();
+    const colspan = getColspan();
+    const { rows, totalRows } = getRows();
+    if (!rows.length) {
+      tbody.innerHTML = `<tr><td colspan="${colspan}" class="empty">No findings match these filters.</td></tr>`;
+      renderPagination(totalRows);
+      updateFilterCounts();
+      return;
+    }
+    let html = '';
+    if (state.group === 'none') {
+      html += rows.map(renderRow).join('');
+    } else {
+      const groups = {};
+      rows.forEach(r => {
+        const key = groupKey(r);
+        (groups[key] = groups[key] || []).push(r);
+      });
+      const groupEntries = Object.entries(groups);
+      const showHeaders = groupEntries.length > 1;
+      groupEntries.forEach(([key, groupRows]) => {
+        if (showHeaders) html += renderGroupHeader(key, groupRows.length);
+        html += groupRows.map(renderRow).join('');
+      });
+    }
+
+    tbody.innerHTML = html;
+    renderPagination(totalRows);
+    updateFilterCounts();
+    setupInfiniteScroll(totalRows);
+    bindRowEvents();
+  }
+
+  function renderPagination(totalRows) {
+    const el = document.getElementById('pagination');
+    if (!el) return;
+
+    // Grouped: just show count, no controls
+    if (state.group !== 'none') {
+      el.innerHTML = `<span class="pagination-summary">Showing all <strong>${totalRows}</strong> finding${totalRows === 1 ? '' : 's'} · pagination disabled while grouped</span>`;
+      return;
+    }
+
+    // Infinite scroll
+    if (state.displayMode === 'infinite') {
+      const shown = Math.min(state.loadedCount, totalRows);
+      const remaining = Math.max(0, totalRows - shown);
+      el.innerHTML = `
+        <div class="pagination-summary">
+          Showing <strong>${shown}</strong> of <strong>${totalRows}</strong> finding${totalRows === 1 ? '' : 's'}
+          ${remaining > 0 ? `· <span class="hint">scroll to load more</span>` : '· all loaded'}
+        </div>
+      `;
+      // Sentinel lives below the table, outside the flex pagination row
+      let sentinelHost = document.getElementById('infinite-sentinel-host');
+      if (!sentinelHost) {
+        sentinelHost = document.createElement('div');
+        sentinelHost.id = 'infinite-sentinel-host';
+        el.parentNode.insertBefore(sentinelHost, el.nextSibling);
+      }
+      sentinelHost.innerHTML = remaining > 0
+        ? `<div id="infinite-sentinel" class="infinite-sentinel" aria-hidden="true"><span class="loading-dots"><span></span><span></span><span></span></span></div>`
+        : '';
+      return;
+    }
+
+    // Clear any sentinel host left over from infinite mode
+    const sentinelHost = document.getElementById('infinite-sentinel-host');
+    if (sentinelHost) sentinelHost.innerHTML = '';
+
+    // Paginated mode
+    const totalPages = Math.max(1, Math.ceil(totalRows / state.pageSize));
+    if (state.page > totalPages) state.page = totalPages;
+    const start = totalRows === 0 ? 0 : (state.page - 1) * state.pageSize + 1;
+    const end = Math.min(state.page * state.pageSize, totalRows);
+
+    const pageButtons = [];
+    const addBtn = (n, label = n) => pageButtons.push(
+      `<button class="page-btn ${n === state.page ? 'active' : ''}" data-page="${n}" aria-label="Page ${n}" ${n === state.page ? 'aria-current="page"' : ''}>${label}</button>`
+    );
+    const addEllipsis = () => pageButtons.push('<span class="page-ellipsis" aria-hidden="true">…</span>');
+
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) addBtn(i);
+    } else {
+      addBtn(1);
+      if (state.page > 3) addEllipsis();
+      const startN = Math.max(2, state.page - 1);
+      const endN = Math.min(totalPages - 1, state.page + 1);
+      for (let i = startN; i <= endN; i++) addBtn(i);
+      if (state.page < totalPages - 2) addEllipsis();
+      addBtn(totalPages);
+    }
+
+    el.innerHTML = `
+      <div class="pagination-summary">
+        Showing <strong>${start}–${end}</strong> of <strong>${totalRows}</strong> finding${totalRows === 1 ? '' : 's'}
+      </div>
+      <div class="pagination-controls">
+        <nav class="page-nav" aria-label="Pagination">
+          <button class="page-btn" data-page="${state.page - 1}" ${state.page === 1 ? 'disabled' : ''} aria-label="Previous page">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          ${pageButtons.join('')}
+          <button class="page-btn" data-page="${state.page + 1}" ${state.page === totalPages ? 'disabled' : ''} aria-label="Next page">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </nav>
+      </div>
+    `;
+    el.querySelectorAll('[data-page]').forEach(b => {
+      b.addEventListener('click', () => {
+        const n = parseInt(b.dataset.page, 10);
+        if (n < 1 || n > totalPages) return;
+        state.page = n;
+        render();
+      });
+    });
+  }
+
+  function updateFilterCounts() {
+    const expanded = state.group === 'page' || !state.dedup;
+    let baseRows = expanded ? expandedRows() : RAW.map(r => ({ ...r }));
+    // Match the same visibility cut applied in getRows so dropdown counts reflect
+    // what's actually filterable in the table
+    if (!state.showBP) baseRows = baseRows.filter(r => conformanceFor(r) !== 'best-practice');
+    const filteredByOthers = baseRows.filter(r => {
+      if (state.search.trim()) {
+        const q = state.search.toLowerCase();
+        const qPadded = q.startsWith('-') ? ' ' + q + ' ' : q;
+        const paddedNum = r.issueNumber ? '#' + String(r.issueNumber).padStart(3, '0') : '';
+        const suffix = r.testType ? '-' + testTypeSuffix(r.testType) : '';
+        const fullId = paddedNum + suffix;
+        const paddedSuffix = suffix ? ' ' + suffix + ' ' : '';
+        const haystack = [
+          r.selector, r.html, r.fg, r.bg, r.pages.join(' '), r.rule,
+          r.impact || '', r.testType || '', r.expected || '', r.howToFix || '',
+          '#' + r.issueNumber, paddedNum, fullId, paddedSuffix,
+          r.wcag || '', r.status || ''
+        ].join(' ').toLowerCase();
+        if (!haystack.includes(qPadded)) return false;
+      }
+      return true;
+    });
+    // For impact items: count rows of that impact, applying the testType + conformance filters
+    document.querySelectorAll('[data-filter="impact"]').forEach(b => {
+      const v = b.dataset.value;
+      const c = b.querySelector('.count');
+      const count = filteredByOthers.filter(r =>
+        r.impact === v &&
+        (state.testType.size === 0 || state.testType.has(r.testType)) &&
+        (state.conformance.size === 0 || state.conformance.has(conformanceFor(r)))
+      ).length;
+      if (c) c.textContent = count;
+    });
+    // For testType items: count rows of that test type, applying the impact + conformance filters
+    document.querySelectorAll('[data-filter="testType"]').forEach(b => {
+      const v = b.dataset.value;
+      const c = b.querySelector('.count');
+      const count = filteredByOthers.filter(r =>
+        r.testType === v &&
+        (state.impact.size === 0 || state.impact.has(r.impact)) &&
+        (state.conformance.size === 0 || state.conformance.has(conformanceFor(r)))
+      ).length;
+      if (c) c.textContent = count;
+    });
+    // For conformance items: count rows of that conformance, applying the impact + testType filters
+    document.querySelectorAll('[data-filter="conformance"]').forEach(b => {
+      const v = b.dataset.value;
+      const c = b.querySelector('.count');
+      const count = filteredByOthers.filter(r =>
+        conformanceFor(r) === v &&
+        (state.impact.size === 0 || state.impact.has(r.impact)) &&
+        (state.testType.size === 0 || state.testType.has(r.testType))
+      ).length;
+      if (c) c.textContent = count;
+    });
+  }
+
+  function bindRowEvents() {
+    tbody.querySelectorAll('[data-toggle]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const id = btn.dataset.toggle;
+        const wasExpanded = state.expandedRow === id;
+        state.expandedRow = wasExpanded ? null : id;
+        render();
+        // If we just expanded a row with unread notes, mark them read after a beat
+        if (!wasExpanded) {
+          const item = RAW.find(r => r.id === id);
+          if (item && item.notes && item.notes.some(n => !n.read)) {
+            setTimeout(() => {
+              if (state.expandedRow !== id) return; // user collapsed before timeout
+              item.notes.forEach(n => n.read = true);
+              render();
+            }, 1500);
+          }
+        }
+      });
+    });
+    tbody.querySelectorAll('[data-status-row]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        if (btn.dataset.statusLocked) {
+          openSignupModal();
+          return;
+        }
+        const order = ['todo', 'progress', 'done', 'wontfix'];
+        const id = btn.dataset.statusRow;
+        const item = RAW.find(r => r.id === id);
+        if (!item) return;
+        const next = order[(order.indexOf(item.status) + 1) % order.length];
+        item.status = next;
+        try { localStorage.setItem(`${token}:${item.id}`, item.status); } catch {}
+        render();
+      });
+    });
+
+    // Copy button (HTML / selector)
+    tbody.querySelectorAll('[data-copy]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const text = btn.dataset.copy;
+        const showCopied = () => {
+          btn.classList.add('copied');
+          const original = btn.innerHTML;
+          btn.innerHTML = '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+          setTimeout(() => {
+            btn.classList.remove('copied');
+            btn.innerHTML = original;
+          }, 1400);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(showCopied).catch(() => showCopied());
+        } else {
+          // Fallback for environments without clipboard API
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          try { document.execCommand('copy'); } catch (_) {}
+          document.body.removeChild(ta);
+          showCopied();
+        }
+      });
+    });
+
+    // Note: open composer
+    tbody.querySelectorAll('[data-add-note]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        state.composingNote = btn.dataset.addNote;
+        state.editingNote = null;
+        render();
+        const ta = tbody.querySelector('[data-note-textarea]');
+        if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
+      });
+    });
+
+    // Note: cancel composer or edit
+    tbody.querySelectorAll('[data-note-cancel]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        state.composingNote = null;
+        state.editingNote = null;
+        render();
+      });
+    });
+
+    // Note: post new
+    tbody.querySelectorAll('[data-note-add]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const rowId = btn.dataset.noteAdd;
+        const ta = tbody.querySelector('[data-note-textarea]');
+        const body = ta && ta.value.trim();
+        if (!body) return;
+        const item = RAW.find(r => r.id === rowId);
+        if (!item) return;
+        item.notes = item.notes || [];
+        item.notes.push({
+          id: 'n' + (item.notes.length + 1) + Date.now(),
+          author: 'Joe L.',
+          initials: 'JL',
+          timestamp: formatTimestamp(new Date()),
+          body
+        });
+        state.composingNote = null;
+        render();
+      });
+    });
+
+    // Note: open edit mode
+    tbody.querySelectorAll('[data-note-edit-trigger]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const [rowId, noteId] = btn.dataset.noteEditTrigger.split(':');
+        const item = RAW.find(r => r.id === rowId);
+        const note = item && (item.notes || []).find(n => n.id === noteId);
+        if (!note || note.author !== CURRENT_USER.author) return;
+        state.editingNote = btn.dataset.noteEditTrigger;
+        state.composingNote = null;
+        render();
+        const ta = tbody.querySelector('[data-note-textarea]');
+        if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
+      });
+    });
+
+    // Note: save edit
+    tbody.querySelectorAll('[data-note-save]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const [rowId, noteId] = btn.dataset.noteSave.split(':');
+        const ta = tbody.querySelector('[data-note-textarea]');
+        const body = ta && ta.value.trim();
+        if (!body) return;
+        const item = RAW.find(r => r.id === rowId);
+        const note = item && item.notes.find(n => n.id === noteId);
+        if (!note || note.author !== CURRENT_USER.author) return;
+        note.body = body;
+        note.timestamp = formatTimestamp(new Date()) + ' (edited)';
+        state.editingNote = null;
+        render();
+      });
+    });
+
+    // Note: delete
+    // Note: delete (with native confirm)
+    tbody.querySelectorAll('[data-note-delete]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const [rowId, noteId] = btn.dataset.noteDelete.split(':');
+        const item = RAW.find(r => r.id === rowId);
+        if (!item) return;
+        const note = (item.notes || []).find(n => n.id === noteId);
+        if (!note || note.author !== CURRENT_USER.author) return;
+        if (!confirm("Delete this note? This can't be undone.")) return;
+        item.notes = (item.notes || []).filter(n => n.id !== noteId);
+        render();
+      });
+    });
+  }
+
+  function formatTimestamp(d) {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    let h = d.getHours();
+    const m = d.getMinutes().toString().padStart(2, '0');
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} · ${h}:${m} ${ampm}`;
+  }
+
+  // Toolbar bindings
+  function resetWindow() {
+    state.page = 1;
+    state.loadedCount = state.displayMode === 'infinite' ? INFINITE_BATCH : state.pageSize;
+  }
+
+  document.getElementById('search').addEventListener('input', e => {
+    state.search = e.target.value;
+    resetWindow();
+    render();
+  });
+
+  // ====== Dropdown / Menu (ARIA APG pattern) ======
+  // - role="menu" with role="menuitemcheckbox" for impact/testType (multi-select)
+  // - role="menuitemradio" for group (single-select)
+  // - Keyboard: Down/Up/Home/End move focus, Space/Enter activate, Escape closes, Tab closes
+
+  // Display order so the trigger label shows items in a sensible order, not insertion order
+  const IMPACT_ORDER = ['critical', 'serious', 'moderate', 'minor'];
+  const TEST_ORDER = ['automated', 'ai', 'manual'];
+  const IMPACT_LABEL = { critical: 'Critical', serious: 'Serious', moderate: 'Moderate', minor: 'Minor' };
+  const TEST_LABEL = { automated: 'Automated', ai: 'AI', manual: 'Manual' };
+
+  function formatSelection(selectedSet, order, labelMap) {
+    if (selectedSet.size === 0) return '';
+    return `(+${selectedSet.size})`;
+  }
+
+  function updateDropdownLabels() {
+    renderFilterChips();
+
+    // Group: single-select, show chosen option's label
+    const groupEl = document.getElementById('dropdown-group-value');
+    if (groupEl) {
+      const item = document.querySelector(`.dropdown-item[data-group="${state.group}"]`);
+      groupEl.textContent = item ? item.querySelector('.dropdown-item-label').textContent : state.group;
+    }
+
+    // Sync aria-checked on items
+    document.querySelectorAll('.dropdown-item[data-filter="impact"]').forEach(item => {
+      item.setAttribute('aria-checked', state.impact.has(item.dataset.value) ? 'true' : 'false');
+    });
+    document.querySelectorAll('.dropdown-item[data-filter="testType"]').forEach(item => {
+      item.setAttribute('aria-checked', state.testType.has(item.dataset.value) ? 'true' : 'false');
+    });
+    document.querySelectorAll('.dropdown-item[data-filter="conformance"]').forEach(item => {
+      item.setAttribute('aria-checked', state.conformance.has(item.dataset.value) ? 'true' : 'false');
+      // The Best Practice filter option is meaningful only when BP findings are shown
+      if (item.dataset.value === 'best-practice') {
+        item.hidden = !state.showBP;
+      }
+    });
+    document.querySelectorAll('.dropdown-item[data-group]').forEach(item => {
+      const checked = item.dataset.group === state.group;
+      item.setAttribute('aria-checked', checked ? 'true' : 'false');
+      item.classList.toggle('active', checked);
+    });
+
+    // Disable "Clear all filters" when no filters are set
+    document.querySelectorAll('.dropdown-clear').forEach(btn => {
+      const kind = btn.dataset.clear;
+      if (kind === 'all') {
+        btn.disabled = state.impact.size === 0 && state.testType.size === 0 && state.conformance.size === 0;
+      } else {
+        btn.disabled = state[kind] && state[kind].size === 0;
+      }
+    });
+  }
+
+  function renderFilterChips() {
+    const host = document.getElementById('filter-chips');
+    const wrapper = document.getElementById('active-filters');
+    if (!host) return;
+    const chips = [];
+
+    if (state.impact.size > 0) {
+      const labels = IMPACT_ORDER.filter(v => state.impact.has(v)).map(v => IMPACT_LABEL[v]);
+      chips.push(buildChip('impact', 'Impact', labels));
+    }
+    if (state.testType.size > 0) {
+      const labels = TEST_ORDER.filter(v => state.testType.has(v)).map(v => TEST_LABEL[v]);
+      chips.push(buildChip('testType', 'Test', labels));
+    }
+    if (state.conformance.size > 0) {
+      const order = ['wcag-a', 'wcag-aa', 'wcag-aaa', 'best-practice'];
+      const labels = order.filter(v => state.conformance.has(v)).map(v => CONFORMANCE_LABELS[v]);
+      chips.push(buildChip('conformance', 'Conformance', labels));
+    }
+
+    host.innerHTML = chips.join('');
+    if (wrapper) wrapper.hidden = chips.length === 0;
+
+    host.querySelectorAll('[data-chip-remove]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const kind = btn.dataset.chipRemove;
+        state[kind].clear();
+        resetWindow();
+        updateDropdownLabels();
+        render();
+      });
+    });
+  }
+
+  function buildChip(kind, label, values) {
+    // Show up to 2 values, then "+N"
+    let valueText;
+    if (values.length === 1) valueText = values[0];
+    else if (values.length === 2) valueText = values.join(', ');
+    else valueText = `${values[0]} +${values.length - 1}`;
+    const fullList = values.join(', ');
+    return `
+      <span class="filter-chip">
+        <span class="filter-chip-kind">${label}:</span>
+        <span class="filter-chip-values" title="${fullList}">${valueText}</span>
+        <button class="filter-chip-remove" data-chip-remove="${kind}" aria-label="Remove ${label} filter (${fullList})">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </span>
+    `;
+  }
+
+  function openDropdown(dropdown, focusFirst = true) {
+    closeAllDropdowns();
+    dropdown.dataset.open = 'true';
+    const trigger = dropdown.querySelector('.dropdown-trigger');
+    trigger.setAttribute('aria-expanded', 'true');
+    const menu = dropdown.querySelector('.dropdown-menu');
+    menu.hidden = false;
+    if (focusFirst) {
+      const firstItem = menu.querySelector('.dropdown-item');
+      if (firstItem) firstItem.focus();
+    }
+  }
+
+  function closeDropdown(dropdown, returnFocus = false) {
+    if (!dropdown) return;
+    dropdown.dataset.open = 'false';
+    const trigger = dropdown.querySelector('.dropdown-trigger');
+    if (trigger) {
+      trigger.setAttribute('aria-expanded', 'false');
+      if (returnFocus) trigger.focus();
+    }
+    const menu = dropdown.querySelector('.dropdown-menu');
+    if (menu) menu.hidden = true;
+  }
+
+  function closeAllDropdowns(returnFocus = false) {
+    document.querySelectorAll('.dropdown').forEach(d => {
+      if (d.dataset.open === 'true') closeDropdown(d, returnFocus);
+      else closeDropdown(d, false);
+    });
+  }
+
+  // Trigger click → toggle menu
+  document.querySelectorAll('.dropdown-trigger').forEach(trigger => {
+    trigger.addEventListener('click', e => {
+      e.stopPropagation();
+      const dropdown = trigger.closest('.dropdown');
+      const wasOpen = dropdown.dataset.open === 'true';
+      if (wasOpen) closeDropdown(dropdown);
+      else openDropdown(dropdown);
+    });
+
+    // Trigger keyboard: Enter/Space/Down opens menu
+    trigger.addEventListener('keydown', e => {
+      const dropdown = trigger.closest('.dropdown');
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        openDropdown(dropdown, true);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        openDropdown(dropdown, false);
+        const items = dropdown.querySelectorAll('.dropdown-item');
+        if (items.length) items[items.length - 1].focus();
+      }
+    });
+  });
+
+  // Keyboard navigation within menus
+  document.querySelectorAll('.dropdown-menu').forEach(menu => {
+    menu.addEventListener('keydown', e => {
+      const items = Array.from(menu.querySelectorAll('.dropdown-item'));
+      const current = document.activeElement;
+      const idx = items.indexOf(current);
+
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          if (idx === -1 || idx === items.length - 1) items[0].focus();
+          else items[idx + 1].focus();
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          if (idx <= 0) items[items.length - 1].focus();
+          else items[idx - 1].focus();
+          break;
+        case 'Home':
+          e.preventDefault();
+          items[0].focus();
+          break;
+        case 'End':
+          e.preventDefault();
+          items[items.length - 1].focus();
+          break;
+        case 'Escape': {
+          e.preventDefault();
+          const dropdown = menu.closest('.dropdown');
+          closeDropdown(dropdown, true);
+          break;
+        }
+        case 'Tab': {
+          // Close on tab without preventing default — focus moves naturally
+          const dropdown = menu.closest('.dropdown');
+          closeDropdown(dropdown);
+          break;
+        }
+      }
+    });
+  });
+
+  // Outside click closes
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.dropdown')) closeAllDropdowns();
+  });
+
+  // Clear-all-in-this-dropdown button
+  document.querySelectorAll('.dropdown-clear').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const kind = btn.dataset.clear;
+      if (kind === 'all') {
+        state.impact.clear();
+        state.testType.clear();
+        state.conformance.clear();
+      } else if (state[kind]) {
+        state[kind].clear();
+      }
+      resetWindow();
+      updateDropdownLabels();
+      render();
+    });
+  });
+
+  // Item activation: filter (multi-select checkbox) — toggles, does NOT close menu
+  document.querySelectorAll('.dropdown-item[data-filter]').forEach(item => {
+    item.addEventListener('click', e => {
+      e.stopPropagation();
+      const filterType = item.dataset.filter;
+      const value = item.dataset.value;
+      const set = state[filterType];
+      if (set.has(value)) set.delete(value);
+      else set.add(value);
+      resetWindow();
+      updateDropdownLabels();
+      render();
+      // Keep focus on the item so subsequent toggles keep keyboard flow
+      item.focus();
+    });
+    // Space/Enter on checkbox items also toggles without closing
+    item.addEventListener('keydown', e => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        item.click();
+      }
+    });
+  });
+
+  // Item activation: group (single-select radio) — selects and closes
+  document.querySelectorAll('.dropdown-item[data-group]').forEach(item => {
+    item.addEventListener('click', e => {
+      e.stopPropagation();
+      state.group = item.dataset.group;
+      resetWindow();
+      updateDropdownLabels();
+      const dropdown = item.closest('.dropdown');
+      closeDropdown(dropdown, true);
+      render();
+    });
+    item.addEventListener('keydown', e => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        item.click();
+      }
+    });
+  });
+
+  // "Clear all" on the active-filters row
+  const activeFiltersClear = document.getElementById('active-filters-clear');
+  if (activeFiltersClear) {
+    activeFiltersClear.addEventListener('click', () => {
+      state.impact.clear();
+      state.testType.clear();
+      state.conformance.clear();
+      resetWindow();
+      updateDropdownLabels();
+      render();
+    });
+  }
+
+  // Initial label sync
+  updateDropdownLabels();
+  updateHiddenColumnsControl();
+
+  // Close column menu on outside click
+  document.addEventListener('click', e => {
+    if (!e.target.closest('#column-menu') && !e.target.closest('.th-menu-btn')) {
+      closeColumnMenu();
+    }
+  });
+
+  // Settings modal
+  const settingsModal = document.getElementById('settings-modal');
+  const settingsTrigger = document.getElementById('settings-trigger');
+  const settingsClose = document.getElementById('settings-close');
+  const settingsCancel = document.getElementById('settings-cancel');
+  const settingsApply = document.getElementById('settings-apply');
+  let lastFocusedElement = null;
+
+  function openSettings() {
+    lastFocusedElement = document.activeElement;
+    // Pre-populate with current state
+    document.querySelectorAll('input[name="displayMode"]').forEach(r => {
+      r.checked = r.value === state.displayMode;
+    });
+    document.querySelectorAll('[data-page-size]').forEach(b => {
+      b.classList.toggle('active', parseInt(b.dataset.pageSize, 10) === state.pageSize);
+    });
+    document.getElementById('settings-dedup').checked = state.dedup;
+    document.getElementById('settings-include-bp').checked = state.includeBP;
+    const showBpEl = document.getElementById('settings-show-bp');
+    // showBP is forced true (and the toggle disabled) while includeBP is on, since
+    // counting BP toward totals requires showing them.
+    showBpEl.checked = state.includeBP || state.showBP;
+    showBpEl.disabled = state.includeBP;
+    updatePageSizeGroupState();
+
+    settingsModal.hidden = false;
+    state.settingsOpen = true;
+    // Focus first interactive element
+    setTimeout(() => settingsClose.focus(), 30);
+  }
+
+  function closeSettings() {
+    settingsModal.hidden = true;
+    state.settingsOpen = false;
+    if (lastFocusedElement) lastFocusedElement.focus();
+  }
+
+  function updatePageSizeGroupState() {
+    // Page size is used in both modes (paginated = page size; infinite = initial batch size + scroll increment)
+    // No disabling needed.
+  }
+
+  settingsTrigger.addEventListener('click', openSettings);
+  settingsClose.addEventListener('click', closeSettings);
+  settingsCancel.addEventListener('click', closeSettings);
+
+  // Click backdrop to close
+  settingsModal.addEventListener('click', e => {
+    if (e.target === settingsModal) closeSettings();
+  });
+
+  // Escape key
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && state.settingsOpen) closeSettings();
+  });
+
+  // Display mode radios
+  document.querySelectorAll('input[name="displayMode"]').forEach(r => {
+    r.addEventListener('change', updatePageSizeGroupState);
+  });
+
+  // Page size segmented control
+  document.querySelectorAll('[data-page-size]').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('[data-page-size]').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+    });
+  });
+
+  // Apply settings
+  settingsApply.addEventListener('click', () => {
+    const mode = document.querySelector('input[name="displayMode"]:checked');
+    if (mode) state.displayMode = mode.value;
+    const activeSize = document.querySelector('[data-page-size].active');
+    if (activeSize) state.pageSize = parseInt(activeSize.dataset.pageSize, 10);
+    state.dedup = document.getElementById('settings-dedup').checked;
+    state.includeBP = document.getElementById('settings-include-bp').checked;
+    // When BP counts toward totals, BP must be shown — that combination is the only
+    // coherent one. Otherwise, honor the user's Show toggle.
+    state.showBP = state.includeBP || document.getElementById('settings-show-bp').checked;
+    // Hiding BP from the table makes a "Best Practice" conformance filter meaningless;
+    // clear it so the filter chip strip stays consistent with what's visible.
+    if (!state.showBP) state.conformance.delete('best-practice');
+    resetWindow();
+    closeSettings();
+    render();
+    updateStats();
+    updateDropdownLabels();
+  });
+
+  // Live mutual-exclusivity inside the modal: when "Include in totals" is checked,
+  // "Show best practices" is forced on and disabled — counting BP toward totals
+  // requires showing them. When unchecked, restore the user's prior Show preference.
+  document.getElementById('settings-include-bp').addEventListener('change', e => {
+    const showBpEl = document.getElementById('settings-show-bp');
+    if (e.target.checked) {
+      showBpEl.checked = true;
+      showBpEl.disabled = true;
+    } else {
+      showBpEl.disabled = false;
+      showBpEl.checked = state.showBP;
+    }
+  });
+
+  loadReport();
+</script>
+
+<div id="signup-modal" class="modal-backdrop" role="dialog" aria-modal="true"
+     aria-labelledby="signup-title" hidden>
+  <div class="modal">
+    <header class="modal-header">
+      <h2 id="signup-title" class="modal-title">Create a free account</h2>
+      <button class="modal-close" id="signup-close" aria-label="Close">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </header>
+    <div class="modal-body">
+      <p style="margin:0 0 20px;color:var(--ink-2);font-size:14px;line-height:1.5;">Save your remediation progress and keep your report permanently.</p>
+      <div id="signup-error" role="alert" aria-live="polite" style="display:none;color:var(--critical-fg);font-size:13px;margin-bottom:12px;padding:8px 12px;background:var(--critical-bg);border-radius:4px;"></div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <label style="display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:500;color:var(--ink);">
+          Name
+          <input id="signup-name" type="text" autocomplete="name" class="note-textarea" style="min-height:unset;height:36px;padding:0 10px;resize:none;" />
+        </label>
+        <label style="display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:500;color:var(--ink);">
+          Email
+          <input id="signup-email" type="email" autocomplete="email" class="note-textarea" style="min-height:unset;height:36px;padding:0 10px;resize:none;" />
+        </label>
+        <label style="display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:500;color:var(--ink);">
+          Password
+          <input id="signup-password" type="password" autocomplete="new-password" class="note-textarea" style="min-height:unset;height:36px;padding:0 10px;resize:none;" />
+        </label>
+      </div>
+    </div>
+    <footer class="modal-footer">
+      <button class="btn-secondary" id="signup-cancel">Cancel</button>
+      <button class="btn-primary" id="signup-submit">Create account</button>
+    </footer>
+  </div>
+</div>
+
+<script>
+  let signupLastFocus = null;
+  const signupModal = document.getElementById('signup-modal');
+
+  function openSignupModal() {
+    signupLastFocus = document.activeElement;
+    signupModal.hidden = false;
+    const focusable = Array.from(signupModal.querySelectorAll('button,input'));
+    if (focusable[0]) focusable[0].focus();
+    signupModal.addEventListener('keydown', signupKeyHandler);
+  }
+
+  function closeSignupModal() {
+    signupModal.hidden = true;
+    signupModal.removeEventListener('keydown', signupKeyHandler);
+    if (signupLastFocus) signupLastFocus.focus();
+  }
+
+  function signupKeyHandler(e) {
+    const focusable = Array.from(signupModal.querySelectorAll('button,input'));
+    const first = focusable[0], last = focusable[focusable.length - 1];
+    if (e.key === 'Escape') { closeSignupModal(); return; }
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  }
+
+  document.getElementById('signup-close').addEventListener('click', closeSignupModal);
+  document.getElementById('signup-cancel').addEventListener('click', closeSignupModal);
+  signupModal.addEventListener('click', e => { if (e.target === signupModal) closeSignupModal(); });
+
+  document.getElementById('signup-submit').addEventListener('click', async () => {
+    const btn = document.getElementById('signup-submit');
+    const errorEl = document.getElementById('signup-error');
+    const name = document.getElementById('signup-name').value.trim();
+    const email = document.getElementById('signup-email').value.trim();
+    const password = document.getElementById('signup-password').value;
+    errorEl.style.display = 'none';
+    if (!name || !email || !password) {
+      errorEl.textContent = 'Please fill in all fields.';
+      errorEl.style.display = 'block';
+      return;
+    }
+    btn.textContent = 'Creating account…';
+    btn.disabled = true;
+    try {
+      const res = await fetch(
+        'https://platform-production-ace5.up.railway.app/v1/public/report/claim',
+        {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token, name, email, password }),
-        });
-        const json = await res.json().catch(() => ({}));
-
-        if (res.status === 409) {
-          errEl.textContent = 'An account with this email already exists. Please log in.';
-          return;
         }
-        if (!res.ok) {
-          errEl.textContent = 'Something went wrong. Please try again.';
-          return;
-        }
-
-        try {
-          if (json.token) localStorage.setItem('evi-auth-token', json.token);
-          if (json.customer_id) localStorage.setItem('evi-auth-customer-id', json.customer_id);
-          if (json.email) localStorage.setItem('evi-auth-email', json.email);
-        } catch { /* localStorage may be unavailable */ }
-
-        // Flip the audit table to claimed so dropdowns become editable.
-        const table = document.querySelector('#auditTable');
-        if (table) table.claimed = true;
-
-        closeSignup();
-        showSuccessBanner(
-          'Account created! Your remediation progress will now be saved.'
-        );
-        signupForm.reset();
-      } catch {
-        errEl.textContent = 'Something went wrong. Please try again.';
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = prevLabel;
+      );
+      const data = await res.json();
+      if (res.status === 409) {
+        errorEl.textContent = 'An account with this email already exists. Please log in.';
+        errorEl.style.display = 'block';
+        btn.textContent = 'Create account';
+        btn.disabled = false;
+        return;
       }
-    });
-  }
-
-  function showSuccessBanner(text) {
-    const banner = document.getElementById('successBanner');
-    if (!banner) return;
-    banner.textContent = text;
-    banner.hidden = false;
-    clearTimeout(showSuccessBanner._t);
-    showSuccessBanner._t = setTimeout(() => { banner.hidden = true; }, 6000);
-  }
-
-  function renderCriticalCallout(critical) {
-    if (!critical.length) return '';
-    const items = critical.map(v => {
-      const word = v.pages_affected === 1 ? 'page' : 'pages';
-      return `<li><strong>${escapeHtml(v.help)}</strong><span class="meta"> — found on ${v.pages_affected} ${word}</span></li>`;
-    }).join('');
-    return `
-      <section class="critical-callout" aria-labelledby="critical-h">
-        <h2 id="critical-h" class="heading">🔴 Critical Issues — Immediate Attention Required</h2>
-        <p style="font-size:0.875rem;margin-bottom:0.6rem">These violations represent the most severe barriers for users with disabilities and must be resolved before claiming WCAG compliance.</p>
-        <ul>${items}</ul>
-      </section>`;
-  }
-
-  function renderCommonIssues(aggregated) {
-    if (!aggregated.length) return '';
-    const top = topByNodes(aggregated, 5);
-    const max = Math.max(1, ...top.map(v => v.total_nodes));
-    const rows = top.map(v => {
-      const pct = Math.max(4, Math.round((v.total_nodes / max) * 100));
-      const word = v.total_nodes === 1 ? 'instance' : 'instances';
-      return `
-        <tr>
-          <td>${escapeHtml(v.help)}</td>
-          <td><div role="presentation" aria-hidden="true" class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div></td>
-          <td class="num">${v.total_nodes} ${word}</td>
-        </tr>`;
-    }).join('');
-    return `
-      <section aria-labelledby="common-h">
-        <h2 id="common-h">Most common issues</h2>
-        <p class="muted" style="margin-bottom:0.5rem">Total instances found across all scanned pages.</p>
-        <table>
-          <caption class="sr-only">Top 5 most common violations across all pages</caption>
-          <thead><tr><th scope="col">Issue</th><th scope="col">Distribution</th><th scope="col" class="num">Instances</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </section>`;
-  }
-
-  function renderTopPriority(aggregated) {
-    if (!aggregated.length) return '';
-    const top = topByPages(aggregated, 3);
-    const items = top.map((v, i) => {
-      const word = v.pages_affected === 1 ? 'page' : 'pages';
-      return `<li><strong>${i + 1}. ${escapeHtml(v.help)}</strong><span class="meta"> — found on ${v.pages_affected} ${word}</span></li>`;
-    }).join('');
-    return `
-      <section aria-labelledby="priority-h">
-        <h2 id="priority-h">Top priority fixes</h2>
-        <p class="muted" style="margin-bottom:0.5rem">Resolving these will eliminate the most violations across the most pages.</p>
-        <ol class="priority">${items}</ol>
-      </section>`;
-  }
-
-  function renderEstimate(totalViolations) {
-    const est = estimateRemediation(totalViolations);
-    if (!est) return '';
-    return `
-      <section aria-labelledby="estimate-h">
-        <h2 id="estimate-h" class="sr-only">Remediation estimate</h2>
-        <div class="estimate">
-          <div class="h">Estimated remediation: ${escapeHtml(est)}</div>
-          <div class="b">Many issues likely stem from your sitewide template. Fixing the template once could resolve issues across multiple pages simultaneously.</div>
-        </div>
-      </section>`;
-  }
-
-  function renderPerPage(pages) {
-    if (!pages.length) return '';
-    const hasFindings = pages.some(p => Array.isArray(p.violations) && p.violations.length > 0);
-    if (!hasFindings) {
-      return `
-        <section aria-labelledby="pages-h">
-          <h2 id="pages-h">Per-page results</h2>
-          <p class="no-violations">No detailed violation data is available for these pages yet.</p>
-        </section>`;
+      if (!res.ok) throw new Error(data.error || 'Unknown error');
+      localStorage.setItem(`e11y_token_${token}`, data.token);
+      closeSignupModal();
+      location.reload();
+    } catch (err) {
+      errorEl.textContent = 'Something went wrong. Please try again.';
+      errorEl.style.display = 'block';
+      btn.textContent = 'Create account';
+      btn.disabled = false;
     }
-    return `
-      <section aria-labelledby="pages-h">
-        <h2 id="pages-h">Per-page results</h2>
-        <evi-audit-table id="auditTable"></evi-audit-table>
-      </section>`;
-  }
-
-  // Flatten data.pages[] into per-finding rows. Axe violations expand to one
-  // row per (violation, node); Claude AI findings are 1:1 with their own row.
-  function flattenFindings(pages) {
-    const out = [];
-    for (const page of (pages || [])) {
-      const violations = Array.isArray(page.violations) ? page.violations : [];
-      for (const v of violations) {
-        const nodes = Array.isArray(v.nodes) && v.nodes.length ? v.nodes : [{}];
-        for (const node of nodes) {
-          out.push({
-            page: page.url || '',
-            testType: 'Automated',
-            impact: v.impact,
-            tags: v.tags,
-            help: v.help || v.id,
-            description: v.description,
-            failureSummary: node.failureSummary,
-            html: node.html,
-            target: node.target,
-          });
-        }
-      }
-      const claudeFindings = Array.isArray(page.claude_findings) ? page.claude_findings : [];
-      for (const f of claudeFindings) {
-        out.push({
-          page: page.url || '',
-          testType: 'AI',
-          impact: f.severity,
-          wcagSc: f.wcag_sc,
-          wcagName: f.wcag_name,
-          help: f.issue,
-          description: f.fix,
-          failureSummary: `${f.issue} (Confidence: ${f.confidence})`,
-          html: f.element,
-          target: '',
-          confidence: f.confidence,
-        });
-      }
-    }
-    return out;
-  }
-
-  init();
+  });
 </script>
-
-<script type="module">
-  import { LitElement, html, css } from 'https://esm.sh/lit@3';
-
-  const IMPACT_RANK = { critical: 0, serious: 1, moderate: 2, minor: 3 };
-  const IMPACT_LABEL = { critical: 'CRITICAL', serious: 'SERIOUS', moderate: 'MODERATE', minor: 'MINOR' };
-  const REMEDIATION = ['Not started', 'In Progress', 'Pending', 'Completed'];
-
-  const SC_MAP = {
-    wcag111:'1.1.1', wcag121:'1.2.1', wcag122:'1.2.2', wcag123:'1.2.3',
-    wcag124:'1.2.4', wcag125:'1.2.5', wcag131:'1.3.1', wcag132:'1.3.2',
-    wcag133:'1.3.3', wcag134:'1.3.4', wcag135:'1.3.5', wcag141:'1.4.1',
-    wcag142:'1.4.2', wcag143:'1.4.3', wcag144:'1.4.4', wcag145:'1.4.5',
-    wcag1410:'1.4.10', wcag1411:'1.4.11', wcag1412:'1.4.12', wcag1413:'1.4.13',
-    wcag211:'2.1.1', wcag212:'2.1.2', wcag214:'2.1.4', wcag221:'2.2.1',
-    wcag222:'2.2.2', wcag231:'2.3.1', wcag241:'2.4.1', wcag242:'2.4.2',
-    wcag243:'2.4.3', wcag244:'2.4.4', wcag245:'2.4.5', wcag246:'2.4.6',
-    wcag247:'2.4.7', wcag251:'2.5.1', wcag252:'2.5.2', wcag253:'2.5.3',
-    wcag254:'2.5.4', wcag311:'3.1.1', wcag312:'3.1.2', wcag321:'3.2.1',
-    wcag322:'3.2.2', wcag323:'3.2.3', wcag324:'3.2.4', wcag331:'3.3.1',
-    wcag332:'3.3.2', wcag333:'3.3.3', wcag334:'3.3.4', wcag411:'4.1.1',
-    wcag412:'4.1.2', wcag413:'4.1.3'
-  };
-
-  class EviAuditTable extends LitElement {
-    static properties = {
-      findings: { type: Array },
-      mode: { type: String },
-      claimed: { type: Boolean },
-      token: { type: String },
-      _sortColumn: { state: true },
-      _sortDir: { state: true },
-      _statuses: { state: true },
-    };
-
-    static styles = css`
-      :host { display: block; font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1a1a1a; }
-      details { border-top: 1px solid #eaeaea; padding: 1rem 0 0; margin-top: 1rem; }
-      details:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
-      summary { cursor: pointer; font-weight: 600; font-size: 0.95rem; padding: 0.4rem 0; word-break: break-all; }
-      summary .count { color: #555555; font-weight: 400; margin-left: 0.5rem; }
-      summary:hover { color: #0a0f2e; }
-      .table-wrap { overflow-x: auto; margin-top: 0.5rem; }
-      table { width: 100%; min-width: 1100px; border-collapse: collapse; font-size: 0.82rem; }
-      caption { text-align: left; font-weight: 600; padding: 0.4rem 0; }
-      th, td { padding: 0.55rem 0.5rem; border-bottom: 1px solid #eaeaea; vertical-align: top; text-align: left; }
-      th { background: #f5f5f5; color: #1a1a1a; font-weight: 600; user-select: none; cursor: pointer; border-bottom: 1px solid #cccccc; white-space: nowrap; }
-      th:hover { background: #ececec; }
-      th:focus-visible { outline: 2px solid #0a0f2e; outline-offset: -2px; }
-      th .arrow { color: #555555; margin-left: 0.25rem; font-size: 0.7rem; }
-      th.active { background: #e8eef5; color: #0a0f2e; }
-      td.num { text-align: right; }
-
-      .badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 3px; vertical-align: middle; white-space: nowrap; border: 1px solid; }
-      .badge-critical { background: #fde8e8; color: #8b1a1a; border-color: #8b1a1a; }
-      .badge-serious  { background: #fef3e2; color: #7a4f00; border-color: #7a4f00; }
-      .badge-moderate { background: #e8f0fe; color: #1a3a5c; border-color: #1a3a5c; }
-      .badge-minor    { background: #f0f0f0; color: #333333; border-color: #aaaaaa; }
-      .badge-unknown  { background: #f0f0f0; color: #555555; border-color: #aaaaaa; }
-
-      .test-type { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 3px; border: 1px solid; white-space: nowrap; }
-      .test-type-automated { background: #f0f0f0; color: #1a1a1a; border-color: #cccccc; }
-      .test-type-manual    { background: #e8f0fe; color: #1a3a5c; border-color: #1a3a5c; }
-      .test-type-ai        { background: #f0eaff; color: #4b2c8c; border-color: #4b2c8c; }
-
-      .wcag { font-size: 0.78rem; color: #555555; word-break: break-word; max-width: 18ch; display: inline-block; }
-      .wcag-name { display: block; color: #777777; font-size: 0.7rem; margin-top: 0.15rem; font-style: italic; }
-      .testtype-cell { display: flex; flex-direction: column; align-items: flex-start; gap: 0.2rem; }
-      .confidence { color: #555555; font-size: 0.7rem; white-space: nowrap; }
-      .summary { font-weight: 500; min-width: 14ch; }
-      .problem, .expected { min-width: 22ch; }
-      .snippet { display: block; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.74rem; background: #f5f5f5; padding: 0.35rem 0.5rem; border-radius: 4px; word-break: break-all; white-space: pre-wrap; max-height: 5rem; overflow: hidden; }
-      .target { font-size: 0.72rem; color: #555555; margin-top: 0.25rem; word-break: break-all; }
-      .muted { color: #555555; font-style: italic; }
-
-      select { font: inherit; padding: 0.3rem 0.5rem; border: 1px solid #cccccc; border-radius: 4px; background: #ffffff; color: #1a1a1a; cursor: pointer; min-width: 9rem; }
-      select:disabled { background: #f5f5f5; color: #555555; cursor: not-allowed; }
-      .locked-select { position: relative; display: inline-block; cursor: pointer; }
-      .locked-select select { pointer-events: none; padding-right: 1.7rem; }
-      .locked-select .lock { position: absolute; right: 0.45rem; top: 50%; transform: translateY(-50%); font-size: 0.85rem; pointer-events: none; }
-      .locked-select:hover select { border-color: #0a0f2e; }
-      .locked-select:focus-visible { outline: 2px solid #0a0f2e; outline-offset: 2px; border-radius: 5px; }
-
-      .empty { color: #555555; font-style: italic; padding: 1rem 0; }
-
-      @media print {
-        details { page-break-inside: avoid; }
-        details > summary { list-style: none; }
-        table { min-width: 0; font-size: 0.7rem; }
-        th { background: transparent !important; border-bottom: 1.5px solid #000 !important; }
-        .badge, .test-type { border: 1px solid #555 !important; background: transparent !important; color: #000 !important; }
-        select, .locked-select { display: none; }
-      }
-    `;
-
-    constructor() {
-      super();
-      this.findings = [];
-      this.mode = 'report';
-      this.claimed = false;
-      this.token = '';
-      this._sortColumn = 'impact';
-      this._sortDir = 'asc'; // asc → critical first (rank 0)
-      this._statuses = {};
-    }
-
-    willUpdate(changed) {
-      if (changed.has('findings') || changed.has('token') || changed.has('claimed')) {
-        this._loadStatuses();
-      }
-    }
-
-    _storageKey(pageUrl, issueNum) {
-      return `${this.token}:${pageUrl}:${issueNum}`;
-    }
-
-    _loadStatuses() {
-      if (!this.claimed || !this.token) { this._statuses = {}; return; }
-      const out = {};
-      const groups = this._groupByPage(this.findings);
-      for (const [page, items] of groups) {
-        items.forEach((_, i) => {
-          const key = this._storageKey(page, i + 1);
-          try {
-            const v = localStorage.getItem(key);
-            if (v) out[key] = v;
-          } catch { /* localStorage may be unavailable */ }
-        });
-      }
-      this._statuses = out;
-    }
-
-    _groupByPage(findings) {
-      const map = new Map();
-      for (const f of (findings || [])) {
-        const k = f.page || '(no page)';
-        if (!map.has(k)) map.set(k, []);
-        map.get(k).push(f);
-      }
-      return map;
-    }
-
-    _formatWcag(f) {
-      // AI findings carry wcagSc directly; render as "SC X.Y.Z".
-      if (f && f.wcagSc) return `SC ${f.wcagSc}`;
-      const tags = f && Array.isArray(f.tags) ? f.tags : [];
-      const out = [];
-      for (const t of tags) {
-        const m = /^wcag(2|21|22)?(a{1,3})$/.exec(t);
-        if (m) {
-          out.push(`WCAG 2.2 ${m[2].toUpperCase()}`);
-        } else if (SC_MAP[t]) {
-          out.push(`SC ${SC_MAP[t]}`);
-        }
-      }
-      return [...new Set(out)].join(' · ');
-    }
-
-    _cleanFailureSummary(text) {
-      return String(text || '')
-        .replace(/^Fix any of the following:\s*\n?/i, '')
-        .replace(/^Fix all of the following:\s*\n?/i, '')
-        .trim();
-    }
-
-    _truncate(str, n) {
-      const s = String(str || '');
-      return s.length > n ? s.slice(0, n) + '…' : s;
-    }
-
-    _sortKey(col, f, pageUrl, issueNum) {
-      switch (col) {
-        case 'issue': return issueNum;
-        case 'testType': return (f.testType || '').toLowerCase();
-        case 'impact': return IMPACT_RANK[f.impact] ?? 99;
-        case 'wcag': return this._formatWcag(f);
-        case 'summary': return (f.help || '').toLowerCase();
-        case 'problem': return this._cleanFailureSummary(f.failureSummary).toLowerCase();
-        case 'expected': return (f.description || '').toLowerCase();
-        case 'failingElement':
-          return ((Array.isArray(f.target) && f.target[0]) || f.html || '').toLowerCase();
-        case 'remediation': {
-          const status = this._statuses[this._storageKey(pageUrl, issueNum)] || REMEDIATION[0];
-          return REMEDIATION.indexOf(status);
-        }
-        case 'screenshot':
-        default:
-          return 0;
-      }
-    }
-
-    _onSortClick(col) {
-      if (this._sortColumn === col) {
-        this._sortDir = this._sortDir === 'asc' ? 'desc' : 'asc';
-      } else {
-        this._sortColumn = col;
-        this._sortDir = 'asc';
-      }
-    }
-
-    _onSortKey(e, col) {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        this._onSortClick(col);
-      }
-    }
-
-    _onRemediationChange(e, key) {
-      const val = e.target.value;
-      try { localStorage.setItem(key, val); } catch { /* ignore */ }
-      this._statuses = { ...this._statuses, [key]: val };
-    }
-
-    _onLockedClick(e) {
-      e.preventDefault();
-      this.dispatchEvent(new CustomEvent('evi-signup-required', {
-        bubbles: true, composed: true,
-      }));
-    }
-
-    _onLockedKey(e) {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        this._onLockedClick(e);
-      }
-    }
-
-    _renderHeader(col, label) {
-      const active = this._sortColumn === col;
-      const arrow = active ? (this._sortDir === 'asc' ? '▲' : '▼') : '';
-      return html`
-        <th
-          scope="col"
-          class=${active ? 'active' : ''}
-          tabindex="0"
-          role="button"
-          aria-sort=${active ? (this._sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
-          @click=${() => this._onSortClick(col)}
-          @keydown=${(e) => this._onSortKey(e, col)}
-        >${label}<span class="arrow" aria-hidden="true">${arrow}</span></th>
-      `;
-    }
-
-    _renderImpact(impact) {
-      const cls = IMPACT_LABEL[impact] ? `badge-${impact}` : 'badge-unknown';
-      const label = IMPACT_LABEL[impact] || 'UNKNOWN';
-      return html`<span class="badge ${cls}">${label}</span>`;
-    }
-
-    _renderTestType(f) {
-      const t = (f && f.testType) || 'Automated';
-      const cls = `test-type-${String(t).toLowerCase()}`;
-      const conf = f && f.confidence;
-      const confLabel = conf
-        ? `${conf.charAt(0).toUpperCase()}${conf.slice(1).toLowerCase()} confidence`
-        : '';
-      return html`
-        <div class="testtype-cell">
-          <span class="test-type ${cls}">${t}</span>
-          ${confLabel ? html`<span class="confidence">${confLabel}</span>` : ''}
-        </div>
-      `;
-    }
-
-    _renderRemediation(key) {
-      const current = this._statuses[key] || REMEDIATION[0];
-      if (this.claimed) {
-        return html`
-          <select
-            aria-label="Remediation status"
-            .value=${current}
-            @change=${(e) => this._onRemediationChange(e, key)}
-          >
-            ${REMEDIATION.map(opt => html`
-              <option value=${opt} ?selected=${opt === current}>${opt}</option>
-            `)}
-          </select>
-        `;
-      }
-      return html`
-        <span
-          class="locked-select"
-          role="button"
-          tabindex="0"
-          title="Create a free account to track remediation progress"
-          aria-label="Create a free account to track remediation progress"
-          @click=${this._onLockedClick}
-          @keydown=${this._onLockedKey}
-        >
-          <select disabled aria-disabled="true" tabindex="-1">
-            <option>${current}</option>
-          </select>
-          <span class="lock" aria-hidden="true">🔒</span>
-        </span>
-      `;
-    }
-
-    _renderRow(f, pageUrl, issueNum) {
-      const wcag = this._formatWcag(f);
-      const problem = this._cleanFailureSummary(f.failureSummary);
-      const target = Array.isArray(f.target) ? f.target.join(', ') : '';
-      const key = this._storageKey(pageUrl, issueNum);
-      return html`
-        <tr>
-          <td class="num">${issueNum}</td>
-          <td>${this._renderTestType(f)}</td>
-          <td>${this._renderImpact(f.impact)}</td>
-          <td>
-            <span class="wcag">${wcag}${f.wcagName ? html`<span class="wcag-name">${f.wcagName}</span>` : ''}</span>
-          </td>
-          <td class="summary">${f.help || ''}</td>
-          <td class="problem">${problem}</td>
-          <td class="expected">${f.description || ''}</td>
-          <td>
-            ${f.html ? html`<code class="snippet">${this._truncate(f.html, 200)}</code>` : ''}
-            ${target ? html`<div class="target">${target}</div>` : ''}
-          </td>
-          <td><span class="muted">Not available</span></td>
-          <td>${this._renderRemediation(key)}</td>
-        </tr>
-      `;
-    }
-
-    _renderPageGroup(pageUrl, items) {
-      // Assign a stable issue number based on the original (unsorted) order so
-      // the localStorage key doesn't drift when the user re-sorts the table.
-      const numbered = items.map((f, i) => ({ ...f, _issue: i + 1 }));
-      const sorted = [...numbered].sort((a, b) => {
-        const va = this._sortKey(this._sortColumn, a, pageUrl, a._issue);
-        const vb = this._sortKey(this._sortColumn, b, pageUrl, b._issue);
-        if (va < vb) return this._sortDir === 'asc' ? -1 : 1;
-        if (va > vb) return this._sortDir === 'asc' ? 1 : -1;
-        return a._issue - b._issue;
-      });
-      return html`
-        <details open>
-          <summary>${pageUrl}<span class="count">— ${items.length} ${items.length === 1 ? 'issue' : 'issues'}</span></summary>
-          <div class="table-wrap">
-            <table>
-              <caption class="sr-only">Findings for ${pageUrl}</caption>
-              <thead>
-                <tr>
-                  ${this._renderHeader('issue', 'Issue #')}
-                  ${this._renderHeader('testType', 'Test Type')}
-                  ${this._renderHeader('impact', 'Impact')}
-                  ${this._renderHeader('wcag', 'WCAG SC')}
-                  ${this._renderHeader('summary', 'Summary')}
-                  ${this._renderHeader('problem', 'Problem')}
-                  ${this._renderHeader('expected', 'Expected')}
-                  ${this._renderHeader('failingElement', 'Failing element')}
-                  ${this._renderHeader('screenshot', 'Screenshot')}
-                  ${this._renderHeader('remediation', 'Remediation')}
-                </tr>
-              </thead>
-              <tbody>
-                ${sorted.map(f => this._renderRow(f, pageUrl, f._issue))}
-              </tbody>
-            </table>
-          </div>
-        </details>
-      `;
-    }
-
-    render() {
-      if (!this.findings || !this.findings.length) {
-        return html`<p class="empty">No detailed findings available.</p>`;
-      }
-      const groups = this._groupByPage(this.findings);
-      return html`${[...groups].map(([url, items]) => this._renderPageGroup(url, items))}`;
-    }
-  }
-
-  customElements.define('evi-audit-table', EviAuditTable);
-</script>
-
 </body>
 </html>
