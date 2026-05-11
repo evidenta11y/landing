@@ -1785,39 +1785,6 @@
     .col-pages { display: none; }
   }
 
-  /* Toast */
-  .toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%) translateY(0);
-    background: var(--ink);
-    color: var(--surface);
-    font-size: 13px;
-    line-height: 1.5;
-    padding: 10px 16px;
-    border-radius: 8px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-    white-space: nowrap;
-    z-index: 300;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    animation: toastIn 0.18s ease-out;
-  }
-  .toast kbd {
-    display: inline-block;
-    background: rgba(255,255,255,0.15);
-    border-radius: 4px;
-    padding: 1px 6px;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    font-style: normal;
-  }
-  @keyframes toastIn {
-    from { opacity: 0; transform: translateX(-50%) translateY(6px); }
-    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
-  }
 </style>
 </head>
 <body>
@@ -2586,7 +2553,7 @@
             <dt>Actions</dt>
             <dd>
               <div class="detail-actions">
-                <button class="detail-action" data-devtools="${r.id}${r.page || ''}"><svg class="icon" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> Open in DevTools</button>
+                <button class="detail-action"><svg class="icon" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> Open in DevTools</button>
               </div>
             </dd>
           </dl>
@@ -3407,40 +3374,6 @@
       });
     });
 
-    // Open in DevTools: open affected page + copy inspect() snippet
-    tbody.querySelectorAll('[data-devtools]').forEach(btn => {
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        const rowKey = btn.dataset.devtools;
-        const item = RAW.find(r => r.id + (r.page || '') === rowKey || r.id === rowKey);
-        if (!item) return;
-        const pageUrl = item.page || (item.pages && item.pages[0]);
-        const selector = item.selector;
-        const snippet = `inspect(document.querySelector(${JSON.stringify(selector)}))`;
-        // Write to clipboard first — must happen synchronously inside the user gesture
-        // before window.open() consumes it, otherwise browsers may deny the write.
-        const copyDone = navigator.clipboard
-          ? navigator.clipboard.writeText(snippet)
-          : Promise.reject();
-        copyDone.catch(() => {
-          const ta = document.createElement('textarea');
-          ta.value = snippet;
-          ta.style.cssText = 'position:fixed;opacity:0';
-          document.body.appendChild(ta);
-          ta.select();
-          try { document.execCommand('copy'); } catch (_) {}
-          document.body.removeChild(ta);
-        }).finally(() => {
-          if (pageUrl) window.open(pageUrl, '_blank', 'noopener');
-          showToast(
-            pageUrl
-              ? `Page opened. Snippet copied — open DevTools (<kbd>F12</kbd>) and paste to select the element.`
-              : `Snippet copied — open DevTools (<kbd>F12</kbd>) on the page and paste to select the element.`
-          );
-        });
-      });
-    });
-
     // Note: open composer
     tbody.querySelectorAll('[data-add-note]').forEach(btn => {
       btn.addEventListener('click', e => {
@@ -3664,21 +3597,6 @@
   function closeAttachmentAltPopover() {
     getAltPopover().hidden = true;
     _altPopoverAtt = null;
-  }
-
-  // ── Toast ─────────────────────────────────────────────────────────────────
-  let _toastTimer = null;
-  function showToast(html, durationMs = 4500) {
-    const existing = document.querySelector('.toast');
-    if (existing) existing.remove();
-    clearTimeout(_toastTimer);
-    const el = document.createElement('div');
-    el.className = 'toast';
-    el.setAttribute('role', 'status');
-    el.setAttribute('aria-live', 'polite');
-    el.innerHTML = html;
-    document.body.appendChild(el);
-    _toastTimer = setTimeout(() => el.remove(), durationMs);
   }
 
   function readFileAsDataUrl(file) {
