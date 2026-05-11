@@ -3417,8 +3417,12 @@
         const pageUrl = item.page || (item.pages && item.pages[0]);
         const selector = item.selector;
         const snippet = `inspect(document.querySelector(${JSON.stringify(selector)}))`;
-        if (pageUrl) window.open(pageUrl, '_blank', 'noopener');
-        const writeSnippet = () => navigator.clipboard.writeText(snippet).catch(() => {
+        // Write to clipboard first — must happen synchronously inside the user gesture
+        // before window.open() consumes it, otherwise browsers may deny the write.
+        const copyDone = navigator.clipboard
+          ? navigator.clipboard.writeText(snippet)
+          : Promise.reject();
+        copyDone.catch(() => {
           const ta = document.createElement('textarea');
           ta.value = snippet;
           ta.style.cssText = 'position:fixed;opacity:0';
@@ -3426,12 +3430,12 @@
           ta.select();
           try { document.execCommand('copy'); } catch (_) {}
           document.body.removeChild(ta);
-        });
-        writeSnippet().finally(() => {
+        }).finally(() => {
+          if (pageUrl) window.open(pageUrl, '_blank', 'noopener');
           showToast(
             pageUrl
-              ? `Page opened. Snippet copied — open DevTools (<kbd>F12</kbd>), then paste to select the element.`
-              : `Snippet copied — open DevTools (<kbd>F12</kbd>) on the page, then paste to select the element.`
+              ? `Page opened. Snippet copied — open DevTools (<kbd>F12</kbd>) and paste to select the element.`
+              : `Snippet copied — open DevTools (<kbd>F12</kbd>) on the page and paste to select the element.`
           );
         });
       });
