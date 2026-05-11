@@ -1241,21 +1241,13 @@
   }
   .attachment-item {
     position: relative;
-    width: 128px;
+    width: 80px;
+    height: 80px;
     border-radius: 6px;
     overflow: hidden;
     border: 1px solid var(--line);
     background: var(--surface-3);
     flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-  }
-  .attachment-thumb-wrap {
-    position: relative;
-    width: 128px;
-    height: 80px;
-    flex-shrink: 0;
-    overflow: hidden;
   }
   .attachment-thumb {
     width: 100%;
@@ -1263,27 +1255,13 @@
     object-fit: cover;
     display: block;
   }
-  .attachment-alt-input {
-    width: 100%;
-    padding: 5px 8px;
-    border: none;
-    border-top: 1px solid var(--line);
-    background: var(--surface);
-    font-family: var(--font-display);
-    font-size: 11px;
-    color: var(--ink-2);
-    outline: none;
-    line-height: 1.4;
-  }
-  .attachment-alt-input::placeholder { color: var(--ink-4); font-style: italic; }
-  .attachment-alt-input:focus { background: var(--surface-2); border-top-color: var(--ink); }
-  .attachment-remove {
+  .attachment-kebab {
     position: absolute;
     top: 3px;
     right: 3px;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
     background: rgba(0,0,0,0.55);
     border: none;
     color: #fff;
@@ -1295,13 +1273,13 @@
     transition: opacity 0.1s;
     padding: 0;
   }
-  .attachment-remove svg { width: 10px; height: 10px; }
-  .attachment-item:hover .attachment-remove,
-  .attachment-remove:focus-visible { opacity: 1; }
+  .attachment-kebab svg { width: 12px; height: 12px; }
+  .attachment-item:hover .attachment-kebab,
+  .attachment-kebab:focus-visible { opacity: 1; }
   .attachment-preview-trigger {
     display: block;
-    width: 128px;
-    height: 80px;
+    width: 100%;
+    height: 100%;
     padding: 0;
     border: none;
     background: none;
@@ -1310,6 +1288,31 @@
   .attachment-preview-trigger:focus-visible {
     outline: 2px solid var(--ink);
     outline-offset: -2px;
+  }
+  .attachment-alt-popover {
+    position: absolute;
+    z-index: 50;
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    padding: 12px;
+    width: 220px;
+  }
+  .attachment-alt-popover[hidden] { display: none; }
+  .attachment-alt-popover label {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .attachment-alt-popover-actions {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+    margin-top: 8px;
   }
 
   /* Attachment lightbox */
@@ -2530,21 +2533,14 @@
               <div style="display:flex;flex-direction:column;gap:8px;">
                 ${r.attachments && r.attachments.length ? `<div class="attachment-grid">${(r.attachments).map(a => `
                   <div class="attachment-item">
-                    <div class="attachment-thumb-wrap">
-                      <button class="attachment-preview-trigger" data-attachment-preview="${r.id}:${a.id}" aria-label="View ${escapeAttr(a.name)}">
-                        ${a.fileType === 'video'
-                          ? `<video class="attachment-thumb" src="${a.dataUrl}" muted playsinline tabindex="-1"></video>`
-                          : `<img class="attachment-thumb" src="${a.dataUrl}" alt="${escapeAttr(a.altText || '')}" />`}
-                      </button>
-                      <button class="attachment-remove" data-attachment-remove="${r.id}:${a.id}" aria-label="Remove ${escapeAttr(a.name)}">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                      </button>
-                    </div>
-                    <input class="attachment-alt-input" type="text"
-                           placeholder="Add alt text…"
-                           value="${escapeAttr(a.altText || '')}"
-                           data-attachment-alt="${r.id}:${a.id}"
-                           aria-label="Alt text for ${escapeAttr(a.name)}" />
+                    <button class="attachment-preview-trigger" data-attachment-preview="${r.id}:${a.id}" aria-label="View ${escapeAttr(a.name)}">
+                      ${a.fileType === 'video'
+                        ? `<video class="attachment-thumb" src="${a.dataUrl}" muted playsinline tabindex="-1"></video>`
+                        : `<img class="attachment-thumb" src="${a.dataUrl}" alt="${escapeAttr(a.altText || a.name)}" />`}
+                    </button>
+                    <button class="attachment-kebab" data-attachment-menu="${r.id}:${a.id}" aria-label="Options for ${escapeAttr(a.name)}" aria-haspopup="menu">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                    </button>
                   </div>`).join('')}</div>` : ''}
                 <button class="attachment-add-trigger" data-attachment-trigger="${r.id}">
                   <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -3483,6 +3479,14 @@
       });
     });
 
+    // Attachments: open kebab menu
+    tbody.querySelectorAll('[data-attachment-menu]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        openAttachmentMenu(btn.dataset.attachmentMenu, btn);
+      });
+    });
+
     // Attachments: open file picker
     tbody.querySelectorAll('[data-attachment-trigger]').forEach(btn => {
       btn.addEventListener('click', e => {
@@ -3507,37 +3511,91 @@
             name: file.name,
             fileType: file.type.startsWith('video/') ? 'video' : 'image',
             dataUrl,
-            altText: '',
+            altText: file.name,
           });
         }
         input.value = '';
         render();
       });
     });
+  }
 
-    // Attachments: save alt text on blur/change (no re-render to preserve focus)
-    tbody.querySelectorAll('[data-attachment-alt]').forEach(input => {
-      input.addEventListener('click', e => e.stopPropagation());
-      input.addEventListener('change', e => {
-        e.stopPropagation();
-        const [rowId, attId] = input.dataset.attachmentAlt.split(':');
-        const item = RAW.find(r => r.id === rowId);
-        const att = item && (item.attachments || []).find(a => a.id === attId);
-        if (att) att.altText = input.value;
-      });
-    });
+  // ── Attachment kebab menu ──────────────────────────────────────────────────
+  let _attachmentMenuEl = null;
+  function getAttachmentMenu() {
+    if (!_attachmentMenuEl) _attachmentMenuEl = document.getElementById('attachment-action-menu');
+    return _attachmentMenuEl;
+  }
 
-    // Attachments: remove
-    tbody.querySelectorAll('[data-attachment-remove]').forEach(btn => {
+  function openAttachmentMenu(key, anchor) {
+    closeAttachmentAltPopover();
+    const menu = getAttachmentMenu();
+    const [rowId, attId] = key.split(':');
+    const item = RAW.find(r => r.id === rowId);
+    const att = item && (item.attachments || []).find(a => a.id === attId);
+    if (!att) return;
+
+    menu.innerHTML = `
+      <button class="dropdown-item" data-att-action="alt">
+        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="visibility:hidden"><polyline points="20 6 9 17 4 12"/></svg>
+        <span class="dropdown-item-label">Edit alt text</span>
+      </button>
+      <button class="dropdown-item" data-att-action="delete" style="color:var(--critical-fg);">
+        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="visibility:hidden"><polyline points="20 6 9 17 4 12"/></svg>
+        <span class="dropdown-item-label">Delete</span>
+      </button>
+    `;
+    const rect = anchor.getBoundingClientRect();
+    menu.style.top = `${window.scrollY + rect.bottom + 4}px`;
+    menu.style.left = `${window.scrollX + rect.left}px`;
+    menu.hidden = false;
+    menu.querySelector('[data-att-action]').focus();
+
+    menu.querySelectorAll('[data-att-action]').forEach(btn => {
       btn.addEventListener('click', e => {
         e.stopPropagation();
-        const [rowId, attId] = btn.dataset.attachmentRemove.split(':');
-        const item = RAW.find(r => r.id === rowId);
-        if (!item) return;
-        item.attachments = (item.attachments || []).filter(a => a.id !== attId);
-        render();
+        const action = btn.dataset.attAction;
+        closeAttachmentMenu();
+        if (action === 'delete') {
+          item.attachments = item.attachments.filter(a => a.id !== attId);
+          render();
+        } else if (action === 'alt') {
+          openAttachmentAltPopover(att, anchor);
+        }
       });
     });
+  }
+
+  function closeAttachmentMenu() {
+    const menu = getAttachmentMenu();
+    if (menu) menu.hidden = true;
+  }
+
+  // ── Alt text popover ───────────────────────────────────────────────────────
+  let _altPopoverEl = null;
+  let _altPopoverAtt = null;
+  function getAltPopover() {
+    if (!_altPopoverEl) _altPopoverEl = document.getElementById('attachment-alt-popover');
+    return _altPopoverEl;
+  }
+
+  function openAttachmentAltPopover(att, anchor) {
+    _altPopoverAtt = att;
+    const popover = getAltPopover();
+    const field = document.getElementById('attachment-alt-field');
+    field.value = att.altText === att.name ? '' : att.altText;
+    field.placeholder = att.name;
+    const rect = anchor.getBoundingClientRect();
+    popover.style.top = `${window.scrollY + rect.bottom + 4}px`;
+    popover.style.left = `${window.scrollX + rect.left}px`;
+    popover.hidden = false;
+    field.focus();
+    field.select();
+  }
+
+  function closeAttachmentAltPopover() {
+    getAltPopover().hidden = true;
+    _altPopoverAtt = null;
   }
 
   function readFileAsDataUrl(file) {
@@ -4019,6 +4077,39 @@
   loadReport();
 </script>
 
+<div id="attachment-action-menu" class="column-menu" role="menu" hidden></div>
+
+<div id="attachment-alt-popover" class="attachment-alt-popover" hidden>
+  <label>
+    Alt text
+    <input id="attachment-alt-field" type="text" class="note-textarea"
+           style="min-height:unset;height:32px;padding:0 8px;resize:none;font-size:13px;" />
+  </label>
+  <div class="attachment-alt-popover-actions">
+    <button class="btn-secondary btn-small" id="attachment-alt-cancel">Cancel</button>
+    <button class="btn-primary btn-small" id="attachment-alt-save">Save</button>
+  </div>
+</div>
+
+<script>
+  document.getElementById('attachment-alt-cancel').addEventListener('click', closeAttachmentAltPopover);
+  document.getElementById('attachment-alt-save').addEventListener('click', () => {
+    if (!_altPopoverAtt) return;
+    const val = document.getElementById('attachment-alt-field').value.trim();
+    _altPopoverAtt.altText = val || _altPopoverAtt.name;
+    closeAttachmentAltPopover();
+    render();
+  });
+  document.getElementById('attachment-alt-field').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); document.getElementById('attachment-alt-save').click(); }
+    if (e.key === 'Escape') { e.stopPropagation(); closeAttachmentAltPopover(); }
+  });
+  document.addEventListener('click', e => {
+    if (!e.target.closest('#attachment-action-menu')) closeAttachmentMenu();
+    if (!e.target.closest('#attachment-alt-popover')) closeAttachmentAltPopover();
+  });
+</script>
+
 <div id="attachment-lightbox" class="attachment-lightbox" role="dialog" aria-modal="true" aria-label="Attachment preview" hidden>
   <button class="attachment-lightbox-close" id="attachment-lightbox-close" aria-label="Close preview">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -4039,7 +4130,7 @@
     attachmentLightboxLastFocus = document.activeElement;
     attachmentLightboxContent.innerHTML = att.fileType === 'video'
       ? `<video class="attachment-lightbox-media" src="${att.dataUrl}" controls autoplay></video>`
-      : `<img class="attachment-lightbox-media" src="${att.dataUrl}" alt="${(att.altText || att.name).replace(/"/g, '&quot;')}" />`;
+      : `<img class="attachment-lightbox-media" src="${att.dataUrl}" alt="${(att.altText && att.altText !== att.name ? att.altText : att.name).replace(/"/g, '&quot;')}" />`;
     attachmentLightboxName.textContent = att.name;
     attachmentLightbox.hidden = false;
     attachmentLightbox.addEventListener('keydown', attachmentLightboxKeyHandler);
