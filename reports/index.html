@@ -337,6 +337,11 @@
     background: var(--surface-2);
     box-shadow: inset 0 0 0 2px var(--ink);
   }
+  .dropdown-item.is-disabled {
+    opacity: 0.5;
+    cursor: default;
+    pointer-events: none;
+  }
   .check-icon {
     width: 14px;
     height: 14px;
@@ -1633,6 +1638,10 @@
         <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         Settings
       </button>
+      <div id="auth-buttons" style="display:flex;gap:8px;">
+        <button class="toggle" id="login-trigger">Log in</button>
+        <button class="toggle btn-primary" id="signup-trigger">Create account</button>
+      </div>
     </div>
   </header>
 
@@ -1780,6 +1789,15 @@
         <button class="dropdown-item dropdown-item--radio" role="menuitemradio" aria-checked="false" data-group="testType"><span class="dropdown-item-label">Test type</span></button>
       </div>
     </div>
+
+    <div class="dropdown" id="export-dropdown">
+      <button class="dropdown-trigger toggle" id="export-trigger" aria-haspopup="true" aria-expanded="false">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export
+        <svg class="icon chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-menu" id="export-menu" role="menu" style="min-width:220px;" hidden></div>
+    </div>
   </div>
 
   <!-- Active filter chips: own row, hidden when empty -->
@@ -1791,7 +1809,7 @@
 
   <!-- Table -->
   <div class="table-wrap" id="table-wrap">
-    <table class="findings">
+    <table class="findings" id="findings-table">
       <colgroup id="thead-colgroup"></colgroup>
       <thead>
         <tr id="thead-row"></tr>
@@ -1901,15 +1919,18 @@
   // Used to gate per-note edit/delete affordances — you can only edit/delete your own notes.
   const CURRENT_USER = { author: 'Joe L.', initials: 'JL' };
 
-  // Whether the user has already claimed this report via the signup flow.
-  // Token-scoped so multiple reports on the same browser don't clobber each other.
-  const claimed = !!localStorage.getItem(`e11y_token_${window.location.pathname.split('/').filter(Boolean).pop()}`);
+  const token = window.location.pathname.split('/').filter(Boolean).pop();
+  const claimed = !!localStorage.getItem(`e11y_token_${token}`);
+  const authToken = localStorage.getItem(`e11y_token_${token}`);
+  if (claimed) {
+    const authButtons = document.getElementById('auth-buttons');
+    if (authButtons) authButtons.style.display = 'none';
+  }
 
   // Real data from the audit screenshot for cityofgrayson.org
   // 2 unique issues across 3 instances:
   //   - Search input (#elementor-search-form-91a33ae) appears on / and /home
   //   - Post date (.elementor-post-date) appears only on /
-  const token = window.location.pathname.split('/').filter(Boolean).pop();
   let RAW = [];
 
   async function loadReport() {
@@ -2333,11 +2354,15 @@
             <dd><div class="detail-instances">${(r.pages || [r.page]).map(p => `<span class="page-pill">${p}</span>`).join('')}</div></dd>
             <dt>Notes ${r.notes && r.notes.length ? `<span class="dt-count">${r.notes.length}</span>` : ''}</dt>
             <dd>
-              <div class="notes-thread">
+              ${claimed ? `<div class="notes-thread">
                 ${notesHtml}
                 ${composerHtml}
                 ${addNoteTrigger}
-              </div>
+              </div>` : `<div class="notes-gate" style="padding:16px 20px;display:flex;align-items:center;gap:12px;background:var(--surface-2);border-radius:6px;">
+  <svg style="width:16px;height:16px;flex-shrink:0;color:var(--ink-3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+  <p style="margin:0;font-size:13px;color:var(--ink-2);line-height:1.5;">Create a free account to add notes and collaborate with your team.</p>
+  <button class="btn-primary" style="white-space:nowrap;flex-shrink:0;" id="notes-signup-trigger">Create account</button>
+</div>`}
             </dd>
             <dt>Actions</dt>
             <dd>
@@ -2404,7 +2429,7 @@
       pages: `<td data-col="pages">${pagesHtml}</td>`,
       status: `
         <td data-col="status">
-          <button class="status ${r.status}" data-status-row="${r.id}${r.page || ''}"${claimed ? '' : ' aria-disabled="true" title="Create a free account to track remediation progress" data-status-locked="1"'}>${statusLabel}</button>
+          <button class="status ${r.status}" data-status-row="${r.id}${r.page || ''}"${claimed ? '' : ' disabled aria-disabled="true" title="Create a free account to track remediation progress" data-status-locked="1"'}>${statusLabel}</button>
         </td>`
     };
 
@@ -2579,6 +2604,64 @@
     if (r.help) return r.help;
     if (HELP[r.id]) return HELP[r.id];
     return r.rule || '';
+  }
+
+  function exportCSV() {
+    const { rows } = getRows();
+    const cols = visibleColumns().filter(c => c.id !== 'expand');
+    const headers = cols.map(c => JSON.stringify(c.label)).join(',');
+    const lines = rows.map(r => {
+      return cols.map(c => {
+        let val = '';
+        switch(c.id) {
+          case 'issueNumber': val = `#${String(r.issueNumber).padStart(3,'0')}-${testTypeSuffix(r.testType)}`; break;
+          case 'testType': val = r.testType; break;
+          case 'impact': val = r.impact; break;
+          case 'wcag': val = r.wcag; break;
+          case 'rule': val = r.rule; break;
+          case 'problem': val = failureSummaryFor(r); break;
+          case 'howToFix': val = howToFixFor(r); break;
+          case 'selector': val = r.selector; break;
+          case 'html': val = r.html; break;
+          case 'status': val = r.status; break;
+          default: val = r[c.id] || '';
+        }
+        return JSON.stringify(String(val).replace(/\n/g, ' '));
+      }).join(',');
+    });
+    const csv = [headers, ...lines].join('\n');
+    downloadFile(csv, `evidenta11y-findings-${Date.now()}.csv`, 'text/csv');
+  }
+
+  function exportJSON() {
+    const { rows } = getRows();
+    const data = rows.map(r => ({
+      issueNumber: r.issueNumber,
+      testType: r.testType,
+      impact: r.impact,
+      wcag: r.wcag,
+      rule: r.rule,
+      problem: failureSummaryFor(r),
+      howToFix: howToFixFor(r),
+      selector: r.selector,
+      html: r.html,
+      pages: r.pages,
+      status: r.status,
+      helpUrl: r.helpUrl,
+    }));
+    downloadFile(JSON.stringify(data, null, 2), `evidenta11y-findings-${Date.now()}.json`, 'application/json');
+  }
+
+  function downloadFile(content, filename, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 
   function escapeHtml(s) {
@@ -3620,8 +3703,83 @@
     }
   });
 
+  // Populate export dropdown menu based on claimed state
+  (function initExportDropdown() {
+    const menu = document.getElementById('export-menu');
+    if (!menu) return;
+    const lockIcon = '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;color:var(--ink-3);" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+    menu.innerHTML = `
+      <button class="dropdown-item${claimed ? '' : ' is-disabled'}" role="menuitem" id="export-csv"${claimed ? '' : ' aria-disabled="true"'}>
+        ${claimed ? '' : lockIcon}
+        Export as CSV
+      </button>
+      <button class="dropdown-item${claimed ? '' : ' is-disabled'}" role="menuitem" id="export-json"${claimed ? '' : ' aria-disabled="true"'}>
+        ${claimed ? '' : lockIcon}
+        Export as JSON
+      </button>
+      ${!claimed ? '<div style="padding:8px 12px;border-top:1px solid var(--line);margin-top:4px;"><p style="margin:0;font-size:12px;color:var(--ink-3);line-height:1.4;">Create a free account to export findings.</p></div>' : ''}
+    `;
+  })();
+
+  // Export button handlers (delegation on menu; items are populated by initExportDropdown)
+  document.getElementById('export-menu').addEventListener('click', e => {
+    if (e.target.closest('#export-csv')) {
+      if (!claimed) return;
+      exportCSV();
+      closeDropdown(document.getElementById('export-dropdown'));
+    } else if (e.target.closest('#export-json')) {
+      if (!claimed) return;
+      exportJSON();
+      closeDropdown(document.getElementById('export-dropdown'));
+    }
+  });
+
+  // Notes signup trigger delegation
+  document.getElementById('findings-table').addEventListener('click', e => {
+    if (e.target.closest('#notes-signup-trigger')) openSignupModal();
+  });
+
+  // Status locked delegation
+  document.getElementById('findings-table').addEventListener('click', e => {
+    const btn = e.target.closest('[data-status-locked]');
+    if (btn) { e.stopPropagation(); openSignupModal(); }
+  });
+
   loadReport();
 </script>
+
+<div id="login-modal" class="modal-backdrop" role="dialog" aria-modal="true"
+     aria-labelledby="login-title" hidden>
+  <div class="modal">
+    <header class="modal-header">
+      <h2 id="login-title" class="modal-title">Log in to Evidenta11y</h2>
+      <button class="modal-close" id="login-close" aria-label="Close">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </header>
+    <div class="modal-body">
+      <div id="login-error" role="alert" aria-live="polite" style="display:none;color:var(--critical-fg);font-size:13px;margin-bottom:12px;padding:8px 12px;background:var(--critical-bg);border-radius:4px;"></div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <label style="display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:500;color:var(--ink);">
+          Email
+          <input id="login-email" type="email" autocomplete="email" class="note-textarea" style="min-height:unset;height:36px;padding:0 10px;resize:none;" />
+        </label>
+        <label style="display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:500;color:var(--ink);">
+          Password
+          <input id="login-password" type="password" autocomplete="current-password" class="note-textarea" style="min-height:unset;height:36px;padding:0 10px;resize:none;" />
+        </label>
+      </div>
+      <p style="margin:16px 0 0;font-size:13px;color:var(--ink-3);">
+        Don't have an account?
+        <button style="background:none;border:none;color:var(--accent);cursor:pointer;font:inherit;font-size:13px;padding:0;text-decoration:underline;" id="login-to-signup">Create one free</button>
+      </p>
+    </div>
+    <footer class="modal-footer">
+      <button class="btn-secondary" id="login-cancel">Cancel</button>
+      <button class="btn-primary" id="login-submit">Log in</button>
+    </footer>
+  </div>
+</div>
 
 <div id="signup-modal" class="modal-backdrop" role="dialog" aria-modal="true"
      aria-labelledby="signup-title" hidden>
@@ -3728,6 +3886,90 @@
       errorEl.textContent = 'Something went wrong. Please try again.';
       errorEl.style.display = 'block';
       btn.textContent = 'Create account';
+      btn.disabled = false;
+    }
+  });
+</script>
+
+<script>
+  let loginLastFocus = null;
+  const loginModal = document.getElementById('login-modal');
+
+  function openLoginModal() {
+    loginLastFocus = document.activeElement;
+    loginModal.hidden = false;
+    const focusable = Array.from(loginModal.querySelectorAll('button,input'));
+    if (focusable[0]) focusable[0].focus();
+    loginModal.addEventListener('keydown', loginKeyHandler);
+  }
+
+  function closeLoginModal() {
+    loginModal.hidden = true;
+    loginModal.removeEventListener('keydown', loginKeyHandler);
+    if (loginLastFocus) loginLastFocus.focus();
+  }
+
+  function loginKeyHandler(e) {
+    const focusable = Array.from(loginModal.querySelectorAll('button,input'));
+    const first = focusable[0], last = focusable[focusable.length - 1];
+    if (e.key === 'Escape') { closeLoginModal(); return; }
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  }
+
+  document.getElementById('login-close').addEventListener('click', closeLoginModal);
+  document.getElementById('login-cancel').addEventListener('click', closeLoginModal);
+  loginModal.addEventListener('click', e => { if (e.target === loginModal) closeLoginModal(); });
+
+  document.getElementById('login-to-signup').addEventListener('click', () => {
+    closeLoginModal();
+    openSignupModal();
+  });
+
+  document.getElementById('login-trigger').addEventListener('click', openLoginModal);
+  document.getElementById('signup-trigger').addEventListener('click', openSignupModal);
+
+  document.getElementById('login-submit').addEventListener('click', async () => {
+    const btn = document.getElementById('login-submit');
+    const errorEl = document.getElementById('login-error');
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    errorEl.style.display = 'none';
+    if (!email || !password) {
+      errorEl.textContent = 'Please enter your email and password.';
+      errorEl.style.display = 'block';
+      return;
+    }
+    btn.textContent = 'Logging in…';
+    btn.disabled = true;
+    try {
+      const res = await fetch(
+        'https://platform-production-ace5.up.railway.app/v1/auth/login',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        }
+      );
+      const data = await res.json();
+      if (res.status === 401 || res.status === 400) {
+        errorEl.textContent = 'Incorrect email or password. Please try again.';
+        errorEl.style.display = 'block';
+        btn.textContent = 'Log in';
+        btn.disabled = false;
+        return;
+      }
+      if (!res.ok) throw new Error(data.error || 'Unknown error');
+      const apiKey = data.api_key || data.token || data.key;
+      localStorage.setItem(`e11y_token_${token}`, apiKey);
+      closeLoginModal();
+      location.reload();
+    } catch (err) {
+      errorEl.textContent = 'Something went wrong. Please try again.';
+      errorEl.style.display = 'block';
+      btn.textContent = 'Log in';
       btn.disabled = false;
     }
   });
