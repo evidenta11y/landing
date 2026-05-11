@@ -2706,7 +2706,7 @@
       return `
         <th class="${sortClass} ${sortedClass} ${pin} ${edgeClass}" ${sortAttr} data-col="${c.id}" ${styleAttr}>
           <div class="th-inner">
-            <span class="th-label">${escapeHtml(c.label)}</span>
+            <span class="th-label">${escapeHtml(c.label)}${c.id === 'status' && !claimed ? ` <svg title="Create a free account to enable status updates" aria-label="Create a free account to enable status updates" role="img" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px;color:var(--ink-4);flex-shrink:0;" aria-hidden="false"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>` : ''}</span>
             ${c.sortable ? `<span class="sort">${arrow}</span>` : ''}
             <button class="th-menu-btn" data-col-menu="${c.id}" aria-label="Column options for ${escapeAttr(c.label)}" aria-haspopup="menu">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
