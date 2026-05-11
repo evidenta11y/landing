@@ -1276,6 +1276,78 @@
   .attachment-remove svg { width: 10px; height: 10px; }
   .attachment-item:hover .attachment-remove,
   .attachment-remove:focus-visible { opacity: 1; }
+  .attachment-preview-trigger {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: zoom-in;
+  }
+  .attachment-preview-trigger:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: -2px;
+  }
+
+  /* Attachment lightbox */
+  .attachment-lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.88);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 48px 24px 24px;
+    animation: modalFadeIn 0.15s ease-out;
+  }
+  .attachment-lightbox[hidden] { display: none; }
+  .attachment-lightbox-close {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.1s;
+  }
+  .attachment-lightbox-close:hover { background: rgba(255,255,255,0.28); }
+  .attachment-lightbox-close:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+  }
+  .attachment-lightbox-close svg { width: 18px; height: 18px; }
+  .attachment-lightbox-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    max-width: min(90vw, 1200px);
+    max-height: calc(100vh - 72px);
+  }
+  .attachment-lightbox-media {
+    display: block;
+    max-width: 100%;
+    max-height: calc(100vh - 112px);
+    object-fit: contain;
+    border-radius: 4px;
+  }
+  .attachment-lightbox-name {
+    color: rgba(255,255,255,0.6);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    margin: 0;
+    text-align: center;
+  }
   .attachment-add-trigger {
     display: inline-flex;
     align-items: center;
@@ -2436,9 +2508,11 @@
               <div style="display:flex;flex-direction:column;gap:8px;">
                 ${r.attachments && r.attachments.length ? `<div class="attachment-grid">${(r.attachments).map(a => `
                   <div class="attachment-item">
-                    ${a.fileType === 'video'
-                      ? `<video class="attachment-thumb" src="${a.dataUrl}" muted playsinline title="${escapeAttr(a.name)}"></video>`
-                      : `<img class="attachment-thumb" src="${a.dataUrl}" alt="${escapeAttr(a.name)}" />`}
+                    <button class="attachment-preview-trigger" data-attachment-preview="${r.id}:${a.id}" aria-label="View ${escapeAttr(a.name)}">
+                      ${a.fileType === 'video'
+                        ? `<video class="attachment-thumb" src="${a.dataUrl}" muted playsinline tabindex="-1"></video>`
+                        : `<img class="attachment-thumb" src="${a.dataUrl}" alt="" />`}
+                    </button>
                     <button class="attachment-remove" data-attachment-remove="${r.id}:${a.id}" aria-label="Remove ${escapeAttr(a.name)}">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                     </button>
@@ -3369,6 +3443,17 @@
       });
     });
 
+    // Attachments: open preview lightbox
+    tbody.querySelectorAll('[data-attachment-preview]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const [rowId, attId] = btn.dataset.attachmentPreview.split(':');
+        const item = RAW.find(r => r.id === rowId);
+        const att = item && (item.attachments || []).find(a => a.id === attId);
+        if (att) openAttachmentLightbox(att);
+      });
+    });
+
     // Attachments: open file picker
     tbody.querySelectorAll('[data-attachment-trigger]').forEach(btn => {
       btn.addEventListener('click', e => {
@@ -3890,6 +3975,56 @@
   });
 
   loadReport();
+</script>
+
+<div id="attachment-lightbox" class="attachment-lightbox" role="dialog" aria-modal="true" aria-label="Attachment preview" hidden>
+  <button class="attachment-lightbox-close" id="attachment-lightbox-close" aria-label="Close preview">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+  <div class="attachment-lightbox-body">
+    <div id="attachment-lightbox-content"></div>
+    <p id="attachment-lightbox-name" class="attachment-lightbox-name"></p>
+  </div>
+</div>
+
+<script>
+  const attachmentLightbox = document.getElementById('attachment-lightbox');
+  const attachmentLightboxContent = document.getElementById('attachment-lightbox-content');
+  const attachmentLightboxName = document.getElementById('attachment-lightbox-name');
+  let attachmentLightboxLastFocus = null;
+
+  function openAttachmentLightbox(att) {
+    attachmentLightboxLastFocus = document.activeElement;
+    attachmentLightboxContent.innerHTML = att.fileType === 'video'
+      ? `<video class="attachment-lightbox-media" src="${att.dataUrl}" controls autoplay></video>`
+      : `<img class="attachment-lightbox-media" src="${att.dataUrl}" alt="${att.name.replace(/"/g, '&quot;')}" />`;
+    attachmentLightboxName.textContent = att.name;
+    attachmentLightbox.hidden = false;
+    attachmentLightbox.addEventListener('keydown', attachmentLightboxKeyHandler);
+    document.getElementById('attachment-lightbox-close').focus();
+  }
+
+  function closeAttachmentLightbox() {
+    attachmentLightbox.hidden = true;
+    attachmentLightbox.removeEventListener('keydown', attachmentLightboxKeyHandler);
+    const video = attachmentLightboxContent.querySelector('video');
+    if (video) { video.pause(); video.src = ''; }
+    attachmentLightboxContent.innerHTML = '';
+    if (attachmentLightboxLastFocus) attachmentLightboxLastFocus.focus();
+  }
+
+  function attachmentLightboxKeyHandler(e) {
+    if (e.key === 'Escape') { closeAttachmentLightbox(); return; }
+    if (e.key === 'Tab') {
+      const focusable = Array.from(attachmentLightbox.querySelectorAll('button, video[controls]'));
+      const first = focusable[0], last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  }
+
+  document.getElementById('attachment-lightbox-close').addEventListener('click', closeAttachmentLightbox);
+  attachmentLightbox.addEventListener('click', e => { if (e.target === attachmentLightbox) closeAttachmentLightbox(); });
 </script>
 
 <div id="login-modal" class="modal-backdrop" role="dialog" aria-modal="true"
