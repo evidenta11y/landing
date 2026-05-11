@@ -1241,13 +1241,21 @@
   }
   .attachment-item {
     position: relative;
-    width: 80px;
-    height: 80px;
+    width: 128px;
     border-radius: 6px;
     overflow: hidden;
     border: 1px solid var(--line);
     background: var(--surface-3);
     flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .attachment-thumb-wrap {
+    position: relative;
+    width: 128px;
+    height: 80px;
+    flex-shrink: 0;
+    overflow: hidden;
   }
   .attachment-thumb {
     width: 100%;
@@ -1255,6 +1263,20 @@
     object-fit: cover;
     display: block;
   }
+  .attachment-alt-input {
+    width: 100%;
+    padding: 5px 8px;
+    border: none;
+    border-top: 1px solid var(--line);
+    background: var(--surface);
+    font-family: var(--font-display);
+    font-size: 11px;
+    color: var(--ink-2);
+    outline: none;
+    line-height: 1.4;
+  }
+  .attachment-alt-input::placeholder { color: var(--ink-4); font-style: italic; }
+  .attachment-alt-input:focus { background: var(--surface-2); border-top-color: var(--ink); }
   .attachment-remove {
     position: absolute;
     top: 3px;
@@ -1278,8 +1300,8 @@
   .attachment-remove:focus-visible { opacity: 1; }
   .attachment-preview-trigger {
     display: block;
-    width: 100%;
-    height: 100%;
+    width: 128px;
+    height: 80px;
     padding: 0;
     border: none;
     background: none;
@@ -2508,14 +2530,21 @@
               <div style="display:flex;flex-direction:column;gap:8px;">
                 ${r.attachments && r.attachments.length ? `<div class="attachment-grid">${(r.attachments).map(a => `
                   <div class="attachment-item">
-                    <button class="attachment-preview-trigger" data-attachment-preview="${r.id}:${a.id}" aria-label="View ${escapeAttr(a.name)}">
-                      ${a.fileType === 'video'
-                        ? `<video class="attachment-thumb" src="${a.dataUrl}" muted playsinline tabindex="-1"></video>`
-                        : `<img class="attachment-thumb" src="${a.dataUrl}" alt="" />`}
-                    </button>
-                    <button class="attachment-remove" data-attachment-remove="${r.id}:${a.id}" aria-label="Remove ${escapeAttr(a.name)}">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                    </button>
+                    <div class="attachment-thumb-wrap">
+                      <button class="attachment-preview-trigger" data-attachment-preview="${r.id}:${a.id}" aria-label="View ${escapeAttr(a.name)}">
+                        ${a.fileType === 'video'
+                          ? `<video class="attachment-thumb" src="${a.dataUrl}" muted playsinline tabindex="-1"></video>`
+                          : `<img class="attachment-thumb" src="${a.dataUrl}" alt="${escapeAttr(a.altText || '')}" />`}
+                      </button>
+                      <button class="attachment-remove" data-attachment-remove="${r.id}:${a.id}" aria-label="Remove ${escapeAttr(a.name)}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                      </button>
+                    </div>
+                    <input class="attachment-alt-input" type="text"
+                           placeholder="Add alt text…"
+                           value="${escapeAttr(a.altText || '')}"
+                           data-attachment-alt="${r.id}:${a.id}"
+                           aria-label="Alt text for ${escapeAttr(a.name)}" />
                   </div>`).join('')}</div>` : ''}
                 <button class="attachment-add-trigger" data-attachment-trigger="${r.id}">
                   <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -3478,10 +3507,23 @@
             name: file.name,
             fileType: file.type.startsWith('video/') ? 'video' : 'image',
             dataUrl,
+            altText: '',
           });
         }
         input.value = '';
         render();
+      });
+    });
+
+    // Attachments: save alt text on blur/change (no re-render to preserve focus)
+    tbody.querySelectorAll('[data-attachment-alt]').forEach(input => {
+      input.addEventListener('click', e => e.stopPropagation());
+      input.addEventListener('change', e => {
+        e.stopPropagation();
+        const [rowId, attId] = input.dataset.attachmentAlt.split(':');
+        const item = RAW.find(r => r.id === rowId);
+        const att = item && (item.attachments || []).find(a => a.id === attId);
+        if (att) att.altText = input.value;
       });
     });
 
@@ -3997,7 +4039,7 @@
     attachmentLightboxLastFocus = document.activeElement;
     attachmentLightboxContent.innerHTML = att.fileType === 'video'
       ? `<video class="attachment-lightbox-media" src="${att.dataUrl}" controls autoplay></video>`
-      : `<img class="attachment-lightbox-media" src="${att.dataUrl}" alt="${att.name.replace(/"/g, '&quot;')}" />`;
+      : `<img class="attachment-lightbox-media" src="${att.dataUrl}" alt="${(att.altText || att.name).replace(/"/g, '&quot;')}" />`;
     attachmentLightboxName.textContent = att.name;
     attachmentLightbox.hidden = false;
     attachmentLightbox.addEventListener('keydown', attachmentLightboxKeyHandler);
