@@ -869,6 +869,12 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    text-decoration: none;
+  }
+  a.page-pill:hover {
+    background: var(--surface-3);
+    color: var(--ink);
+    text-decoration: underline;
   }
   .pages-count {
     font-family: var(--font-mono);
@@ -2523,7 +2529,7 @@
               </a>
             </dd>
             <dt>Found on</dt>
-            <dd><div class="detail-instances">${(r.pages || [r.page]).map(p => `<span class="page-pill">${p}</span>`).join('')}</div></dd>
+            <dd><div class="detail-instances">${(r.pages || [r.page]).map(p => `<a class="page-pill" href="${escapeAttr(p)}" target="_blank" rel="noopener noreferrer">${escapeHtml(p)}</a>`).join('')}</div></dd>
             <dt>Notes ${r.notes && r.notes.length ? `<span class="dt-count">${r.notes.length}</span>` : ''}</dt>
             <dd>
               ${claimed ? `<div class="notes-thread">
