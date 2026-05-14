@@ -786,33 +786,20 @@ document.addEventListener('click', e => {
 // ── Kebab actions ─────────────────────────────────────────────────────────────
 const API = 'https://platform-production-ace5.up.railway.app';
 
-function authToken(token) {
-  return localStorage.getItem(`e11y_token_${token}`);
+function getLocalAudits(token) {
+  try { return JSON.parse(localStorage.getItem(`e11y_audits_${token}`)) || []; } catch { return []; }
 }
 
-async function fetchAnnotations(token) {
-  const res = await fetch(`${API}/v1/public/report/view/${token}/annotations`);
-  if (!res.ok) throw new Error('Failed to fetch annotations');
-  return res.json();
+function saveLocalAudits(token, audits) {
+  try { localStorage.setItem(`e11y_audits_${token}`, JSON.stringify(audits)); } catch {}
 }
 
-async function putAnnotations(token, data) {
-  const key = authToken(token);
-  if (!key) throw new Error('Not authenticated for this report');
-  const res = await fetch(`${API}/v1/public/report/view/${token}/annotations`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
-    body: JSON.stringify(data),
-  });
-  if (!res.ok) throw new Error('Failed to save');
-}
-
-function updateRegistry(token, updatedAudits) {
+function updateRegistry(token, audits) {
   try {
     const reg = JSON.parse(localStorage.getItem('e11y_report_registry') || '[]');
     const idx = reg.findIndex(r => r.token === token);
     if (idx >= 0) {
-      reg[idx].manual_audits = updatedAudits.map(a => ({
+      reg[idx].manual_audits = audits.map(a => ({
         id: a.id, name: a.name, findings_count: (a.findings || []).length,
       }));
       localStorage.setItem('e11y_report_registry', JSON.stringify(reg));
@@ -820,37 +807,43 @@ function updateRegistry(token, updatedAudits) {
   } catch {}
 }
 
-async function doAuditAction(token, auditId, action, auditName) {
-  try {
-    const ann = await fetchAnnotations(token);
-    const audits = ann.manual_audits || [];
-    let updated;
+function syncToAPI(token, audits) {
+  const key = localStorage.getItem(`e11y_token_${token}`);
+  if (!key) return;
+  fetch(`${API}/v1/public/report/view/${token}/annotations`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
+    body: JSON.stringify({ manual_audits: audits }),
+  }).catch(() => {});
+}
 
-    if (action === 'delete') {
-      const count = (audits.find(a => a.id === auditId)?.findings || []).length;
-      const msg = count > 0
-        ? `Delete "${auditName}"? It contains ${count} issue${count !== 1 ? 's' : ''} and cannot be recovered.`
-        : `Delete "${auditName}"? This cannot be undone.`;
-      if (!confirm(msg)) return;
-      updated = audits.filter(a => a.id !== auditId);
-    } else if (action === 'duplicate') {
-      const src = audits.find(a => a.id === auditId);
-      if (!src) return;
-      const copy = {
-        ...JSON.parse(JSON.stringify(src)),
-        id: 'ma_' + Date.now() + Math.random().toString(36).slice(2),
-        name: `Copy of ${src.name}`,
-        closed: false,
-      };
-      updated = [...audits, copy];
-    }
+function doAuditAction(token, auditId, action, auditName) {
+  const audits = getLocalAudits(token);
+  let updated;
 
-    await putAnnotations(token, { ...ann, manual_audits: updated });
-    updateRegistry(token, updated);
-    render();
-  } catch (err) {
-    alert('Could not complete the action: ' + err.message);
+  if (action === 'delete') {
+    const audit = audits.find(a => a.id === auditId);
+    const count = (audit?.findings || []).length;
+    const msg = count > 0
+      ? `Delete "${auditName}"? It contains ${count} issue${count !== 1 ? 's' : ''} and cannot be recovered.`
+      : `Delete "${auditName}"? This cannot be undone.`;
+    if (!confirm(msg)) return;
+    updated = audits.filter(a => a.id !== auditId);
+  } else if (action === 'duplicate') {
+    const src = audits.find(a => a.id === auditId);
+    if (!src) return;
+    updated = [...audits, {
+      ...JSON.parse(JSON.stringify(src)),
+      id: 'ma_' + Date.now() + Math.random().toString(36).slice(2),
+      name: `Copy of ${src.name}`,
+      closed: false,
+    }];
   }
+
+  saveLocalAudits(token, updated);
+  updateRegistry(token, updated);
+  syncToAPI(token, updated);
+  render();
 }
 
 // ── Rename dialog ─────────────────────────────────────────────────────────────
@@ -870,21 +863,17 @@ function startRename(token, auditId, currentName) {
   const input = backdrop.querySelector('#rd-input');
   setTimeout(() => { input.focus(); input.select(); }, 20);
 
-  async function commit() {
+  function commit() {
     const newName = input.value.trim();
     if (!newName || newName === currentName) { backdrop.remove(); return; }
     backdrop.remove();
-    try {
-      const ann = await fetchAnnotations(token);
-      const audits = ann.manual_audits || [];
-      const audit = audits.find(a => a.id === auditId);
-      if (audit) audit.name = newName;
-      await putAnnotations(token, { ...ann, manual_audits: audits });
-      updateRegistry(token, audits);
-      render();
-    } catch (err) {
-      alert('Could not rename: ' + err.message);
-    }
+    const audits = getLocalAudits(token);
+    const audit = audits.find(a => a.id === auditId);
+    if (audit) audit.name = newName;
+    saveLocalAudits(token, audits);
+    updateRegistry(token, audits);
+    syncToAPI(token, audits);
+    render();
   }
 
   backdrop.querySelector('#rd-cancel').addEventListener('click', () => backdrop.remove());
