@@ -1995,6 +1995,7 @@
   <!-- Top bar -->
   <header class="topbar">
     <div>
+      <a href="/app/reports" style="font-family:var(--font-mono);font-size:11px;color:var(--ink-3);text-decoration:none;letter-spacing:0.04em;display:inline-block;margin-bottom:6px;">← All reports</a>
       <p class="brand" style="color:#00d4a0;">Evidenta11y</p>
       <h1>Accessibility Report</h1>
     </div>
@@ -2523,6 +2524,31 @@
       }
 
       RAW = buildRaw(data);
+
+      // Save metadata to the cross-page report registry
+      try {
+        const REGISTRY_KEY = 'e11y_report_registry';
+        const registry = JSON.parse(localStorage.getItem(REGISTRY_KEY)) || [];
+        const idx = registry.findIndex(r => r.token === token);
+        const entry = {
+          token,
+          url: data.url,
+          savedAt: new Date().toISOString(),
+          scannedAt: data.scanned_at || null,
+          avgScore: data.avg_score ?? null,
+          pagesTotal: data.pages_total ?? null,
+          pagesScanned: data.pages_scanned ?? null,
+          status: data.status || null,
+          claimed: !!data.claimed,
+        };
+        if (idx >= 0) {
+          registry[idx] = { ...registry[idx], ...entry };
+        } else {
+          registry.unshift(entry);
+        }
+        localStorage.setItem(REGISTRY_KEY, JSON.stringify(registry.slice(0, 100)));
+      } catch {}
+
       render();
       updateStats();
       updateDropdownLabels();

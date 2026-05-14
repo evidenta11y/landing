@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Reports — evidenta11y</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg: #f0f2f8;
+  --surface: #ffffff;
+  --surface-2: #f0f2f8;
+  --surface-3: #e4e8f0;
+  --ink: #0a0f2e;
+  --ink-2: #2d3561;
+  --ink-3: #5c6589;
+  --ink-4: #9ca3af;
+  --line: #e2e8f0;
+  --line-strong: #cbd5e1;
+  --accent: #00d4a0;
+  --accent-dark: #00b386;
+  --font-display: 'Inter Tight', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-feature-settings: "ss01", "cv11";
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+}
+.sidebar-brand {
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid var(--line);
+}
+.sidebar-brand-name {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  display: block;
+}
+.sidebar-brand-sub {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+  display: block;
+  margin-top: 2px;
+}
+.sidebar-nav {
+  flex: 1;
+  padding: 12px 10px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-3);
+  text-decoration: none;
+  transition: background 0.1s, color 0.1s;
+}
+.nav-item:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+.nav-item.active {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+.nav-item svg {
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+.nav-item.active svg {
+  opacity: 1;
+}
+.sidebar-footer {
+  padding: 14px 18px;
+  border-top: 1px solid var(--line);
+}
+.sidebar-footer a {
+  font-size: 12px;
+  color: var(--ink-3);
+  text-decoration: none;
+  transition: color 0.1s;
+}
+.sidebar-footer a:hover {
+  color: var(--ink);
+}
+
+/* Main */
+.main {
+  margin-left: 220px;
+  flex: 1;
+  padding: 36px 40px 64px;
+  min-width: 0;
+  overflow-y: auto;
+}
+
+/* Page header */
+.page-header {
+  margin-bottom: 24px;
+}
+.page-header h1 {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0 0 4px;
+  color: var(--ink);
+}
+.page-header-sub {
+  font-size: 13px;
+  color: var(--ink-3);
+  margin: 0;
+}
+
+/* Toolbar */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+#search {
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  padding: 7px 12px;
+  font-size: 13px;
+  font-family: var(--font-display);
+  color: var(--ink);
+  background: var(--surface);
+  outline: none;
+  width: 260px;
+  transition: border-color 0.15s;
+}
+#search::placeholder {
+  color: var(--ink-4);
+}
+#search:focus {
+  border-color: var(--accent);
+}
+#sort-select {
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  padding: 7px 12px;
+  font-size: 13px;
+  font-family: var(--font-display);
+  color: var(--ink-2);
+  background: var(--surface);
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+#sort-select:focus {
+  border-color: var(--accent);
+}
+
+/* Section card */
+.section-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Table */
+.reports-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.reports-table th {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-4);
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+.reports-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  vertical-align: middle;
+}
+.reports-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.reports-table tbody tr:hover {
+  background: var(--surface-2);
+}
+.url-cell {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Score badge */
+.score-badge {
+  display: inline-flex;
+  width: 36px;
+  height: 24px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  align-items: center;
+  justify-content: center;
+}
+.score-high { background: #e5f0dd; color: #2D6B2D; }
+.score-mid  { background: #FAEEDA; color: #6B3A05; }
+.score-low  { background: #FCEBEB; color: #791F1F; }
+.score-none { background: var(--surface-3); color: var(--ink-4); }
+
+/* Status chip */
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 500;
+}
+.status-complete  { background: #e5f0dd; color: #2D6B2D; }
+.status-queued    { background: var(--surface-3); color: var(--ink-3); }
+.status-scanning  { background: #E6F1FB; color: #0C447C; }
+.status-failed    { background: #FCEBEB; color: #791F1F; }
+
+/* Actions */
+.actions-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-open {
+  display: inline-flex;
+  padding: 5px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-2);
+  text-decoration: none;
+  background: none;
+  transition: background 0.1s, border-color 0.1s;
+  white-space: nowrap;
+}
+.btn-open:hover {
+  background: var(--surface-2);
+  border-color: var(--ink-4);
+}
+.btn-delete {
+  background: none;
+  border: none;
+  padding: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--ink-4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.1s, background 0.1s;
+}
+.btn-delete:hover {
+  color: var(--ink);
+  background: var(--surface-3);
+}
+
+/* Empty state */
+.empty-state {
+  padding: 56px 24px;
+  text-align: center;
+}
+.empty-state-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0 0 6px;
+}
+.empty-state-body {
+  font-size: 13px;
+  color: var(--ink-3);
+  margin: 0;
+}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <span class="sidebar-brand-name">evidenta11y</span>
+    <span class="sidebar-brand-sub">Accessibility Platform</span>
+  </div>
+  <nav class="sidebar-nav" aria-label="Primary">
+    <a class="nav-item" href="/app/">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <rect x="1" y="1" width="6" height="6" rx="1" fill="currentColor"/>
+        <rect x="9" y="1" width="6" height="6" rx="1" fill="currentColor"/>
+        <rect x="1" y="9" width="6" height="6" rx="1" fill="currentColor"/>
+        <rect x="9" y="9" width="6" height="6" rx="1" fill="currentColor"/>
+      </svg>
+      Dashboard
+    </a>
+    <a class="nav-item active" href="/app/reports" aria-current="page">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <rect x="1" y="3" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+        <rect x="1" y="7.25" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+        <rect x="1" y="11.5" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+      </svg>
+      Reports
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <a href="/">← evidenta11y.com</a>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="page-header">
+    <h1>Reports</h1>
+    <p class="page-header-sub">All scans and accessibility audits</p>
+  </div>
+
+  <div class="toolbar">
+    <input id="search" type="search" placeholder="Filter by URL…" autocomplete="off" />
+    <select id="sort-select">
+      <option value="date-desc">Newest first</option>
+      <option value="date-asc">Oldest first</option>
+      <option value="score-desc">Highest score</option>
+      <option value="score-asc">Lowest score</option>
+    </select>
+  </div>
+
+  <div id="reports-container"></div>
+</main>
+
+<script>
+let query = '';
+let sortKey = 'date-desc';
+
+function scoreClass(score) {
+  if (score === null || score === undefined) return 'score-none';
+  if (score >= 90) return 'score-high';
+  if (score >= 70) return 'score-mid';
+  return 'score-low';
+}
+
+function statusChip(status) {
+  const labels = {
+    complete: 'Complete',
+    queued: 'Queued',
+    scanning: 'Scanning',
+    failed: 'Failed'
+  };
+  const label = labels[status] || status;
+  const cls = ['complete', 'queued', 'scanning', 'failed'].includes(status) ? status : 'queued';
+  return `<span class="status-chip status-${cls}">${label}</span>`;
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (isNaN(d)) return '—';
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function deleteEntry(token) {
+  let registry = [];
+  try { registry = JSON.parse(localStorage.getItem('e11y_report_registry') || '[]'); } catch (e) {}
+  registry = registry.filter(r => r.token !== token);
+  localStorage.setItem('e11y_report_registry', JSON.stringify(registry));
+  render();
+}
+
+function render() {
+  let registry = [];
+  try { registry = JSON.parse(localStorage.getItem('e11y_report_registry') || '[]'); } catch (e) {}
+
+  const container = document.getElementById('reports-container');
+
+  if (registry.length === 0) {
+    container.innerHTML = `<div class="section-card"><div class="empty-state"><p class="empty-state-title">No reports yet</p><p class="empty-state-body">Open a report link to save it here.</p></div></div>`;
+    return;
+  }
+
+  let entries = registry.slice();
+
+  if (query) {
+    const q = query.toLowerCase();
+    entries = entries.filter(r => r.url && r.url.toLowerCase().includes(q));
+  }
+
+  entries.sort((a, b) => {
+    if (sortKey === 'date-desc') {
+      return new Date(b.savedAt || 0) - new Date(a.savedAt || 0);
+    } else if (sortKey === 'date-asc') {
+      return new Date(a.savedAt || 0) - new Date(b.savedAt || 0);
+    } else if (sortKey === 'score-desc') {
+      return (b.avgScore ?? -1) - (a.avgScore ?? -1);
+    } else if (sortKey === 'score-asc') {
+      return (a.avgScore ?? 101) - (b.avgScore ?? 101);
+    }
+    return 0;
+  });
+
+  if (entries.length === 0) {
+    container.innerHTML = `<div class="section-card"><div class="empty-state"><p class="empty-state-title">No reports match your search.</p></div></div>`;
+    return;
+  }
+
+  const rows = entries.map(r => {
+    const sc = r.avgScore !== null && r.avgScore !== undefined ? r.avgScore : null;
+    const scoreBadge = `<span class="score-badge ${scoreClass(sc)}">${sc !== null ? sc : '—'}</span>`;
+    const pages = (r.pagesTotal != null) ? `${r.pagesScanned ?? '?'}/${r.pagesTotal}` : '—';
+    const date = fmtDate(r.savedAt);
+    const token = r.token.replace(/"/g, '&quot;');
+    const url = r.url ? r.url.replace(/</g, '&lt;').replace(/>/g, '&gt;') : '—';
+
+    return `<tr>
+      <td class="url-cell" title="${url}">${url}</td>
+      <td>${scoreBadge}</td>
+      <td>${pages}</td>
+      <td>${statusChip(r.status)}</td>
+      <td style="color:var(--ink-3);white-space:nowrap">${date}</td>
+      <td>
+        <div class="actions-cell">
+          <a class="btn-open" href="/reports/${r.token}">Open →</a>
+          <button class="btn-delete" data-token="${token}" title="Remove from list">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <path d="M1 3h12M5 3V2h4v1M2.5 3l.7 8.4A1 1 0 0 0 4.2 12h5.6a1 1 0 0 0 1-.6L11.5 3" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M5.5 6v3.5M8.5 6v3.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  container.innerHTML = `<div class="section-card">
+    <table class="reports-table">
+      <thead>
+        <tr>
+          <th>URL</th>
+          <th>Score</th>
+          <th>Pages</th>
+          <th>Status</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+}
+
+document.getElementById('search').addEventListener('input', function() {
+  query = this.value;
+  render();
+});
+
+document.getElementById('sort-select').addEventListener('change', function() {
+  sortKey = this.value;
+  render();
+});
+
+document.getElementById('reports-container').addEventListener('click', function(e) {
+  const btn = e.target.closest('.btn-delete');
+  if (btn) {
+    deleteEntry(btn.dataset.token);
+  }
+});
+
+render();
+</script>
+</body>
+</html>

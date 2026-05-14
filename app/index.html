@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dashboard — evidenta11y</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #f0f2f8;
+    --surface: #ffffff;
+    --surface-2: #f0f2f8;
+    --surface-3: #e4e8f0;
+    --ink: #0a0f2e;
+    --ink-2: #2d3561;
+    --ink-3: #5c6589;
+    --ink-4: #9ca3af;
+    --line: #e2e8f0;
+    --line-strong: #cbd5e1;
+    --accent: #00d4a0;
+    --accent-dark: #00b386;
+    --font-display: 'Inter Tight', -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-feature-settings: "ss01", "cv11";
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 220px;
+    min-width: 220px;
+    background: var(--surface);
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 10;
+    padding: 20px 12px 16px;
+  }
+  .sidebar-brand {
+    padding: 0 8px 20px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 12px;
+  }
+  .brand-name {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    display: block;
+  }
+  .brand-sub {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-3);
+    display: block;
+    margin-top: 2px;
+  }
+  .sidebar-nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 7px 8px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-3);
+    text-decoration: none;
+    transition: background 0.1s, color 0.1s;
+  }
+  .nav-item:hover,
+  .nav-item.active {
+    background: var(--surface-2);
+    color: var(--ink);
+  }
+  .nav-item svg {
+    flex-shrink: 0;
+    opacity: 0.7;
+  }
+  .nav-item.active svg { opacity: 1; }
+  .sidebar-footer {
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+  }
+
+  /* Main content */
+  .main {
+    margin-left: 220px;
+    flex: 1;
+    min-height: 100vh;
+    padding: 36px 36px 64px;
+    overflow-y: auto;
+  }
+
+  /* Page header */
+  .page-header {
+    margin-bottom: 28px;
+  }
+  .page-header h1 {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin: 0 0 4px;
+    color: var(--ink);
+  }
+  .page-header p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--ink-3);
+  }
+
+  /* Stats grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 18px 20px;
+  }
+  .stat-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-4);
+    margin: 0 0 8px;
+  }
+  .stat-value {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    margin: 0 0 6px;
+  }
+  .stat-sub {
+    font-size: 12px;
+    color: var(--ink-4);
+    margin: 0;
+  }
+
+  /* Section card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--line);
+  }
+  .card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0;
+  }
+  .card-link {
+    font-size: 13px;
+    color: var(--ink-3);
+    text-decoration: none;
+    transition: color 0.1s;
+  }
+  .card-link:hover { color: var(--ink); }
+  .card-body { padding: 0; }
+
+  /* Report table */
+  .report-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .report-table th {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-4);
+    font-weight: 500;
+    text-align: left;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  .report-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink-2);
+    vertical-align: middle;
+  }
+  .report-table tbody tr:last-child td { border-bottom: none; }
+  .report-table tbody tr:hover td { background: var(--surface-2); }
+  .url-cell {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--ink);
+  }
+
+  /* Score badge */
+  .score-badge {
+    display: inline-flex;
+    width: 36px;
+    height: 24px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    align-items: center;
+    justify-content: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .score-high { background: #e5f0dd; color: #2D6B2D; }
+  .score-mid  { background: #FAEEDA; color: #6B3A05; }
+  .score-low  { background: #FCEBEB; color: #791F1F; }
+  .score-none { background: var(--surface-3); color: var(--ink-4); }
+
+  /* Status chip */
+  .status-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .status-complete  { background: #e5f0dd; color: #2D6B2D; }
+  .status-queued    { background: var(--surface-3); color: var(--ink-3); }
+  .status-scanning  { background: #E6F1FB; color: #0C447C; }
+  .status-failed    { background: #FCEBEB; color: #791F1F; }
+
+  /* Open button */
+  .open-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    border: 1px solid var(--line-strong);
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-2);
+    text-decoration: none;
+    background: var(--surface);
+    transition: border-color 0.1s, background 0.1s;
+  }
+  .open-btn:hover {
+    border-color: var(--ink-3);
+    background: var(--surface-2);
+  }
+
+  /* Empty state */
+  .empty-state {
+    padding: 48px 24px;
+    text-align: center;
+    color: var(--ink-4);
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<aside class="sidebar" aria-label="Main navigation">
+  <div class="sidebar-brand">
+    <span class="brand-name">evidenta11y</span>
+    <span class="brand-sub">Accessibility Platform</span>
+  </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item active" href="/app/" aria-current="page">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor"/>
+        <rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor"/>
+        <rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor"/>
+        <rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor"/>
+      </svg>
+      Dashboard
+    </a>
+    <a class="nav-item" href="/app/reports">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <rect x="2" y="1" width="12" height="14" rx="1.5" stroke="currentColor" stroke-width="1.25" fill="none"/>
+        <line x1="5" y1="5" x2="11" y2="5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
+        <line x1="5" y1="8" x2="11" y2="8" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
+        <line x1="5" y1="11" x2="8.5" y2="11" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
+      </svg>
+      Reports
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <a class="nav-item" href="/">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      evidenta11y.com
+    </a>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="page-header">
+    <h1>Dashboard</h1>
+    <p>Overview of your accessibility reports</p>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card" id="stat-total">
+      <p class="stat-label">Total Reports</p>
+      <p class="stat-value">—</p>
+      <p class="stat-sub">All time</p>
+    </div>
+    <div class="stat-card" id="stat-avg-score">
+      <p class="stat-label">Avg Score</p>
+      <p class="stat-value">—</p>
+      <p class="stat-sub">Scored reports</p>
+    </div>
+    <div class="stat-card" id="stat-sites">
+      <p class="stat-label">Sites Analyzed</p>
+      <p class="stat-value">—</p>
+      <p class="stat-sub">Unique hostnames</p>
+    </div>
+    <div class="stat-card" id="stat-month">
+      <p class="stat-label">This Month</p>
+      <p class="stat-value">—</p>
+      <p class="stat-sub">Reports added</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Recent Reports</h2>
+      <a class="card-link" href="/app/reports">View all →</a>
+    </div>
+    <div class="card-body">
+      <div id="recent-reports-container"></div>
+    </div>
+  </div>
+</main>
+
+<script>
+  function scoreClass(score) {
+    if (score === null || score === undefined) return 'score-none';
+    if (score >= 90) return 'score-high';
+    if (score >= 70) return 'score-mid';
+    return 'score-low';
+  }
+
+  function statusChip(status) {
+    const label = status ? status.charAt(0).toUpperCase() + status.slice(1) : 'Unknown';
+    const cls = ['complete', 'queued', 'scanning', 'failed'].includes(status)
+      ? 'status-' + status
+      : 'status-queued';
+    return `<span class="status-chip ${cls}">${label}</span>`;
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    if (isNaN(d)) return '—';
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  function renderTable(reports, container) {
+    if (!reports.length) {
+      container.innerHTML = '<div class="empty-state">No reports yet. Open a report link and it will appear here automatically.</div>';
+      return;
+    }
+    const rows = reports.map(r => {
+      const scoreCls = scoreClass(r.avgScore);
+      const scoreVal = r.avgScore !== null && r.avgScore !== undefined ? r.avgScore : '—';
+      const pages = (r.pagesScanned !== null && r.pagesScanned !== undefined && r.pagesTotal)
+        ? `${r.pagesScanned}/${r.pagesTotal}`
+        : (r.pagesTotal || '—');
+      return `<tr>
+        <td class="url-cell" title="${escHtml(r.url)}">${escHtml(r.url)}</td>
+        <td><span class="score-badge ${scoreCls}">${scoreVal}</span></td>
+        <td>${pages}</td>
+        <td>${statusChip(r.status)}</td>
+        <td>${fmtDate(r.savedAt)}</td>
+        <td><a class="open-btn" href="/reports/${encodeURIComponent(r.token)}">Open</a></td>
+      </tr>`;
+    }).join('');
+    container.innerHTML = `<table class="report-table">
+      <thead>
+        <tr>
+          <th>URL</th>
+          <th>Score</th>
+          <th>Pages</th>
+          <th>Status</th>
+          <th>Date</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  }
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function setStatCard(id, value, sub) {
+    const card = document.getElementById(id);
+    card.querySelector('.stat-value').textContent = value;
+    if (sub !== undefined) card.querySelector('.stat-sub').textContent = sub;
+  }
+
+  function render() {
+    let registry = [];
+    try {
+      const raw = localStorage.getItem('e11y_report_registry');
+      if (raw) registry = JSON.parse(raw);
+      if (!Array.isArray(registry)) registry = [];
+    } catch (e) {
+      registry = [];
+    }
+
+    const total = registry.length;
+
+    const scored = registry.filter(r => r.avgScore !== null && r.avgScore !== undefined);
+    const avgScore = scored.length
+      ? Math.round(scored.reduce((s, r) => s + r.avgScore, 0) / scored.length)
+      : null;
+
+    const sites = new Set(
+      registry.map(r => {
+        try { return new URL(r.url).hostname; } catch (e) { return r.url; }
+      })
+    ).size;
+
+    const now = new Date();
+    const thisMonth = registry.filter(r => {
+      if (!r.savedAt) return false;
+      const d = new Date(r.savedAt);
+      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+    }).length;
+
+    setStatCard('stat-total', total || '0');
+    setStatCard('stat-avg-score', avgScore !== null ? avgScore : '—');
+    setStatCard('stat-sites', sites || '0');
+    setStatCard('stat-month', thisMonth || '0');
+
+    const recent = registry.slice().sort((a, b) => {
+      const ta = a.savedAt ? new Date(a.savedAt).getTime() : 0;
+      const tb = b.savedAt ? new Date(b.savedAt).getTime() : 0;
+      return tb - ta;
+    }).slice(0, 5);
+
+    renderTable(recent, document.getElementById('recent-reports-container'));
+  }
+
+  render();
+</script>
+</body>
+</html>

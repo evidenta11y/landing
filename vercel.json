@@ -1,5 +1,7 @@
 {
   "rewrites": [
-    { "source": "/reports/:token", "destination": "/reports/index.html" }
+    { "source": "/reports/:token", "destination": "/reports/index.html" },
+    { "source": "/app/reports",    "destination": "/app/reports.html"   },
+    { "source": "/app",            "destination": "/app/index.html"     }
   ]
 }
