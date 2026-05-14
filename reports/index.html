@@ -1821,6 +1821,45 @@
   }
   .tab-btn:hover { color: var(--ink); }
   .tab-btn.active { color: var(--ink); border-bottom-color: var(--accent); }
+  #manual-tabs-host { display: flex; flex: 1 1 0; min-width: 0; overflow: hidden; }
+  #manual-tabs-host .tab-btn { flex-shrink: 0; }
+  .tab-overflow-wrap {
+    position: relative;
+    flex-shrink: 0;
+    display: flex;
+  }
+  .tab-overflow-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .tab-overflow-menu {
+    position: absolute;
+    top: calc(100% + 1px);
+    right: 0;
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.12);
+    z-index: 200;
+    min-width: 160px;
+    padding: 4px 0;
+  }
+  .tab-overflow-menu button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 8px 14px;
+    background: none;
+    border: none;
+    font: inherit;
+    font-size: 13px;
+    color: var(--ink-3);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .tab-overflow-menu button:hover { background: var(--surface-2); color: var(--ink); }
+  .tab-overflow-menu button.active { color: var(--accent); font-weight: 500; }
   .tab-btn-add {
     width: 30px;
     padding: 0;
@@ -1976,7 +2015,14 @@
             aria-controls="tab-panel-scan" id="tab-btn-scan" data-tab="scan">
       Scan Results
     </button>
-    <div id="manual-tabs-host" style="display:contents;"></div>
+    <div id="manual-tabs-host"></div>
+    <div class="tab-overflow-wrap" id="tab-overflow-wrap" hidden>
+      <button class="tab-btn tab-overflow-btn" id="tab-overflow-trigger"
+              aria-haspopup="true" aria-expanded="false">
+        More <span aria-hidden="true">▾</span>
+      </button>
+      <div class="tab-overflow-menu" id="tab-overflow-menu" hidden role="menu"></div>
+    </div>
     <button class="tab-btn tab-btn-add" id="tab-add-audit" aria-label="New manual audit" title="New manual audit">+</button>
   </nav>
 
@@ -4779,14 +4825,17 @@
   // ── Tab rendering & switching ─────────────────────────────────────────────────
   function renderTabs() {
     const host = document.getElementById('manual-tabs-host');
-    host.innerHTML = audits.map(a => `
-      <button class="tab-btn${a.id === activeAuditId && !document.getElementById('tab-panel-scan').hidden === false ? '' : a.id === activeAuditId ? ' active' : ''}"
+    const manualVisible = !document.getElementById('tab-panel-manual').hidden;
+    host.innerHTML = audits.map(a => {
+      const isActive = a.id === activeAuditId && manualVisible;
+      return `<button class="tab-btn${isActive ? ' active' : ''}"
               role="tab"
-              aria-selected="${a.id === activeAuditId && document.getElementById('tab-panel-manual').hidden === false ? 'true' : 'false'}"
+              aria-selected="${isActive ? 'true' : 'false'}"
               aria-controls="tab-panel-manual"
               data-tab="manual" data-audit-id="${a.id}">
         <span class="tab-label" data-audit-id="${a.id}">${escapeHtml(a.name)}</span>
-      </button>`).join('');
+      </button>`;
+    }).join('');
 
     host.querySelectorAll('.tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -4822,10 +4871,78 @@
         });
       });
     });
+
+    checkTabOverflow();
+  }
+
+  function checkTabOverflow() {
+    const host = document.getElementById('manual-tabs-host');
+    const overflowWrap = document.getElementById('tab-overflow-wrap');
+    const tabs = Array.from(host.querySelectorAll('.tab-btn'));
+
+    // Reset: all visible, overflow hidden
+    tabs.forEach(t => { t.hidden = false; });
+    overflowWrap.hidden = true;
+
+    if (tabs.length === 0) return;
+
+    void host.offsetWidth; // flush layout
+
+    // Pass 1: does anything clip without the overflow button?
+    const hostRight1 = host.getBoundingClientRect().right;
+    const needsOverflow = tabs.some(t => t.getBoundingClientRect().right > hostRight1 + 0.5);
+
+    if (!needsOverflow) { updateOverflowMenu([]); return; }
+
+    // Pass 2: reveal overflow button (host shrinks), re-measure
+    overflowWrap.hidden = false;
+    void overflowWrap.offsetWidth; // flush
+
+    const hostRight2 = host.getBoundingClientRect().right;
+    const overflowTabs = tabs.filter(t => {
+      const clips = t.getBoundingClientRect().right > hostRight2 + 0.5;
+      if (clips) t.hidden = true;
+      return clips;
+    });
+
+    if (overflowTabs.length === 0) { overflowWrap.hidden = true; return; }
+    updateOverflowMenu(overflowTabs);
+  }
+
+  function updateOverflowMenu(overflowTabs) {
+    const menu = document.getElementById('tab-overflow-menu');
+    const trigger = document.getElementById('tab-overflow-trigger');
+    const manualVisible = !document.getElementById('tab-panel-manual').hidden;
+
+    menu.innerHTML = overflowTabs.map(tab => {
+      const auditId = tab.dataset.auditId;
+      const audit = audits.find(a => a.id === auditId);
+      if (!audit) return '';
+      const isActive = manualVisible && auditId === activeAuditId;
+      return `<button role="menuitem" class="${isActive ? 'active' : ''}" data-audit-id="${escapeHtml(auditId)}">${escapeHtml(audit.name)}</button>`;
+    }).join('');
+
+    menu.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        closeOverflowMenu();
+        if (!claimed) { openSignupModal(); return; }
+        switchToAudit(btn.dataset.auditId);
+      });
+    });
+
+    const activeInOverflow = manualVisible && overflowTabs.some(t => t.dataset.auditId === activeAuditId);
+    trigger.classList.toggle('active', activeInOverflow);
+  }
+
+  function closeOverflowMenu() {
+    const menu = document.getElementById('tab-overflow-menu');
+    const trigger = document.getElementById('tab-overflow-trigger');
+    if (!menu || menu.hidden) return;
+    menu.hidden = true;
+    trigger?.setAttribute('aria-expanded', 'false');
   }
 
   function switchTab(tabId) {
-    // Scan Results tab
     document.getElementById('tab-btn-scan').classList.toggle('active', tabId === 'scan');
     document.getElementById('tab-btn-scan').setAttribute('aria-selected', tabId === 'scan' ? 'true' : 'false');
     document.getElementById('tab-panel-scan').hidden = tabId !== 'scan';
@@ -4834,6 +4951,7 @@
   }
 
   function switchToAudit(auditId) {
+    closeOverflowMenu();
     activeAuditId = auditId;
     const audit = currentAudit();
     MANUAL_RAW = audit.findings;
@@ -4863,6 +4981,24 @@
     if (!claimed) { openSignupModal(); return; }
     createAudit();
   });
+
+  // Overflow trigger toggle
+  document.getElementById('tab-overflow-trigger').addEventListener('click', e => {
+    e.stopPropagation();
+    const menu = document.getElementById('tab-overflow-menu');
+    const isOpen = !menu.hidden;
+    menu.hidden = isOpen;
+    e.currentTarget.setAttribute('aria-expanded', String(!isOpen));
+  });
+
+  // Close overflow menu on outside click
+  document.addEventListener('click', e => {
+    if (!e.target.closest('#tab-overflow-wrap')) closeOverflowMenu();
+  });
+
+  // ResizeObserver: recheck overflow when tab bar resizes
+  new ResizeObserver(() => requestAnimationFrame(checkTabOverflow))
+    .observe(document.querySelector('.tab-bar'));
 
   // Initial tab render
   renderTabs();
