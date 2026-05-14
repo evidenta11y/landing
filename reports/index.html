@@ -5014,7 +5014,7 @@
               aria-controls="tab-panel-manual"
               data-tab="manual" data-audit-id="${a.id}">
         <span class="tab-label" data-audit-id="${a.id}">${escapeHtml(a.name)}</span>
-        ${audits.length > 1 ? `<span class="tab-close" data-close-audit="${a.id}" aria-label="Close ${escapeHtml(a.name)}" role="button" tabindex="-1">×</span>` : ''}
+        ${audits.length > 1 ? `<span class="tab-close" data-close-audit="${a.id}" aria-label="Delete ${escapeHtml(a.name)}" role="button" tabindex="-1" title="Delete audit">×</span>` : ''}
       </button>`;
     }).join('');
 
@@ -5170,6 +5170,9 @@
     if (audits.length <= 1) return;
     const idx = audits.findIndex(a => a.id === auditId);
     if (idx < 0) return;
+    const audit = audits[idx];
+    const count = (audit.findings || []).length;
+    if (count > 0 && !confirm(`Delete "${audit.name}"? It contains ${count} issue${count !== 1 ? 's' : ''} and cannot be recovered.`)) return;
     audits.splice(idx, 1);
     saveAudits();
     if (activeAuditId === auditId) {
