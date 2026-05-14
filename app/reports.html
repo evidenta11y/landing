@@ -366,9 +366,7 @@ body {
   background: var(--surface-2);
 }
 .kebab-menu {
-  position: absolute;
-  top: calc(100% + 4px);
-  right: 0;
+  position: fixed;
   background: var(--surface);
   border: 1px solid var(--line-strong);
   border-radius: 6px;
@@ -771,7 +769,13 @@ function openKebabMenu(btn) {
     });
   });
 
-  btn.closest('.kebab-wrap').appendChild(menu);
+  // Append to body so table overflow:hidden doesn't clip it
+  document.body.appendChild(menu);
+  const r = btn.getBoundingClientRect();
+  menu.style.position = 'fixed';
+  menu.style.top = (r.bottom + 4) + 'px';
+  menu.style.right = (window.innerWidth - r.right) + 'px';
+
   openKebab = { token, auditId, el: menu };
 }
 
