@@ -2708,6 +2708,20 @@
           body: JSON.stringify({ manual_audits: audits, issue_overrides: buildOverrides() }),
         });
       } catch { /* localStorage is the fallback */ }
+
+      // Keep registry in sync with manual audit summaries
+      try {
+        const reg = JSON.parse(localStorage.getItem('e11y_report_registry')) || [];
+        const idx = reg.findIndex(r => r.token === token);
+        if (idx >= 0) {
+          reg[idx].manual_audits = audits.map(a => ({
+            id: a.id,
+            name: a.name,
+            findings_count: (a.findings || []).length,
+          }));
+          localStorage.setItem('e11y_report_registry', JSON.stringify(reg));
+        }
+      } catch {}
     }, 1500);
   }
 
@@ -2770,6 +2784,13 @@
       updateStats();
       updateDropdownLabels();
       updateHiddenColumnsControl();
+
+      // Deep-link to a specific manual audit via #manual-{auditId}
+      const hashMatch = window.location.hash.match(/^#manual-(.+)$/);
+      if (hashMatch) {
+        const targetId = decodeURIComponent(hashMatch[1]);
+        if (audits.find(a => a.id === targetId)) switchToAudit(targetId);
+      }
     } catch (err) {
       showError('Failed to load report. Please try again.');
     }

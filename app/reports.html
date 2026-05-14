@@ -23,6 +23,8 @@
   --accent-dark: #00b386;
   --font-display: 'Inter Tight', -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --moderate-bg: #E6F1FB;
+  --moderate-fg: #0C447C;
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; height: 100%; }
@@ -38,7 +40,6 @@ body {
   min-height: 100vh;
 }
 
-/* Sidebar */
 .sidebar {
   width: 220px;
   flex-shrink: 0;
@@ -119,7 +120,6 @@ body {
   color: var(--ink);
 }
 
-/* Main */
 .main {
   margin-left: 220px;
   flex: 1;
@@ -128,11 +128,14 @@ body {
   overflow-y: auto;
 }
 
-/* Page header */
 .page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
   margin-bottom: 24px;
 }
-.page-header h1 {
+.page-header-left h1 {
   font-family: var(--font-display);
   font-size: 24px;
   font-weight: 600;
@@ -144,15 +147,6 @@ body {
   font-size: 13px;
   color: var(--ink-3);
   margin: 0;
-}
-
-/* Toolbar */
-.toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 16px;
 }
 #search {
   border: 1px solid var(--line-strong);
@@ -172,23 +166,7 @@ body {
 #search:focus {
   border-color: var(--accent);
 }
-#sort-select {
-  border: 1px solid var(--line-strong);
-  border-radius: 6px;
-  padding: 7px 12px;
-  font-size: 13px;
-  font-family: var(--font-display);
-  color: var(--ink-2);
-  background: var(--surface);
-  outline: none;
-  cursor: pointer;
-  transition: border-color 0.15s;
-}
-#sort-select:focus {
-  border-color: var(--accent);
-}
 
-/* Section card */
 .section-card {
   background: var(--surface);
   border: 1px solid var(--line);
@@ -196,7 +174,6 @@ body {
   overflow: hidden;
 }
 
-/* Table */
 .reports-table {
   width: 100%;
   border-collapse: collapse;
@@ -209,48 +186,125 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--ink-4);
-  padding: 10px 16px;
+  padding: 10px 14px;
   border-bottom: 1px solid var(--line);
   text-align: left;
 }
 .reports-table td {
-  padding: 12px 16px;
+  padding: 11px 14px;
   border-bottom: 1px solid var(--line);
-  color: var(--ink);
   vertical-align: middle;
 }
 .reports-table tbody tr:last-child td {
   border-bottom: none;
 }
-.reports-table tbody tr:hover {
+
+.group-row {
+  cursor: pointer;
+  background: var(--surface);
+}
+.group-row:hover {
   background: var(--surface-2);
 }
-.url-cell {
+.group-chevron {
+  width: 14px;
+  height: 14px;
+  color: var(--ink-4);
+  transition: transform 0.15s;
+  flex-shrink: 0;
+  display: block;
+}
+.group-row.is-open .group-chevron {
+  transform: rotate(90deg);
+}
+.group-domain {
   font-family: var(--font-mono);
-  font-size: 12px;
-  max-width: 280px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.group-sub {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-4);
+  margin-top: 2px;
 }
 
-/* Score badge */
+.sub-row td {
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+.sub-row .url-cell {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  max-width: 280px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  margin-top: 2px;
+}
+
+.type-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.type-scan {
+  background: var(--moderate-bg);
+  color: var(--moderate-fg);
+}
+.type-manual {
+  background: var(--surface-3);
+  color: var(--ink-2);
+}
+
+.delete-row td {
+  background: var(--bg);
+  padding: 6px 14px 10px;
+  border-bottom: 1px solid var(--line);
+  text-align: right;
+}
+.delete-btn {
+  background: none;
+  border: none;
+  font: inherit;
+  font-size: 12px;
+  color: var(--ink-4);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+.delete-btn:hover {
+  color: var(--ink);
+  background: var(--surface-3);
+}
+
 .score-badge {
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 36px;
   height: 24px;
   border-radius: 4px;
   font-size: 12px;
   font-weight: 600;
-  align-items: center;
-  justify-content: center;
 }
 .score-high { background: #e5f0dd; color: #2D6B2D; }
 .score-mid  { background: #FAEEDA; color: #6B3A05; }
 .score-low  { background: #FCEBEB; color: #791F1F; }
 .score-none { background: var(--surface-3); color: var(--ink-4); }
 
-/* Status chip */
 .status-chip {
   display: inline-flex;
   align-items: center;
@@ -264,13 +318,7 @@ body {
 .status-scanning  { background: #E6F1FB; color: #0C447C; }
 .status-failed    { background: #FCEBEB; color: #791F1F; }
 
-/* Actions */
-.actions-cell {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.btn-open {
+.open-btn {
   display: inline-flex;
   padding: 5px 10px;
   border: 1px solid var(--line-strong);
@@ -283,28 +331,11 @@ body {
   transition: background 0.1s, border-color 0.1s;
   white-space: nowrap;
 }
-.btn-open:hover {
+.open-btn:hover {
   background: var(--surface-2);
   border-color: var(--ink-4);
 }
-.btn-delete {
-  background: none;
-  border: none;
-  padding: 5px;
-  border-radius: 4px;
-  cursor: pointer;
-  color: var(--ink-4);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.1s, background 0.1s;
-}
-.btn-delete:hover {
-  color: var(--ink);
-  background: var(--surface-3);
-}
 
-/* Empty state */
 .empty-state {
   padding: 56px 24px;
   text-align: center;
@@ -355,18 +386,11 @@ body {
 
 <main class="main">
   <div class="page-header">
-    <h1>Reports</h1>
-    <p class="page-header-sub">All scans and accessibility audits</p>
-  </div>
-
-  <div class="toolbar">
-    <input id="search" type="search" placeholder="Filter by URL…" autocomplete="off" />
-    <select id="sort-select">
-      <option value="date-desc">Newest first</option>
-      <option value="date-asc">Oldest first</option>
-      <option value="score-desc">Highest score</option>
-      <option value="score-asc">Lowest score</option>
-    </select>
+    <div class="page-header-left">
+      <h1>Reports</h1>
+      <p class="page-header-sub">All scans and accessibility audits</p>
+    </div>
+    <input id="search" type="search" placeholder="Filter by URL or audit name…" autocomplete="off" />
   </div>
 
   <div id="reports-container"></div>
@@ -374,7 +398,11 @@ body {
 
 <script>
 let query = '';
-let sortKey = 'date-desc';
+const expandedGroups = new Set();
+
+function hostname(url) {
+  try { return new URL(url).hostname; } catch (e) { return url || ''; }
+}
 
 function scoreClass(score) {
   if (score === null || score === undefined) return 'score-none';
@@ -384,12 +412,7 @@ function scoreClass(score) {
 }
 
 function statusChip(status) {
-  const labels = {
-    complete: 'Complete',
-    queued: 'Queued',
-    scanning: 'Scanning',
-    failed: 'Failed'
-  };
+  const labels = { complete: 'Complete', queued: 'Queued', scanning: 'Scanning', failed: 'Failed' };
   const label = labels[status] || status;
   const cls = ['complete', 'queued', 'scanning', 'failed'].includes(status) ? status : 'queued';
   return `<span class="status-chip status-${cls}">${label}</span>`;
@@ -400,6 +423,40 @@ function fmtDate(iso) {
   const d = new Date(iso);
   if (isNaN(d)) return '—';
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function esc(str) {
+  return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function buildGroups(registry, q) {
+  let entries = registry.slice();
+  if (q) {
+    const lq = q.toLowerCase();
+    entries = entries.filter(r => {
+      if (hostname(r.url).toLowerCase().includes(lq)) return true;
+      if ((r.url || '').toLowerCase().includes(lq)) return true;
+      if ((r.manual_audits || []).some(a => (a.name || '').toLowerCase().includes(lq))) return true;
+      return false;
+    });
+  }
+  const map = new Map();
+  for (const r of entries) {
+    const d = hostname(r.url);
+    if (!map.has(d)) map.set(d, []);
+    map.get(d).push(r);
+  }
+  const groups = [];
+  for (const [domain, reports] of map.entries()) {
+    reports.sort((a, b) => new Date(b.savedAt || 0) - new Date(a.savedAt || 0));
+    groups.push({ domain, reports });
+  }
+  groups.sort((a, b) => {
+    const aDate = new Date(a.reports[0].savedAt || 0);
+    const bDate = new Date(b.reports[0].savedAt || 0);
+    return bDate - aDate;
+  });
+  return groups;
 }
 
 function deleteEntry(token) {
@@ -421,72 +478,120 @@ function render() {
     return;
   }
 
-  let entries = registry.slice();
+  const groups = buildGroups(registry, query);
 
-  if (query) {
-    const q = query.toLowerCase();
-    entries = entries.filter(r => r.url && r.url.toLowerCase().includes(q));
-  }
-
-  entries.sort((a, b) => {
-    if (sortKey === 'date-desc') {
-      return new Date(b.savedAt || 0) - new Date(a.savedAt || 0);
-    } else if (sortKey === 'date-asc') {
-      return new Date(a.savedAt || 0) - new Date(b.savedAt || 0);
-    } else if (sortKey === 'score-desc') {
-      return (b.avgScore ?? -1) - (a.avgScore ?? -1);
-    } else if (sortKey === 'score-asc') {
-      return (a.avgScore ?? 101) - (b.avgScore ?? 101);
-    }
-    return 0;
-  });
-
-  if (entries.length === 0) {
+  if (groups.length === 0) {
     container.innerHTML = `<div class="section-card"><div class="empty-state"><p class="empty-state-title">No reports match your search.</p></div></div>`;
     return;
   }
 
-  const rows = entries.map(r => {
-    const sc = r.avgScore !== null && r.avgScore !== undefined ? r.avgScore : null;
-    const scoreBadge = `<span class="score-badge ${scoreClass(sc)}">${sc !== null ? sc : '—'}</span>`;
-    const pages = (r.pagesTotal != null) ? `${r.pagesScanned ?? '?'}/${r.pagesTotal}` : '—';
-    const date = fmtDate(r.savedAt);
-    const token = r.token.replace(/"/g, '&quot;');
-    const url = r.url ? r.url.replace(/</g, '&lt;').replace(/>/g, '&gt;') : '—';
+  let tbody = '';
 
-    return `<tr>
-      <td class="url-cell" title="${url}">${url}</td>
-      <td>${scoreBadge}</td>
-      <td>${pages}</td>
-      <td>${statusChip(r.status)}</td>
-      <td style="color:var(--ink-3);white-space:nowrap">${date}</td>
-      <td>
-        <div class="actions-cell">
-          <a class="btn-open" href="/reports/${r.token}">Open →</a>
-          <button class="btn-delete" data-token="${token}" title="Remove from list">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-              <path d="M1 3h12M5 3V2h4v1M2.5 3l.7 8.4A1 1 0 0 0 4.2 12h5.6a1 1 0 0 0 1-.6L11.5 3" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M5.5 6v3.5M8.5 6v3.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
-            </svg>
-          </button>
-        </div>
+  for (const group of groups) {
+    const { domain, reports } = group;
+    const isOpen = expandedGroups.has(domain);
+
+    const scores = reports.map(r => r.avgScore).filter(s => s !== null && s !== undefined);
+    const groupAvg = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
+    const groupScoreBadge = `<span class="score-badge ${scoreClass(groupAvg)}">${groupAvg !== null ? groupAvg : '—'}</span>`;
+
+    const totalIssues = reports.reduce((sum, r) => {
+      return sum + (r.manual_audits || []).reduce((s, a) => s + (a.findings_count || 0), 0);
+    }, 0);
+
+    const totalManualAudits = reports.reduce((sum, r) => sum + (r.manual_audits || []).length, 0);
+    const subLabel = `${reports.length} scan${reports.length !== 1 ? 's' : ''}${totalManualAudits > 0 ? ' · ' + totalManualAudits + ' manual audit' + (totalManualAudits !== 1 ? 's' : '') : ''}`;
+
+    const lastDate = fmtDate(reports[0].savedAt);
+    const escapedDomain = esc(domain);
+
+    tbody += `<tr class="group-row${isOpen ? ' is-open' : ''}" data-domain="${escapedDomain}">
+      <td style="width:30px;padding-right:4px;">
+        <svg class="group-chevron" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
       </td>
+      <td colspan="5">
+        <div class="group-domain">${escapedDomain}</div>
+        <div class="group-sub">${subLabel}</div>
+      </td>
+      <td>${groupScoreBadge}</td>
+      <td style="color:var(--ink-3);font-size:13px;">${totalIssues > 0 ? totalIssues + ' issue' + (totalIssues !== 1 ? 's' : '') : '—'}</td>
+      <td style="color:var(--ink-3);font-size:13px;white-space:nowrap;">${lastDate}</td>
+      <td></td>
     </tr>`;
-  }).join('');
+
+    if (isOpen) {
+      for (const r of reports) {
+        const sc = r.avgScore !== null && r.avgScore !== undefined ? r.avgScore : null;
+        const scoreBadge = `<span class="score-badge ${scoreClass(sc)}">${sc !== null ? sc : '—'}</span>`;
+        const pages = (r.pagesTotal != null) ? `${r.pagesScanned ?? '?'} / ${r.pagesTotal}` : '—';
+        const escapedUrl = esc(r.url || '');
+        const escapedToken = esc(r.token);
+        const scanDate = fmtDate(r.scannedAt || r.savedAt);
+
+        tbody += `<tr class="sub-row">
+          <td></td>
+          <td>
+            <span class="type-badge type-scan">Scan</span>
+            <span class="url-cell" title="${escapedUrl}">${escapedUrl}</span>
+          </td>
+          <td>${scoreBadge}</td>
+          <td style="color:var(--ink-3);font-size:13px;">${pages}</td>
+          <td>${statusChip(r.status)}</td>
+          <td style="color:var(--ink-3);font-size:13px;white-space:nowrap;">${scanDate}</td>
+          <td><a class="open-btn" href="/reports/${escapedToken}">Open →</a></td>
+        </tr>`;
+
+        for (const a of (r.manual_audits || [])) {
+          const auditDate = fmtDate(r.savedAt);
+          const escapedAuditName = esc(a.name || '');
+          const escapedAuditId = esc(a.id || '');
+          const issueLabel = `${a.findings_count} issue${a.findings_count !== 1 ? 's' : ''}`;
+
+          tbody += `<tr class="sub-row">
+            <td></td>
+            <td>
+              <span class="type-badge type-manual">Manual</span>
+              <span style="display:block;margin-top:2px;color:var(--ink-2);font-size:13px;">${escapedAuditName}</span>
+            </td>
+            <td><span class="score-none score-badge">—</span></td>
+            <td style="color:var(--ink-3);font-size:13px;">${issueLabel}</td>
+            <td></td>
+            <td style="color:var(--ink-3);font-size:13px;white-space:nowrap;">${auditDate}</td>
+            <td><a class="open-btn" href="/reports/${escapedToken}#manual-${escapedAuditId}">Open →</a></td>
+          </tr>`;
+        }
+
+        tbody += `<tr class="delete-row">
+          <td colspan="7">
+            <button class="delete-btn" data-token="${escapedToken}">
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M1 3h12M5 3V2h4v1M2.5 3l.7 8.4A1 1 0 0 0 4.2 12h5.6a1 1 0 0 0 1-.6L11.5 3" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M5.5 6v3.5M8.5 6v3.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
+              </svg>
+              Remove from list
+            </button>
+          </td>
+        </tr>`;
+      }
+    }
+  }
 
   container.innerHTML = `<div class="section-card">
     <table class="reports-table">
       <thead>
         <tr>
-          <th>URL</th>
+          <th></th>
+          <th>Domain / Type</th>
+          <th colspan="5"></th>
           <th>Score</th>
-          <th>Pages</th>
-          <th>Status</th>
-          <th>Date</th>
-          <th>Actions</th>
+          <th>Issues</th>
+          <th>Last scan</th>
+          <th></th>
         </tr>
       </thead>
-      <tbody>${rows}</tbody>
+      <tbody>${tbody}</tbody>
     </table>
   </div>`;
 }
@@ -496,15 +601,21 @@ document.getElementById('search').addEventListener('input', function() {
   render();
 });
 
-document.getElementById('sort-select').addEventListener('change', function() {
-  sortKey = this.value;
-  render();
-});
-
 document.getElementById('reports-container').addEventListener('click', function(e) {
-  const btn = e.target.closest('.btn-delete');
-  if (btn) {
-    deleteEntry(btn.dataset.token);
+  const deleteBtn = e.target.closest('.delete-btn');
+  if (deleteBtn) {
+    deleteEntry(deleteBtn.dataset.token);
+    return;
+  }
+  const groupRow = e.target.closest('.group-row');
+  if (groupRow) {
+    const domain = groupRow.dataset.domain;
+    if (expandedGroups.has(domain)) {
+      expandedGroups.delete(domain);
+    } else {
+      expandedGroups.add(domain);
+    }
+    render();
   }
 });
 
