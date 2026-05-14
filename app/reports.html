@@ -784,8 +784,6 @@ document.addEventListener('click', e => {
 });
 
 // ── Kebab actions ─────────────────────────────────────────────────────────────
-const API = 'https://platform-production-ace5.up.railway.app';
-
 function getLocalAudits(token) {
   try { return JSON.parse(localStorage.getItem(`e11y_audits_${token}`)) || []; } catch { return []; }
 }
@@ -805,16 +803,6 @@ function updateRegistry(token, audits) {
       localStorage.setItem('e11y_report_registry', JSON.stringify(reg));
     }
   } catch {}
-}
-
-function syncToAPI(token, audits) {
-  const key = localStorage.getItem(`e11y_token_${token}`);
-  if (!key) return;
-  fetch(`${API}/v1/public/report/view/${token}/annotations`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
-    body: JSON.stringify({ manual_audits: audits }),
-  }).catch(() => {});
 }
 
 function doAuditAction(token, auditId, action, auditName) {
@@ -842,7 +830,6 @@ function doAuditAction(token, auditId, action, auditName) {
 
   saveLocalAudits(token, updated);
   updateRegistry(token, updated);
-  syncToAPI(token, updated);
   render();
 }
 
@@ -872,7 +859,6 @@ function startRename(token, auditId, currentName) {
     if (audit) audit.name = newName;
     saveLocalAudits(token, audits);
     updateRegistry(token, audits);
-    syncToAPI(token, audits);
     render();
   }
 
