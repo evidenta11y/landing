@@ -1987,6 +1987,24 @@
     border-radius: 4px;
   }
   .tab-btn-add:hover { color: var(--ink); background: var(--surface-2); }
+  .tab-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    font-size: 13px;
+    line-height: 1;
+    color: var(--ink-4);
+    margin-left: 4px;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.1s, background 0.1s, color 0.1s;
+  }
+  .tab-btn:hover .tab-close,
+  .tab-btn.active .tab-close { opacity: 1; }
+  .tab-close:hover { background: var(--surface-3); color: var(--ink); }
   .tab-label-input {
     background: transparent;
     border: none;
@@ -4996,13 +5014,22 @@
               aria-controls="tab-panel-manual"
               data-tab="manual" data-audit-id="${a.id}">
         <span class="tab-label" data-audit-id="${a.id}">${escapeHtml(a.name)}</span>
+        ${audits.length > 1 ? `<span class="tab-close" data-close-audit="${a.id}" aria-label="Close ${escapeHtml(a.name)}" role="button" tabindex="-1">×</span>` : ''}
       </button>`;
     }).join('');
 
     host.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', e => {
+        if (e.target.closest('.tab-close')) return; // handled separately
         if (!claimed) { openSignupModal(); return; }
         switchToAudit(btn.dataset.auditId);
+      });
+    });
+
+    host.querySelectorAll('.tab-close').forEach(x => {
+      x.addEventListener('click', e => {
+        e.stopPropagation();
+        closeAudit(x.dataset.closeAudit);
       });
     });
 
@@ -5137,6 +5164,19 @@
     audits.push({ id, name, findings: [], testingEnv: null });
     saveAudits();
     switchToAudit(id);
+  }
+
+  function closeAudit(auditId) {
+    if (audits.length <= 1) return;
+    const idx = audits.findIndex(a => a.id === auditId);
+    if (idx < 0) return;
+    audits.splice(idx, 1);
+    saveAudits();
+    if (activeAuditId === auditId) {
+      switchToAudit(audits[Math.min(idx, audits.length - 1)].id);
+    } else {
+      renderTabs();
+    }
   }
 
   // ── Combined Report ────────────────────────────────────────────────────────
