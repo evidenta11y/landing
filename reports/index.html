@@ -1798,6 +1798,134 @@
     .col-pages { display: none; }
   }
 
+  /* ── Manual Audit overlay ───────────────────────────────────────────────── */
+  #manual-audit-page {
+    position: fixed;
+    inset: 0;
+    z-index: 150;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  #manual-audit-page[hidden] { display: none; }
+  .manual-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 24px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--line-strong);
+    flex-shrink: 0;
+  }
+  .manual-topbar-left { display: flex; align-items: center; gap: 12px; }
+  .manual-topbar h2 {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin: 0;
+    color: var(--ink);
+  }
+  .manual-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+  }
+  /* Testing Environment */
+  .te-section {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .te-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface-2);
+  }
+  .te-section-header h3 {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0;
+    font-weight: 500;
+  }
+  .te-form {
+    padding: 18px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .te-field { display: flex; flex-direction: column; gap: 6px; }
+  .te-field-full { grid-column: 1 / -1; }
+  .te-field > label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    font-weight: 500;
+  }
+  .te-form-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 4px;
+  }
+  .te-display {
+    padding: 14px 18px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .te-chip {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 6px 10px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+  }
+  .te-chip-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    font-weight: 500;
+  }
+  .te-chip-value { font-size: 13px; color: var(--ink); font-weight: 500; }
+  /* Manual findings table */
+  .manual-table-section { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .manual-table-section .table-wrap { border: none; border-radius: 0; overflow-x: auto; }
+  .manual-empty {
+    padding: 60px 40px;
+    text-align: center;
+    color: var(--ink-3);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .manual-empty p { margin: 0 0 16px; }
+  /* Add Issue modal field layout */
+  .ai-field { display: flex; flex-direction: column; gap: 6px; margin-top: 16px; }
+  .ai-field:first-child { margin-top: 0; }
+  .ai-field > label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .ai-field > label .required { color: var(--critical-fg); margin-left: 2px; }
+
 </style>
 </head>
 <body>
@@ -1811,14 +1939,18 @@
       <p class="target" id="report-meta">Loading…</p>
     </div>
     <div class="topbar-actions">
-      <button class="toggle" id="settings-trigger">
-        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        Settings
-      </button>
       <div id="auth-buttons" style="display:flex;gap:8px;">
         <button class="toggle" id="login-trigger">Log in</button>
         <button class="toggle btn-primary" id="signup-trigger" style="height:32px;">Create account</button>
       </div>
+      <button class="toggle" id="settings-trigger">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </button>
+      <button class="toggle btn-primary" id="manual-audit-trigger" style="height:32px;">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add new audit
+      </button>
     </div>
   </header>
 
@@ -2000,6 +2132,180 @@
 
   <div id="pagination" class="pagination"></div>
 
+</div>
+
+<!-- Manual Audit full-page overlay -->
+<div id="manual-audit-page" hidden>
+  <header class="manual-topbar">
+    <div class="manual-topbar-left">
+      <button class="toggle" id="manual-back-btn">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+        Back
+      </button>
+      <h2>Manual Audit</h2>
+    </div>
+    <button class="btn-primary" id="manual-add-issue-btn" style="height:32px;">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Issue
+    </button>
+  </header>
+
+  <div class="manual-body">
+
+    <!-- Testing Environment -->
+    <section class="te-section">
+      <div class="te-section-header">
+        <h3>Testing Environment</h3>
+        <button class="btn-secondary btn-small" id="te-edit-btn" hidden>Edit</button>
+      </div>
+      <div id="te-form-state">
+        <div class="te-form">
+          <div class="te-field">
+            <label>WCAG Version</label>
+            <div class="seg-row" id="te-wcag-row">
+              <button class="seg-radio" data-te-wcag="2.0">2.0</button>
+              <button class="seg-radio" data-te-wcag="2.1">2.1</button>
+              <button class="seg-radio active" data-te-wcag="2.2">2.2</button>
+            </div>
+          </div>
+          <div class="te-field">
+            <label>Conformance Level</label>
+            <div class="seg-row" id="te-level-row">
+              <button class="seg-radio" data-te-level="A">A</button>
+              <button class="seg-radio active" data-te-level="AA">AA</button>
+              <button class="seg-radio" data-te-level="AAA">AAA</button>
+            </div>
+          </div>
+          <div class="te-field">
+            <label for="te-url">Operating System</label>
+            <div class="seg-row" id="te-os-row">
+              <button class="seg-radio active" data-te-os="Mac">Mac</button>
+              <button class="seg-radio" data-te-os="Windows">Windows</button>
+              <button class="seg-radio" data-te-os="iOS">iOS</button>
+              <button class="seg-radio" data-te-os="Android">Android</button>
+            </div>
+          </div>
+          <div class="te-field">
+            <label>Device</label>
+            <div class="seg-row" id="te-device-row">
+              <button class="seg-radio active" data-te-device="Desktop">Desktop</button>
+              <button class="seg-radio" data-te-device="Mobile">Mobile</button>
+              <button class="seg-radio" data-te-device="Tablet">Tablet</button>
+            </div>
+          </div>
+          <div class="te-field te-field-full">
+            <label for="te-url-input">Page URL</label>
+            <input id="te-url-input" type="url" class="note-textarea"
+                   style="min-height:unset;height:34px;padding:0 10px;resize:none;"
+                   placeholder="https://example.com/page" />
+          </div>
+          <div class="te-form-actions">
+            <button class="btn-primary" id="te-save-btn">Save</button>
+          </div>
+        </div>
+      </div>
+      <div id="te-display-state" hidden>
+        <div class="te-display" id="te-chips-host"></div>
+      </div>
+    </section>
+
+    <!-- Manual findings table -->
+    <div class="manual-table-section">
+      <div class="table-wrap">
+        <table class="findings" id="manual-findings-table" style="min-width:1100px;">
+          <colgroup>
+            <col style="width:40px" />
+            <col style="width:96px" />
+            <col style="width:90px" />
+            <col style="width:200px" />
+            <col style="width:280px" />
+            <col style="width:240px" />
+            <col style="width:200px" />
+            <col style="width:130px" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th></th>
+              <th>#</th>
+              <th>Impact</th>
+              <th>Rule</th>
+              <th>Problem</th>
+              <th>How to fix</th>
+              <th>Element</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="manual-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Add Issue modal -->
+<div id="add-issue-modal" class="modal-backdrop" role="dialog" aria-modal="true"
+     aria-labelledby="add-issue-title" hidden>
+  <div class="modal" style="max-width:600px;">
+    <header class="modal-header">
+      <h2 id="add-issue-title" class="modal-title">Add Issue</h2>
+      <button class="modal-close" id="add-issue-close" aria-label="Close">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </header>
+    <div class="modal-body">
+      <div class="ai-field">
+        <label>Impact</label>
+        <div class="seg-row" id="ai-impact-row" style="width:fit-content;">
+          <button class="seg-radio active" data-ai-impact="critical" style="color:var(--critical-fg);">Critical</button>
+          <button class="seg-radio" data-ai-impact="serious" style="">Serious</button>
+          <button class="seg-radio" data-ai-impact="moderate">Moderate</button>
+          <button class="seg-radio" data-ai-impact="minor">Minor</button>
+        </div>
+      </div>
+      <div class="ai-field">
+        <label for="ai-rule">Rule / Issue Name <span class="required">*</span></label>
+        <input id="ai-rule" type="text" class="note-textarea"
+               style="min-height:unset;height:34px;padding:0 10px;resize:none;"
+               placeholder="Short descriptive name" />
+      </div>
+      <div class="ai-field">
+        <label for="ai-wcag">WCAG Criterion</label>
+        <input id="ai-wcag" type="text" class="note-textarea"
+               style="min-height:unset;height:34px;padding:0 10px;resize:none;font-family:var(--font-mono);font-size:12px;"
+               placeholder="e.g. 1.4.3 Contrast (Minimum)" />
+      </div>
+      <div class="ai-field">
+        <label for="ai-problem">Problem Description <span class="required">*</span></label>
+        <textarea id="ai-problem" class="note-textarea" rows="3"
+                  placeholder="Describe what fails and why it's an accessibility barrier…"></textarea>
+      </div>
+      <div class="ai-field">
+        <label for="ai-fix">How to Fix</label>
+        <textarea id="ai-fix" class="note-textarea" rows="3"
+                  placeholder="Describe the recommended fix…"></textarea>
+      </div>
+      <div class="ai-field">
+        <label for="ai-selector">CSS Selector</label>
+        <input id="ai-selector" type="text" class="note-textarea"
+               style="min-height:unset;height:34px;padding:0 10px;resize:none;font-family:var(--font-mono);font-size:12px;"
+               placeholder=".example > button" />
+      </div>
+      <div class="ai-field">
+        <label for="ai-html">HTML Snippet</label>
+        <textarea id="ai-html" class="note-textarea" rows="3"
+                  style="font-family:var(--font-mono);font-size:12px;"
+                  placeholder="<button>…</button>"></textarea>
+      </div>
+      <div id="add-issue-error" role="alert" aria-live="polite"
+           style="display:none;color:var(--critical-fg);font-size:13px;margin-top:12px;
+                  padding:8px 12px;background:var(--critical-bg);border-radius:4px;"></div>
+    </div>
+    <footer class="modal-footer">
+      <button class="btn-secondary" id="add-issue-cancel">Cancel</button>
+      <button class="btn-primary" id="add-issue-submit">Add Issue</button>
+    </footer>
+  </div>
 </div>
 
 <!-- Settings modal -->
@@ -4397,6 +4703,509 @@
       errorEl.style.display = 'block';
       btn.textContent = 'Log in';
       btn.disabled = false;
+    }
+  });
+</script>
+
+<script>
+  // ── Manual Audit ────────────────────────────────────────────────────────────
+  const MF_KEY = `e11y_mf_${token}`;
+  const TE_KEY = `e11y_te_${token}`;
+
+  function loadManualFindings() {
+    try { return JSON.parse(localStorage.getItem(MF_KEY)) || []; } catch { return []; }
+  }
+  function saveManualFindings() {
+    try { localStorage.setItem(MF_KEY, JSON.stringify(MANUAL_RAW)); } catch {}
+  }
+  function loadTestingEnv() {
+    try { return JSON.parse(localStorage.getItem(TE_KEY)); } catch { return null; }
+  }
+  function saveTestingEnv(env) {
+    try { localStorage.setItem(TE_KEY, JSON.stringify(env)); } catch {}
+  }
+
+  let MANUAL_RAW = loadManualFindings();
+  let teEnv = loadTestingEnv();
+  const mState = { expandedRow: null, composingNote: null, editingNote: null };
+
+  // ── Open / Close ─────────────────────────────────────────────────────────────
+  function openManualAudit() {
+    document.getElementById('manual-audit-page').hidden = false;
+    document.body.style.overflow = 'hidden';
+    renderTE();
+    renderManualTable();
+    document.getElementById('manual-back-btn').focus();
+  }
+
+  function closeManualAudit() {
+    document.getElementById('manual-audit-page').hidden = true;
+    document.body.style.overflow = '';
+    document.getElementById('manual-audit-trigger').focus();
+  }
+
+  document.getElementById('manual-audit-trigger').addEventListener('click', () => {
+    if (!claimed) { openSignupModal(); return; }
+    openManualAudit();
+  });
+  document.getElementById('manual-back-btn').addEventListener('click', closeManualAudit);
+
+  // ── Testing Environment ───────────────────────────────────────────────────────
+  ['te-wcag-row','te-level-row','te-os-row','te-device-row'].forEach(rowId => {
+    document.querySelectorAll(`#${rowId} .seg-radio`).forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll(`#${rowId} .seg-radio`).forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+  });
+
+  function renderTE() {
+    const formState = document.getElementById('te-form-state');
+    const displayState = document.getElementById('te-display-state');
+    const editBtn = document.getElementById('te-edit-btn');
+    if (teEnv) {
+      formState.hidden = true;
+      displayState.hidden = false;
+      editBtn.hidden = false;
+      renderTEChips();
+    } else {
+      formState.hidden = false;
+      displayState.hidden = true;
+      editBtn.hidden = true;
+    }
+  }
+
+  function renderTEChips() {
+    if (!teEnv) return;
+    const host = document.getElementById('te-chips-host');
+    const fields = [
+      { label: 'WCAG', value: `${teEnv.wcag} ${teEnv.level}` },
+      { label: 'URL',  value: teEnv.url || '—' },
+      { label: 'OS',   value: teEnv.os },
+      { label: 'Device', value: teEnv.device },
+    ];
+    host.innerHTML = fields.map(f => `
+      <div class="te-chip">
+        <span class="te-chip-label">${escapeHtml(f.label)}</span>
+        <span class="te-chip-value">${escapeHtml(f.value)}</span>
+      </div>`).join('');
+  }
+
+  function populateTEForm() {
+    if (!teEnv) return;
+    const maps = [
+      ['te-wcag-row',   'teWcag',   teEnv.wcag],
+      ['te-level-row',  'teLevel',  teEnv.level],
+      ['te-os-row',     'teOs',     teEnv.os],
+      ['te-device-row', 'teDevice', teEnv.device],
+    ];
+    maps.forEach(([rowId, key, val]) => {
+      document.querySelectorAll(`#${rowId} .seg-radio`).forEach(b => {
+        b.classList.toggle('active', b.dataset[key] === val);
+      });
+    });
+    document.getElementById('te-url-input').value = teEnv.url || '';
+  }
+
+  document.getElementById('te-save-btn').addEventListener('click', () => {
+    const wcag   = document.querySelector('#te-wcag-row .seg-radio.active')?.dataset.teWcag || '2.2';
+    const level  = document.querySelector('#te-level-row .seg-radio.active')?.dataset.teLevel || 'AA';
+    const os     = document.querySelector('#te-os-row .seg-radio.active')?.dataset.teOs || '';
+    const device = document.querySelector('#te-device-row .seg-radio.active')?.dataset.teDevice || '';
+    const url    = document.getElementById('te-url-input').value.trim();
+    teEnv = { wcag, level, url, os, device };
+    saveTestingEnv(teEnv);
+    renderTE();
+  });
+
+  document.getElementById('te-edit-btn').addEventListener('click', () => {
+    document.getElementById('te-form-state').hidden = false;
+    document.getElementById('te-display-state').hidden = true;
+    document.getElementById('te-edit-btn').hidden = true;
+    populateTEForm();
+  });
+
+  // ── Render manual findings table ──────────────────────────────────────────────
+  function renderManualTable() {
+    const tbody = document.getElementById('manual-tbody');
+    if (!tbody) return;
+    if (!MANUAL_RAW.length) {
+      tbody.innerHTML = `<tr><td colspan="8"><div class="manual-empty">
+        <p>No manual issues yet.</p>
+        <button class="btn-primary" id="manual-empty-add-btn">Add your first issue</button>
+      </div></td></tr>`;
+      document.getElementById('manual-empty-add-btn')?.addEventListener('click', openAddIssueModal);
+      return;
+    }
+    tbody.innerHTML = MANUAL_RAW.map(renderManualRow).join('');
+    bindManualRowEvents();
+  }
+
+  function renderManualRow(r) {
+    const expanded = mState.expandedRow === r.id;
+    const statusLabel = { todo: 'Not started', progress: 'In progress', done: 'Fixed', wontfix: "Won't fix" }[r.status];
+    const composing = mState.composingNote === r.id;
+    const unreadCount = (r.notes || []).filter(n => !n.read).length;
+
+    const notesHtml = (r.notes || []).map(n => {
+      if (mState.editingNote === `${r.id}:${n.id}`) {
+        return `<div class="note note-editing" data-note-edit="${r.id}:${n.id}">
+          <textarea class="note-textarea" data-note-textarea>${escapeHtml(n.body)}</textarea>
+          <div class="note-composer-actions">
+            <button class="btn-secondary" data-note-cancel>Cancel</button>
+            <button class="btn-primary" data-note-save="${r.id}:${n.id}">Save changes</button>
+          </div></div>`;
+      }
+      return `<div class="note ${n.read ? '' : 'is-unread'}">
+        <div class="note-body">
+          <div class="note-meta">
+            <span class="note-author">${escapeHtml(n.author)}</span>
+            ${!n.read ? '<span class="new-pill">New</span>' : ''}
+            <span class="note-timestamp">${escapeHtml(n.timestamp)}</span>
+            ${n.author === CURRENT_USER.author ? `<div class="note-actions">
+              <button class="note-action" data-note-edit-trigger="${r.id}:${n.id}" aria-label="Edit note">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              </button>
+              <button class="note-action" data-note-delete="${r.id}:${n.id}" aria-label="Delete note">
+                <svg class="icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button></div>` : ''}
+          </div>
+          <p class="note-text">${escapeHtml(n.body)}</p>
+        </div></div>`;
+    }).join('');
+
+    const composerHtml = composing ? `<div class="note note-composing"><div class="note-body">
+      <textarea class="note-textarea" data-note-textarea
+        placeholder="Add context, share progress, or note a workaround…" autofocus></textarea>
+      <div class="note-composer-actions">
+        <button class="btn-secondary" data-note-cancel>Cancel</button>
+        <button class="btn-primary" data-note-add="${r.id}">Post note</button>
+      </div></div></div>` : '';
+
+    const addNoteTrigger = !composing ? `<button class="note-add-trigger" data-add-note="${r.id}">
+      <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add a note</button>` : '';
+
+    const attachGrid = (r.attachments || []).length ? `<div class="attachment-grid">${(r.attachments).map(a => `
+      <div class="attachment-item">
+        <button class="attachment-preview-trigger" data-mattachment-preview="${r.id}:${a.id}" aria-label="View ${escapeAttr(a.name)}">
+          ${a.fileType === 'video'
+            ? `<video class="attachment-thumb" src="${a.dataUrl}" muted playsinline tabindex="-1"></video>`
+            : `<img class="attachment-thumb" src="${a.dataUrl}" alt="${escapeAttr(a.altText || a.name)}" />`}
+        </button>
+        <button class="attachment-kebab" data-mattachment-menu="${r.id}:${a.id}" aria-label="Options for ${escapeAttr(a.name)}" aria-haspopup="menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+        </button>
+      </div>`).join('')}</div>` : '';
+
+    const detailHtml = expanded ? `<tr class="detail-row" id="mdetail-${r.id}">
+      <td colspan="8"><dl class="detail">
+        ${r.html ? `<dt>HTML</dt><dd><div class="code-block"><span class="code-block-content">${escapeHtml(r.html)}</span></div></dd>` : ''}
+        ${r.selector ? `<dt>CSS selector</dt><dd><div class="code-block"><span class="code-block-content">${escapeHtml(r.selector)}</span></div></dd>` : ''}
+        ${r.wcag ? `<dt>WCAG</dt><dd>${escapeHtml(r.wcag)}</dd>` : ''}
+        <dt>Problem</dt><dd>${escapeHtml(r.problem)}</dd>
+        ${r.howToFix ? `<dt>How to fix</dt><dd><div class="how-to-fix">${escapeHtml(r.howToFix)}</div></dd>` : ''}
+        <dt>Notes ${r.notes && r.notes.length ? `<span class="dt-count">${r.notes.length}</span>` : ''}</dt>
+        <dd><div class="notes-thread">${notesHtml}${composerHtml}${addNoteTrigger}</div></dd>
+        <dt>Attachments ${r.attachments && r.attachments.length ? `<span class="dt-count">${r.attachments.length}</span>` : ''}</dt>
+        <dd><div style="display:flex;flex-direction:column;gap:8px;">
+          ${attachGrid}
+          <button class="attachment-add-trigger" data-mattachment-trigger="${r.id}">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add attachment
+          </button>
+          <input type="file" accept=".png,.jpg,.jpeg,.mp4,.mov,image/png,image/jpeg,video/mp4,video/quicktime"
+                 multiple data-mattachment-input="${r.id}" style="display:none;" />
+        </div></dd>
+      </dl></td></tr>` : '';
+
+    return `<tr class="${expanded ? 'expanded' : ''} ${unreadCount > 0 ? 'has-unread-notes' : ''}" data-mrow="${r.id}">
+      <td class="col-expand"><button class="expand-btn ${expanded ? 'open' : ''}"
+          aria-label="${expanded ? 'Hide' : 'Show'} details for ${escapeAttr(r.rule)}"
+          aria-expanded="${expanded}" data-mtoggle="${r.id}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg></button></td>
+      <td><span class="issue-num">#${String(r.issueNumber).padStart(3,'0')}-M</span></td>
+      <td><span class="impact ${r.impact}">${r.impact}</span></td>
+      <td><p class="rule-name">${escapeHtml(r.rule)}</p></td>
+      <td class="problem-cell"><div class="problem-cell-text">${escapeHtml(r.problem)}</div></td>
+      <td class="howtofix-cell"><div class="howtofix-cell-text">${escapeHtml(r.howToFix)}</div></td>
+      <td><span class="element-selector" title="${escapeAttr(r.selector)}">${escapeHtml(r.selector)}</span></td>
+      <td><button class="status ${r.status}" data-mstatus-row="${r.id}">${statusLabel}</button></td>
+    </tr>${detailHtml}`;
+  }
+
+  // ── Bind manual row events ────────────────────────────────────────────────────
+  function bindManualRowEvents() {
+    const tbody = document.getElementById('manual-tbody');
+
+    tbody.querySelectorAll('[data-mtoggle]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const id = btn.dataset.mtoggle;
+        mState.expandedRow = mState.expandedRow === id ? null : id;
+        renderManualTable();
+      });
+    });
+
+    tbody.querySelectorAll('[data-mstatus-row]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const order = ['todo','progress','done','wontfix'];
+        const item = MANUAL_RAW.find(r => r.id === btn.dataset.mstatusRow);
+        if (!item) return;
+        item.status = order[(order.indexOf(item.status) + 1) % order.length];
+        saveManualFindings();
+        renderManualTable();
+      });
+    });
+
+    tbody.querySelectorAll('[data-add-note]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        mState.composingNote = btn.dataset.addNote;
+        mState.editingNote = null;
+        renderManualTable();
+        tbody.querySelector('[data-note-textarea]')?.focus();
+      });
+    });
+
+    tbody.querySelectorAll('[data-note-cancel]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        mState.composingNote = null;
+        mState.editingNote = null;
+        renderManualTable();
+      });
+    });
+
+    tbody.querySelectorAll('[data-note-add]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const ta = tbody.querySelector('[data-note-textarea]');
+        const body = ta?.value.trim();
+        if (!body) return;
+        const item = MANUAL_RAW.find(r => r.id === btn.dataset.noteAdd);
+        if (!item) return;
+        item.notes = item.notes || [];
+        item.notes.push({ id: 'n' + Date.now(), author: CURRENT_USER.author, initials: CURRENT_USER.initials, timestamp: formatTimestamp(new Date()), body, read: true });
+        mState.composingNote = null;
+        saveManualFindings();
+        renderManualTable();
+      });
+    });
+
+    tbody.querySelectorAll('[data-note-edit-trigger]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const [rowId, noteId] = btn.dataset.noteEditTrigger.split(':');
+        const item = MANUAL_RAW.find(r => r.id === rowId);
+        const note = item && (item.notes || []).find(n => n.id === noteId);
+        if (!note || note.author !== CURRENT_USER.author) return;
+        mState.editingNote = btn.dataset.noteEditTrigger;
+        mState.composingNote = null;
+        renderManualTable();
+        tbody.querySelector('[data-note-textarea]')?.focus();
+      });
+    });
+
+    tbody.querySelectorAll('[data-note-save]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const [rowId, noteId] = btn.dataset.noteSave.split(':');
+        const ta = tbody.querySelector('[data-note-textarea]');
+        const body = ta?.value.trim();
+        if (!body) return;
+        const item = MANUAL_RAW.find(r => r.id === rowId);
+        const note = item && item.notes.find(n => n.id === noteId);
+        if (!note || note.author !== CURRENT_USER.author) return;
+        note.body = body;
+        note.timestamp = formatTimestamp(new Date()) + ' (edited)';
+        mState.editingNote = null;
+        saveManualFindings();
+        renderManualTable();
+      });
+    });
+
+    tbody.querySelectorAll('[data-note-delete]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const [rowId, noteId] = btn.dataset.noteDelete.split(':');
+        const item = MANUAL_RAW.find(r => r.id === rowId);
+        if (!item) return;
+        const note = (item.notes || []).find(n => n.id === noteId);
+        if (!note || note.author !== CURRENT_USER.author) return;
+        if (!confirm("Delete this note? This can't be undone.")) return;
+        item.notes = item.notes.filter(n => n.id !== noteId);
+        saveManualFindings();
+        renderManualTable();
+      });
+    });
+
+    tbody.querySelectorAll('[data-mattachment-preview]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const [rowId, attId] = btn.dataset.mattachmentPreview.split(':');
+        const item = MANUAL_RAW.find(r => r.id === rowId);
+        const att = item && (item.attachments || []).find(a => a.id === attId);
+        if (att) openAttachmentLightbox(att);
+      });
+    });
+
+    tbody.querySelectorAll('[data-mattachment-menu]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        openManualAttachmentMenu(btn.dataset.mattachmentMenu, btn);
+      });
+    });
+
+    tbody.querySelectorAll('[data-mattachment-trigger]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const input = tbody.querySelector(`[data-mattachment-input="${btn.dataset.mattachmentTrigger}"]`);
+        if (input) input.click();
+      });
+    });
+
+    tbody.querySelectorAll('[data-mattachment-input]').forEach(input => {
+      input.addEventListener('change', async e => {
+        e.stopPropagation();
+        const rowId = input.dataset.mattachmentInput;
+        const item = MANUAL_RAW.find(r => r.id === rowId);
+        if (!item) return;
+        item.attachments = item.attachments || [];
+        for (const file of Array.from(input.files)) {
+          const dataUrl = await readFileAsDataUrl(file);
+          item.attachments.push({ id: 'att' + Date.now() + Math.random().toString(36).slice(2), name: file.name, fileType: file.type.startsWith('video/') ? 'video' : 'image', dataUrl, altText: file.name });
+        }
+        input.value = '';
+        saveManualFindings();
+        renderManualTable();
+      });
+    });
+  }
+
+  function openManualAttachmentMenu(key, anchor) {
+    const menu = document.getElementById('attachment-action-menu');
+    const [rowId, attId] = key.split(':');
+    const item = MANUAL_RAW.find(r => r.id === rowId);
+    const att = item && (item.attachments || []).find(a => a.id === attId);
+    if (!att) return;
+    const lockSvg = '<svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="visibility:hidden"><polyline points="20 6 9 17 4 12"/></svg>';
+    menu.innerHTML = `
+      <button class="dropdown-item" data-matt-action="alt">${lockSvg}<span class="dropdown-item-label">Edit alt text</span></button>
+      <button class="dropdown-item" data-matt-action="delete" style="color:var(--critical-fg);">${lockSvg}<span class="dropdown-item-label">Delete</span></button>`;
+    const rect = anchor.getBoundingClientRect();
+    menu.style.top = `${window.scrollY + rect.bottom + 4}px`;
+    menu.style.left = `${window.scrollX + rect.left}px`;
+    menu.hidden = false;
+    menu.querySelectorAll('[data-matt-action]').forEach(b => {
+      b.addEventListener('click', e => {
+        e.stopPropagation();
+        closeAttachmentMenu();
+        if (b.dataset.mattAction === 'delete') {
+          item.attachments = item.attachments.filter(a => a.id !== attId);
+          saveManualFindings();
+          renderManualTable();
+        } else if (b.dataset.mattAction === 'alt') {
+          openAttachmentAltPopover(att, anchor);
+          // Override save to persist to MANUAL_RAW
+          const origSave = document.getElementById('attachment-alt-save').onclick;
+          document.getElementById('attachment-alt-save').onclick = () => {
+            const val = document.getElementById('attachment-alt-field').value.trim();
+            att.altText = val || att.name;
+            closeAttachmentAltPopover();
+            saveManualFindings();
+            renderManualTable();
+          };
+        }
+      });
+    });
+    menu.querySelector('[data-matt-action]').focus();
+  }
+
+  // ── Add Issue modal ───────────────────────────────────────────────────────────
+  let addIssueLastFocus = null;
+  const addIssueModal = document.getElementById('add-issue-modal');
+
+  function openAddIssueModal() {
+    addIssueLastFocus = document.activeElement;
+    document.querySelectorAll('#ai-impact-row .seg-radio').forEach((b, i) => b.classList.toggle('active', i === 0));
+    ['ai-wcag','ai-rule','ai-problem','ai-fix','ai-selector','ai-html'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    document.getElementById('add-issue-error').style.display = 'none';
+    addIssueModal.hidden = false;
+    addIssueModal.addEventListener('keydown', addIssueKeyHandler);
+    setTimeout(() => document.getElementById('ai-rule')?.focus(), 30);
+  }
+
+  function closeAddIssueModal() {
+    addIssueModal.hidden = true;
+    addIssueModal.removeEventListener('keydown', addIssueKeyHandler);
+    if (addIssueLastFocus) addIssueLastFocus.focus();
+  }
+
+  function addIssueKeyHandler(e) {
+    const focusable = Array.from(addIssueModal.querySelectorAll('button,input,textarea'));
+    const first = focusable[0], last = focusable[focusable.length - 1];
+    if (e.key === 'Escape') { closeAddIssueModal(); return; }
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  }
+
+  document.querySelectorAll('#ai-impact-row .seg-radio').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#ai-impact-row .seg-radio').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  document.getElementById('add-issue-close').addEventListener('click', closeAddIssueModal);
+  document.getElementById('add-issue-cancel').addEventListener('click', closeAddIssueModal);
+  addIssueModal.addEventListener('click', e => { if (e.target === addIssueModal) closeAddIssueModal(); });
+  document.getElementById('manual-add-issue-btn').addEventListener('click', openAddIssueModal);
+
+  document.getElementById('add-issue-submit').addEventListener('click', () => {
+    const rule    = document.getElementById('ai-rule').value.trim();
+    const problem = document.getElementById('ai-problem').value.trim();
+    const errorEl = document.getElementById('add-issue-error');
+    if (!rule || !problem) {
+      errorEl.textContent = 'Rule name and problem description are required.';
+      errorEl.style.display = 'block';
+      return;
+    }
+    const impact = document.querySelector('#ai-impact-row .seg-radio.active')?.dataset.aiImpact || 'serious';
+    MANUAL_RAW.push({
+      id: 'mf_' + Date.now() + Math.random().toString(36).slice(2),
+      issueNumber: MANUAL_RAW.length + 1,
+      impact,
+      wcag:     document.getElementById('ai-wcag').value.trim(),
+      rule,
+      problem,
+      howToFix: document.getElementById('ai-fix').value.trim(),
+      selector: document.getElementById('ai-selector').value.trim(),
+      html:     document.getElementById('ai-html').value.trim(),
+      status: 'todo',
+      notes: [],
+      attachments: [],
+    });
+    saveManualFindings();
+    closeAddIssueModal();
+    renderManualTable();
+  });
+
+  // Escape closes manual audit page (when no other modal is open)
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !document.getElementById('manual-audit-page').hidden) {
+      if (!addIssueModal.hidden) return;
+      closeManualAudit();
     }
   });
 </script>
