@@ -784,6 +784,23 @@ document.addEventListener('click', e => {
 });
 
 // ── Kebab actions ─────────────────────────────────────────────────────────────
+const API = 'https://platform-production-ace5.up.railway.app';
+
+async function syncToAPI(token, audits) {
+  const key = localStorage.getItem(`e11y_token_${token}`);
+  if (!key) return;
+  try {
+    // Read existing overrides first so we don't wipe auto/AI issue status + notes
+    const existing = await fetch(`${API}/v1/public/report/view/${token}/annotations`)
+      .then(r => r.ok ? r.json() : {}).catch(() => ({}));
+    await fetch(`${API}/v1/public/report/view/${token}/annotations`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
+      body: JSON.stringify({ manual_audits: audits, issue_overrides: existing.issue_overrides || {} }),
+    });
+  } catch {}
+}
+
 function getLocalAudits(token) {
   try { return JSON.parse(localStorage.getItem(`e11y_audits_${token}`)) || []; } catch { return []; }
 }
@@ -830,6 +847,7 @@ function doAuditAction(token, auditId, action, auditName) {
 
   saveLocalAudits(token, updated);
   updateRegistry(token, updated);
+  syncToAPI(token, updated);
   render();
 }
 
@@ -859,6 +877,7 @@ function startRename(token, auditId, currentName) {
     if (audit) audit.name = newName;
     saveLocalAudits(token, audits);
     updateRegistry(token, audits);
+    syncToAPI(token, audits);
     render();
   }
 
