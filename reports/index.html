@@ -2647,7 +2647,69 @@
   // 2 unique issues across 3 instances:
   //   - Search input (#elementor-search-form-91a33ae) appears on / and /home
   //   - Post date (.elementor-post-date) appears only on /
+  const API_BASE = 'https://platform-production-ace5.up.railway.app';
+
   let RAW = [];
+
+  // ── Annotation sync (manual audits + auto/AI issue overrides) ───────────────
+
+  function buildOverrides() {
+    const out = {};
+    RAW.forEach(item => {
+      if (item.status !== 'todo' || (item.notes && item.notes.length > 0)) {
+        out[item.id] = { status: item.status, notes: item.notes || [] };
+      }
+    });
+    return out;
+  }
+
+  function applyOverrides(overrides) {
+    if (!overrides) return;
+    RAW.forEach(item => {
+      const o = overrides[item.id];
+      if (!o) return;
+      if (o.status) item.status = o.status;
+      if (Array.isArray(o.notes)) item.notes = o.notes;
+    });
+  }
+
+  async function loadAnnotations() {
+    try {
+      const res = await fetch(`${API_BASE}/v1/public/report/view/${token}/annotations`);
+      if (!res.ok) return;
+      const ann = await res.json();
+
+      if (ann.manual_audits && ann.manual_audits.length > 0) {
+        audits = ann.manual_audits;
+        activeAuditId = audits[0].id;
+        MANUAL_RAW = currentAudit()?.findings || [];
+        teEnv = currentAudit()?.testingEnv || null;
+        try { localStorage.setItem(AUDITS_KEY, JSON.stringify(audits)); } catch {}
+      }
+
+      if (ann.issue_overrides) {
+        applyOverrides(ann.issue_overrides);
+        Object.entries(ann.issue_overrides).forEach(([id, o]) => {
+          if (o.status) try { localStorage.setItem(`${token}:${id}`, o.status); } catch {}
+        });
+      }
+    } catch { /* silently fall back to localStorage */ }
+  }
+
+  let _syncTimer = null;
+  function scheduleSyncAnnotations() {
+    if (!claimed || !authToken) return;
+    clearTimeout(_syncTimer);
+    _syncTimer = setTimeout(async () => {
+      try {
+        await fetch(`${API_BASE}/v1/public/report/view/${token}/annotations`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+          body: JSON.stringify({ manual_audits: audits, issue_overrides: buildOverrides() }),
+        });
+      } catch { /* localStorage is the fallback */ }
+    }, 1500);
+  }
 
   async function loadReport() {
     const tbody = document.getElementById('tbody');
@@ -2701,6 +2763,8 @@
         }
         localStorage.setItem(REGISTRY_KEY, JSON.stringify(registry.slice(0, 100)));
       } catch {}
+
+      if (claimed) await loadAnnotations();
 
       render();
       updateStats();
@@ -3916,6 +3980,7 @@
         const next = order[(order.indexOf(item.status) + 1) % order.length];
         item.status = next;
         try { localStorage.setItem(`${token}:${item.id}`, item.status); } catch {}
+        scheduleSyncAnnotations();
         render();
       });
     });
@@ -3991,6 +4056,7 @@
           timestamp: formatTimestamp(new Date()),
           body
         });
+        scheduleSyncAnnotations();
         state.composingNote = null;
         render();
       });
@@ -4025,6 +4091,7 @@
         if (!note || note.author !== CURRENT_USER.author) return;
         note.body = body;
         note.timestamp = formatTimestamp(new Date()) + ' (edited)';
+        scheduleSyncAnnotations();
         state.editingNote = null;
         render();
       });
@@ -4042,6 +4109,7 @@
         if (!note || note.author !== CURRENT_USER.author) return;
         if (!confirm("Delete this note? This can't be undone.")) return;
         item.notes = (item.notes || []).filter(n => n.id !== noteId);
+        scheduleSyncAnnotations();
         render();
       });
     });
@@ -4983,6 +5051,7 @@
 
   function saveAudits() {
     try { localStorage.setItem(AUDITS_KEY, JSON.stringify(audits)); } catch {}
+    scheduleSyncAnnotations();
   }
 
   function saveManualFindings() { saveAudits(); }
