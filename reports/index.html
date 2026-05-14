@@ -1821,6 +1821,31 @@
   }
   .tab-btn:hover { color: var(--ink); }
   .tab-btn.active { color: var(--ink); border-bottom-color: var(--accent); }
+  .tab-btn-add {
+    width: 30px;
+    padding: 0;
+    font-size: 18px;
+    line-height: 1;
+    align-self: center;
+    color: var(--ink-3);
+    border-bottom: none !important;
+    margin-bottom: 0 !important;
+    border-radius: 4px;
+  }
+  .tab-btn-add:hover { color: var(--ink); background: var(--surface-2); }
+  .tab-label-input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--ink);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    padding: 0 2px;
+    outline: none;
+    max-width: 140px;
+    min-width: 60px;
+  }
   .tab-panel[hidden] { display: none; }
   /* Manual Audit tab */
   #manual-audit-page[hidden] { display: none; }
@@ -1951,10 +1976,8 @@
             aria-controls="tab-panel-scan" id="tab-btn-scan" data-tab="scan">
       Scan Results
     </button>
-    <button class="tab-btn" role="tab" aria-selected="false"
-            aria-controls="tab-panel-manual" id="tab-btn-manual" data-tab="manual">
-      Manual Audit
-    </button>
+    <div id="manual-tabs-host" style="display:contents;"></div>
+    <button class="tab-btn tab-btn-add" id="tab-add-audit" aria-label="New manual audit" title="New manual audit">+</button>
   </nav>
 
   <div id="tab-panel-scan" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-scan">
@@ -4718,48 +4741,131 @@
 
 <script>
   // ── Manual Audit ────────────────────────────────────────────────────────────
-  const MF_KEY = `e11y_mf_${token}`;
-  const TE_KEY = `e11y_te_${token}`;
+  // ── Multi-audit data layer ────────────────────────────────────────────────────
+  const AUDITS_KEY = `e11y_audits_${token}`;
 
-  function loadManualFindings() {
-    try { return JSON.parse(localStorage.getItem(MF_KEY)) || []; } catch { return []; }
+  function loadAudits() {
+    try {
+      const stored = JSON.parse(localStorage.getItem(AUDITS_KEY));
+      if (stored && stored.length) return stored;
+    } catch {}
+    // Migrate from legacy single-audit keys
+    const findings = (() => { try { return JSON.parse(localStorage.getItem(`e11y_mf_${token}`)) || []; } catch { return []; } })();
+    const testingEnv = (() => { try { return JSON.parse(localStorage.getItem(`e11y_te_${token}`)); } catch { return null; } })();
+    return [{ id: 'ma_' + Date.now(), name: 'Manual Audit', findings, testingEnv }];
   }
-  function saveManualFindings() {
-    try { localStorage.setItem(MF_KEY, JSON.stringify(MANUAL_RAW)); } catch {}
+
+  function saveAudits() {
+    try { localStorage.setItem(AUDITS_KEY, JSON.stringify(audits)); } catch {}
   }
-  function loadTestingEnv() {
-    try { return JSON.parse(localStorage.getItem(TE_KEY)); } catch { return null; }
-  }
+
+  function saveManualFindings() { saveAudits(); }
+
   function saveTestingEnv(env) {
-    try { localStorage.setItem(TE_KEY, JSON.stringify(env)); } catch {}
+    teEnv = env;
+    const a = currentAudit();
+    if (a) a.testingEnv = env;
+    saveAudits();
   }
 
-  let MANUAL_RAW = loadManualFindings();
-  let teEnv = loadTestingEnv();
+  let audits = loadAudits();
+  let activeAuditId = audits[0]?.id || null;
+  let MANUAL_RAW = currentAudit()?.findings || [];
+  let teEnv = currentAudit()?.testingEnv || null;
   const mState = { expandedRow: null, composingNote: null, editingNote: null };
 
-  // ── Tab switching ─────────────────────────────────────────────────────────────
-  function switchTab(tabId) {
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-      const active = btn.dataset.tab === tabId;
-      btn.classList.toggle('active', active);
-      btn.setAttribute('aria-selected', active ? 'true' : 'false');
+  function currentAudit() { return audits.find(a => a.id === activeAuditId); }
+
+  // ── Tab rendering & switching ─────────────────────────────────────────────────
+  function renderTabs() {
+    const host = document.getElementById('manual-tabs-host');
+    host.innerHTML = audits.map(a => `
+      <button class="tab-btn${a.id === activeAuditId && !document.getElementById('tab-panel-scan').hidden === false ? '' : a.id === activeAuditId ? ' active' : ''}"
+              role="tab"
+              aria-selected="${a.id === activeAuditId && document.getElementById('tab-panel-manual').hidden === false ? 'true' : 'false'}"
+              aria-controls="tab-panel-manual"
+              data-tab="manual" data-audit-id="${a.id}">
+        <span class="tab-label" data-audit-id="${a.id}">${escapeHtml(a.name)}</span>
+      </button>`).join('');
+
+    host.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!claimed) { openSignupModal(); return; }
+        switchToAudit(btn.dataset.auditId);
+      });
     });
-    document.querySelectorAll('.tab-panel').forEach(panel => {
-      panel.hidden = panel.id !== `tab-panel-${tabId}`;
+
+    // Double-click to rename
+    host.querySelectorAll('.tab-label').forEach(label => {
+      label.addEventListener('dblclick', e => {
+        e.stopPropagation();
+        const auditId = label.dataset.auditId;
+        const audit = audits.find(a => a.id === auditId);
+        if (!audit) return;
+        const input = document.createElement('input');
+        input.className = 'tab-label-input';
+        input.value = audit.name;
+        label.replaceWith(input);
+        input.focus();
+        input.select();
+        const commit = () => {
+          const newName = input.value.trim() || audit.name;
+          audit.name = newName;
+          saveAudits();
+          renderTabs();
+        };
+        input.addEventListener('blur', commit);
+        input.addEventListener('keydown', e2 => {
+          if (e2.key === 'Enter') { e2.preventDefault(); input.blur(); }
+          if (e2.key === 'Escape') { input.value = audit.name; input.blur(); }
+          e2.stopPropagation();
+        });
+      });
     });
-    if (tabId === 'manual') {
-      renderTE();
-      renderManualTable();
-    }
   }
 
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (btn.dataset.tab === 'manual' && !claimed) { openSignupModal(); return; }
-      switchTab(btn.dataset.tab);
-    });
+  function switchTab(tabId) {
+    // Scan Results tab
+    document.getElementById('tab-btn-scan').classList.toggle('active', tabId === 'scan');
+    document.getElementById('tab-btn-scan').setAttribute('aria-selected', tabId === 'scan' ? 'true' : 'false');
+    document.getElementById('tab-panel-scan').hidden = tabId !== 'scan';
+    document.getElementById('tab-panel-manual').hidden = tabId !== 'manual';
+    if (tabId === 'manual') renderTabs();
+  }
+
+  function switchToAudit(auditId) {
+    activeAuditId = auditId;
+    const audit = currentAudit();
+    MANUAL_RAW = audit.findings;
+    teEnv = audit.testingEnv;
+    mState.expandedRow = null;
+    mState.composingNote = null;
+    mState.editingNote = null;
+    switchTab('manual');
+    renderTE();
+    renderManualTable();
+  }
+
+  function createAudit() {
+    const idx = audits.length + 1;
+    const name = idx === 1 ? 'Manual Audit' : `Manual Audit ${idx}`;
+    const id = 'ma_' + Date.now() + Math.random().toString(36).slice(2);
+    audits.push({ id, name, findings: [], testingEnv: null });
+    saveAudits();
+    switchToAudit(id);
+  }
+
+  // Scan Results tab click
+  document.getElementById('tab-btn-scan').addEventListener('click', () => switchTab('scan'));
+
+  // "+" button
+  document.getElementById('tab-add-audit').addEventListener('click', () => {
+    if (!claimed) { openSignupModal(); return; }
+    createAudit();
   });
+
+  // Initial tab render
+  renderTabs();
 
   // ── Testing Environment ───────────────────────────────────────────────────────
   ['te-wcag-row','te-level-row','te-os-row','te-device-row'].forEach(rowId => {
