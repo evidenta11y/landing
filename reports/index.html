@@ -1798,6 +1798,120 @@
     .col-pages { display: none; }
   }
 
+  /* ── Combined Report ────────────────────────────────────────────────────── */
+  .source-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  .source-auto     { background: var(--moderate-bg); color: var(--moderate-fg); }
+  .source-ai       { background: #f0ebfb; color: #5b21b6; }
+  .source-manual   { background: var(--surface-3); color: var(--ink-2); }
+
+  .combined-source-strip {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .combined-source-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 12px 16px;
+    flex: 1;
+  }
+  .combined-source-count {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .combined-source-sub {
+    font-size: 11px;
+    color: var(--ink-4);
+    margin-top: 2px;
+  }
+
+  .combined-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .combined-divider {
+    width: 1px;
+    height: 16px;
+    background: var(--line-strong);
+    margin: 0 4px;
+  }
+  .combined-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border: 1px solid var(--line-strong);
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-3);
+    background: none;
+    cursor: pointer;
+    transition: background 0.1s, color 0.1s, border-color 0.1s;
+    font-family: inherit;
+  }
+  .combined-chip:hover { color: var(--ink); border-color: var(--ink-3); }
+  .combined-chip.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .combined-chip.chip-critical.active { background: var(--critical-bg); color: var(--critical-fg); border-color: var(--critical-fg); }
+  .combined-chip.chip-serious.active  { background: var(--serious-bg);  color: var(--serious-fg);  border-color: var(--serious-fg); }
+  .combined-chip.chip-moderate.active { background: var(--moderate-bg); color: var(--moderate-fg); border-color: var(--moderate-fg); }
+  .combined-chip.chip-minor.active    { background: var(--minor-bg);    color: var(--minor-fg);    border-color: var(--minor-fg); }
+
+  .combined-table-section {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .combined-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .combined-table th {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-4);
+    font-weight: 400;
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+  }
+  .combined-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: middle;
+  }
+  .combined-table tbody tr:last-child td { border-bottom: none; }
+  .combined-table tbody tr:hover { background: var(--surface-2); }
+  .combined-rule-cell { max-width: 260px; }
+  .combined-rule-name { font-weight: 500; margin: 0; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .combined-audit-label { font-family: var(--font-mono); font-size: 10px; color: var(--ink-4); display: block; margin-top: 3px; }
+  .combined-scope-cell { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .combined-wcag-cell { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); white-space: nowrap; }
+  .combined-toolbar-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-4); }
+
   /* ── Tabs ───────────────────────────────────────────────────────────────── */
   .tab-bar {
     display: flex;
@@ -2013,6 +2127,10 @@
   </header>
 
   <nav class="tab-bar" role="tablist" aria-label="Report sections">
+    <button class="tab-btn" role="tab" aria-selected="false"
+            aria-controls="tab-panel-combined" id="tab-btn-combined" data-tab="combined">
+      Combined Report
+    </button>
     <button class="tab-btn active" role="tab" aria-selected="true"
             aria-controls="tab-panel-scan" id="tab-btn-scan" data-tab="scan">
       Scan Results
@@ -2313,6 +2431,23 @@
 
   </div><!-- /manual content inner -->
   </div><!-- /tab-panel-manual -->
+
+  <div id="tab-panel-combined" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-combined" hidden>
+    <div class="combined-source-strip" id="combined-summary"></div>
+    <div class="combined-toolbar">
+      <span class="combined-toolbar-label">Impact</span>
+      <button class="combined-chip chip-critical" data-combined-impact="critical">Critical</button>
+      <button class="combined-chip chip-serious"  data-combined-impact="serious">Serious</button>
+      <button class="combined-chip chip-moderate" data-combined-impact="moderate">Moderate</button>
+      <button class="combined-chip chip-minor"    data-combined-impact="minor">Minor</button>
+      <div class="combined-divider" aria-hidden="true"></div>
+      <span class="combined-toolbar-label">Source</span>
+      <button class="combined-chip" data-combined-source="automated">Auto</button>
+      <button class="combined-chip" data-combined-source="ai">AI</button>
+      <button class="combined-chip" data-combined-source="manual">Manual</button>
+    </div>
+    <div id="combined-table-wrap"></div>
+  </div><!-- /tab-panel-combined -->
 
 </div><!-- /wrap -->
 
@@ -4970,11 +5105,15 @@
   }
 
   function switchTab(tabId) {
+    document.getElementById('tab-btn-combined').classList.toggle('active', tabId === 'combined');
+    document.getElementById('tab-btn-combined').setAttribute('aria-selected', tabId === 'combined' ? 'true' : 'false');
     document.getElementById('tab-btn-scan').classList.toggle('active', tabId === 'scan');
     document.getElementById('tab-btn-scan').setAttribute('aria-selected', tabId === 'scan' ? 'true' : 'false');
+    document.getElementById('tab-panel-combined').hidden = tabId !== 'combined';
     document.getElementById('tab-panel-scan').hidden = tabId !== 'scan';
     document.getElementById('tab-panel-manual').hidden = tabId !== 'manual';
     if (tabId === 'manual') renderTabs();
+    if (tabId === 'combined') renderCombined();
   }
 
   function switchToAudit(auditId) {
@@ -4999,6 +5138,129 @@
     saveAudits();
     switchToAudit(id);
   }
+
+  // ── Combined Report ────────────────────────────────────────────────────────
+  const combinedState = { impact: new Set(), source: new Set() };
+
+  function buildCombinedFindings() {
+    const out = [];
+    RAW.forEach(r => {
+      out.push({
+        source: r.testType,
+        impact: r.impact,
+        rule: r.rule,
+        wcag: r.wcag,
+        pages: r.pages || [],
+        status: r.status,
+        notes: r.notes || [],
+        auditName: null,
+      });
+    });
+    audits.forEach(audit => {
+      (audit.findings || []).forEach(f => {
+        out.push({
+          source: 'manual',
+          impact: f.impact,
+          rule: f.rule,
+          wcag: f.wcag || '',
+          pages: [],
+          status: f.status,
+          notes: f.notes || [],
+          auditName: audit.name,
+        });
+      });
+    });
+    return out;
+  }
+
+  function renderCombined() {
+    const all = buildCombinedFindings();
+    const counts = { automated: 0, ai: 0, manual: 0 };
+    all.forEach(f => { if (f.source in counts) counts[f.source]++; });
+
+    document.getElementById('combined-summary').innerHTML = [
+      { source: 'automated', label: 'Auto',   cls: 'source-auto'   },
+      { source: 'ai',        label: 'AI',     cls: 'source-ai'     },
+      { source: 'manual',    label: 'Manual', cls: 'source-manual' },
+    ].map(s => `
+      <div class="combined-source-card">
+        <span class="source-badge ${s.cls}">${s.label}</span>
+        <div>
+          <div class="combined-source-count">${counts[s.source]}</div>
+          <div class="combined-source-sub">issue${counts[s.source] !== 1 ? 's' : ''}</div>
+        </div>
+      </div>`).join('');
+
+    let rows = all;
+    if (combinedState.impact.size > 0) rows = rows.filter(f => combinedState.impact.has(f.impact));
+    if (combinedState.source.size > 0) rows = rows.filter(f => combinedState.source.has(f.source));
+
+    const iRank = { critical: 4, serious: 3, moderate: 2, minor: 1 };
+    rows = [...rows].sort((a, b) => (iRank[b.impact] || 0) - (iRank[a.impact] || 0));
+
+    const wrap = document.getElementById('combined-table-wrap');
+    if (rows.length === 0) {
+      const hasFilter = combinedState.impact.size > 0 || combinedState.source.size > 0;
+      wrap.innerHTML = `<p class="empty" style="text-align:center;padding:40px 20px;">${hasFilter ? 'No issues match the current filters.' : 'No issues found. Run a scan or add manual findings to see them here.'}</p>`;
+      return;
+    }
+
+    const sLabel = s => ({ todo: 'Todo', progress: 'In progress', done: 'Fixed', wontfix: "Won't fix" }[s] || '—');
+    const sourceLabel = { automated: 'Auto', ai: 'AI', manual: 'Manual' };
+    const sourceCls   = { automated: 'source-auto', ai: 'source-ai', manual: 'source-manual' };
+
+    wrap.innerHTML = `
+      <div class="combined-table-section">
+        <table class="combined-table" role="table">
+          <thead>
+            <tr>
+              <th>#</th><th>Source</th><th>Impact</th><th>Issue</th>
+              <th>WCAG</th><th>Scope</th><th>Status</th>
+            </tr>
+          </thead>
+          <tbody>${rows.map((f, i) => {
+            const scopeText = f.pages.length
+              ? (() => { try { return new URL(f.pages[0]).pathname || '/'; } catch { return f.pages[0]; } })()
+                + (f.pages.length > 1 ? ` +${f.pages.length - 1}` : '')
+              : (f.auditName || '—');
+            const scopeTitle = f.pages.join(', ') || f.auditName || '';
+            return `<tr>
+              <td style="color:var(--ink-4);font-family:var(--font-mono);font-size:11px;">${i + 1}</td>
+              <td>
+                <span class="source-badge ${sourceCls[f.source] || ''}">${sourceLabel[f.source] || f.source}</span>
+                ${f.auditName ? `<span class="combined-audit-label">${escapeHtml(f.auditName)}</span>` : ''}
+              </td>
+              <td><span class="impact ${f.impact}">${f.impact}</span></td>
+              <td class="combined-rule-cell"><p class="combined-rule-name" title="${escapeAttr(f.rule)}">${escapeHtml(f.rule)}</p></td>
+              <td class="combined-wcag-cell">${escapeHtml(f.wcag || '—')}</td>
+              <td class="combined-scope-cell" title="${escapeAttr(scopeTitle)}">${escapeHtml(scopeText)}</td>
+              <td><span class="status ${f.status}">${sLabel(f.status)}</span></td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>
+      </div>`;
+  }
+
+  // Combined tab click
+  document.getElementById('tab-btn-combined').addEventListener('click', () => switchTab('combined'));
+
+  // Combined filter chips
+  document.querySelectorAll('[data-combined-impact]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const v = btn.dataset.combinedImpact;
+      combinedState.impact[combinedState.impact.has(v) ? 'delete' : 'add'](v);
+      btn.classList.toggle('active', combinedState.impact.has(v));
+      renderCombined();
+    });
+  });
+  document.querySelectorAll('[data-combined-source]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const v = btn.dataset.combinedSource;
+      combinedState.source[combinedState.source.has(v) ? 'delete' : 'add'](v);
+      btn.classList.toggle('active', combinedState.source.has(v));
+      renderCombined();
+    });
+  });
 
   // Scan Results tab click
   document.getElementById('tab-btn-scan').addEventListener('click', () => switchTab('scan'));
