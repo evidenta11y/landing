@@ -336,6 +336,129 @@ body {
   border-color: var(--ink-4);
 }
 
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.kebab-wrap {
+  position: relative;
+}
+.kebab-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  font-size: 16px;
+  color: var(--ink-4);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  letter-spacing: 0;
+}
+.kebab-btn:hover {
+  color: var(--ink);
+  border-color: var(--line-strong);
+  background: var(--surface-2);
+}
+.kebab-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.12);
+  z-index: 200;
+  min-width: 150px;
+  padding: 4px 0;
+}
+.kebab-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 14px;
+  background: none;
+  border: none;
+  font: inherit;
+  font-size: 13px;
+  color: var(--ink-3);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.kebab-menu button:hover { background: var(--surface-2); color: var(--ink); }
+.kebab-menu hr { border: none; border-top: 1px solid var(--line); margin: 4px 0; }
+.kebab-delete { color: #791F1F !important; }
+.kebab-delete:hover { background: #FCEBEB !important; }
+
+.rename-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+}
+.rename-dialog {
+  background: var(--surface);
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.18);
+  width: 360px;
+  padding: 24px;
+}
+.rename-dialog h2 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 14px;
+}
+.rename-dialog input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--surface);
+  outline: none;
+  margin-bottom: 16px;
+}
+.rename-dialog input:focus { border-color: var(--accent); }
+.rename-dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.btn-secondary {
+  padding: 7px 14px;
+  background: none;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.btn-secondary:hover { background: var(--surface-2); }
+.btn-primary-sm {
+  padding: 7px 14px;
+  background: var(--accent);
+  border: none;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  cursor: pointer;
+}
+.btn-primary-sm:hover { background: var(--accent-dark); }
+
 .empty-state {
   padding: 56px 24px;
   text-align: center;
@@ -559,7 +682,19 @@ function render() {
             <td style="color:var(--ink-3);font-size:13px;">${issueLabel}</td>
             <td></td>
             <td style="color:var(--ink-3);font-size:13px;white-space:nowrap;">${auditDate}</td>
-            <td><a class="open-btn" href="/reports/${escapedToken}#manual-${escapedAuditId}">Open →</a></td>
+            <td>
+              <div class="row-actions">
+                <a class="open-btn" href="/reports/${escapedToken}#manual-${escapedAuditId}">Open →</a>
+                <div class="kebab-wrap">
+                  <button class="kebab-btn"
+                          data-token="${escapedToken}"
+                          data-audit-id="${escapedAuditId}"
+                          data-audit-name="${escapedAuditName}"
+                          aria-label="Audit options"
+                          aria-haspopup="true">⋮</button>
+                </div>
+              </div>
+            </td>
           </tr>`;
         }
 
@@ -601,20 +736,174 @@ document.getElementById('search').addEventListener('input', function() {
   render();
 });
 
-document.getElementById('reports-container').addEventListener('click', function(e) {
-  const deleteBtn = e.target.closest('.delete-btn');
-  if (deleteBtn) {
-    deleteEntry(deleteBtn.dataset.token);
-    return;
+// ── Kebab menu state ──────────────────────────────────────────────────────────
+let openKebab = null; // { token, auditId, el }
+
+function closeKebab() {
+  if (openKebab) {
+    openKebab.el.remove();
+    openKebab = null;
   }
+}
+
+function openKebabMenu(btn) {
+  closeKebab();
+  const token = btn.dataset.token;
+  const auditId = btn.dataset.auditId;
+  const auditName = btn.dataset.auditName;
+
+  const menu = document.createElement('div');
+  menu.className = 'kebab-menu';
+  menu.innerHTML = `
+    <button data-action="rename">Rename</button>
+    <button data-action="duplicate">Duplicate</button>
+    <hr>
+    <button data-action="delete" class="kebab-delete">Delete</button>`;
+
+  menu.querySelectorAll('button').forEach(item => {
+    item.addEventListener('click', e => {
+      e.stopPropagation();
+      const action = item.dataset.action;
+      closeKebab();
+      if (action === 'rename') startRename(token, auditId, auditName);
+      if (action === 'duplicate') doAuditAction(token, auditId, 'duplicate');
+      if (action === 'delete') doAuditAction(token, auditId, 'delete', auditName);
+    });
+  });
+
+  btn.closest('.kebab-wrap').appendChild(menu);
+  openKebab = { token, auditId, el: menu };
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.kebab-wrap')) closeKebab();
+});
+
+// ── Kebab actions ─────────────────────────────────────────────────────────────
+const API = 'https://platform-production-ace5.up.railway.app';
+
+function authToken(token) {
+  return localStorage.getItem(`e11y_token_${token}`);
+}
+
+async function fetchAnnotations(token) {
+  const res = await fetch(`${API}/v1/public/report/view/${token}/annotations`);
+  if (!res.ok) throw new Error('Failed to fetch annotations');
+  return res.json();
+}
+
+async function putAnnotations(token, data) {
+  const key = authToken(token);
+  if (!key) throw new Error('Not authenticated for this report');
+  const res = await fetch(`${API}/v1/public/report/view/${token}/annotations`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to save');
+}
+
+function updateRegistry(token, updatedAudits) {
+  try {
+    const reg = JSON.parse(localStorage.getItem('e11y_report_registry') || '[]');
+    const idx = reg.findIndex(r => r.token === token);
+    if (idx >= 0) {
+      reg[idx].manual_audits = updatedAudits.map(a => ({
+        id: a.id, name: a.name, findings_count: (a.findings || []).length,
+      }));
+      localStorage.setItem('e11y_report_registry', JSON.stringify(reg));
+    }
+  } catch {}
+}
+
+async function doAuditAction(token, auditId, action, auditName) {
+  try {
+    const ann = await fetchAnnotations(token);
+    const audits = ann.manual_audits || [];
+    let updated;
+
+    if (action === 'delete') {
+      const count = (audits.find(a => a.id === auditId)?.findings || []).length;
+      const msg = count > 0
+        ? `Delete "${auditName}"? It contains ${count} issue${count !== 1 ? 's' : ''} and cannot be recovered.`
+        : `Delete "${auditName}"? This cannot be undone.`;
+      if (!confirm(msg)) return;
+      updated = audits.filter(a => a.id !== auditId);
+    } else if (action === 'duplicate') {
+      const src = audits.find(a => a.id === auditId);
+      if (!src) return;
+      const copy = {
+        ...JSON.parse(JSON.stringify(src)),
+        id: 'ma_' + Date.now() + Math.random().toString(36).slice(2),
+        name: `Copy of ${src.name}`,
+        closed: false,
+      };
+      updated = [...audits, copy];
+    }
+
+    await putAnnotations(token, { ...ann, manual_audits: updated });
+    updateRegistry(token, updated);
+    render();
+  } catch (err) {
+    alert('Could not complete the action: ' + err.message);
+  }
+}
+
+// ── Rename dialog ─────────────────────────────────────────────────────────────
+function startRename(token, auditId, currentName) {
+  const backdrop = document.createElement('div');
+  backdrop.className = 'rename-backdrop';
+  backdrop.innerHTML = `
+    <div class="rename-dialog" role="dialog" aria-modal="true" aria-labelledby="rd-title">
+      <h2 id="rd-title">Rename audit</h2>
+      <input id="rd-input" type="text" value="${esc(currentName)}" autocomplete="off" />
+      <div class="rename-dialog-footer">
+        <button class="btn-secondary" id="rd-cancel">Cancel</button>
+        <button class="btn-primary-sm" id="rd-ok">Rename</button>
+      </div>
+    </div>`;
+  document.body.appendChild(backdrop);
+  const input = backdrop.querySelector('#rd-input');
+  setTimeout(() => { input.focus(); input.select(); }, 20);
+
+  async function commit() {
+    const newName = input.value.trim();
+    if (!newName || newName === currentName) { backdrop.remove(); return; }
+    backdrop.remove();
+    try {
+      const ann = await fetchAnnotations(token);
+      const audits = ann.manual_audits || [];
+      const audit = audits.find(a => a.id === auditId);
+      if (audit) audit.name = newName;
+      await putAnnotations(token, { ...ann, manual_audits: audits });
+      updateRegistry(token, audits);
+      render();
+    } catch (err) {
+      alert('Could not rename: ' + err.message);
+    }
+  }
+
+  backdrop.querySelector('#rd-cancel').addEventListener('click', () => backdrop.remove());
+  backdrop.querySelector('#rd-ok').addEventListener('click', commit);
+  backdrop.addEventListener('click', e => { if (e.target === backdrop) backdrop.remove(); });
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); commit(); }
+    if (e.key === 'Escape') backdrop.remove();
+  });
+}
+
+// ── Click delegation ──────────────────────────────────────────────────────────
+document.getElementById('reports-container').addEventListener('click', function(e) {
+  const kebabBtn = e.target.closest('.kebab-btn');
+  if (kebabBtn) { e.stopPropagation(); openKebabMenu(kebabBtn); return; }
+
+  const deleteBtn = e.target.closest('.delete-btn');
+  if (deleteBtn) { deleteEntry(deleteBtn.dataset.token); return; }
+
   const groupRow = e.target.closest('.group-row');
   if (groupRow) {
     const domain = groupRow.dataset.domain;
-    if (expandedGroups.has(domain)) {
-      expandedGroups.delete(domain);
-    } else {
-      expandedGroups.add(domain);
-    }
+    expandedGroups[expandedGroups.has(domain) ? 'delete' : 'add'](domain);
     render();
   }
 });

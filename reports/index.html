@@ -1975,66 +1975,6 @@
   }
   .tab-overflow-menu button:hover { background: var(--surface-2); color: var(--ink); }
   .tab-overflow-menu button.active { color: var(--accent); font-weight: 500; }
-  .tab-edit-wrap {
-    position: relative;
-    flex-shrink: 0;
-    display: flex;
-  }
-  .tab-edit-wrap[hidden] { display: none !important; }
-  .tab-edit-btn {
-    display: flex;
-    align-items: center;
-    padding: 0 8px;
-    font-size: 15px;
-    letter-spacing: 0.12em;
-    color: var(--ink-3);
-    border-bottom: none !important;
-    margin-bottom: 0 !important;
-    border-radius: 4px;
-  }
-  .tab-edit-btn:hover { color: var(--ink); background: var(--surface-2); }
-  .tab-edit-menu {
-    position: absolute;
-    top: calc(100% + 1px);
-    right: 0;
-    background: var(--surface);
-    border: 1px solid var(--line-strong);
-    border-radius: 6px;
-    box-shadow: 0 4px 16px rgba(0,0,0,.12);
-    z-index: 200;
-    min-width: 160px;
-    padding: 4px 0;
-  }
-  .tab-edit-menu button {
-    display: block;
-    width: 100%;
-    text-align: left;
-    padding: 8px 14px;
-    background: none;
-    border: none;
-    font: inherit;
-    font-size: 13px;
-    color: var(--ink-3);
-    cursor: pointer;
-    white-space: nowrap;
-  }
-  .tab-edit-menu button:hover { background: var(--surface-2); color: var(--ink); }
-  .tab-edit-menu hr { border: none; border-top: 1px solid var(--line); margin: 4px 0; }
-  .tab-edit-delete-item { color: var(--critical-fg) !important; }
-  .tab-edit-delete-item:hover { background: var(--critical-bg) !important; }
-  /* Rename modal input */
-  .rename-input {
-    width: 100%;
-    padding: 8px 10px;
-    border: 1px solid var(--line-strong);
-    border-radius: 6px;
-    font: inherit;
-    font-size: 14px;
-    color: var(--ink);
-    background: var(--surface);
-    outline: none;
-  }
-  .rename-input:focus { border-color: var(--accent); }
   .tab-btn-add {
     width: 30px;
     padding: 0;
@@ -2220,16 +2160,6 @@
         More <span aria-hidden="true">▾</span>
       </button>
       <div class="tab-overflow-menu" id="tab-overflow-menu" hidden role="menu"></div>
-    </div>
-    <div class="tab-edit-wrap" id="tab-edit-wrap" hidden>
-      <button class="tab-btn tab-edit-btn" id="tab-edit-trigger"
-              aria-label="Audit options" aria-haspopup="true" aria-expanded="false">···</button>
-      <div class="tab-edit-menu" id="tab-edit-menu" hidden role="menu">
-        <button role="menuitem" id="tab-edit-rename">Rename</button>
-        <button role="menuitem" id="tab-edit-duplicate">Duplicate</button>
-        <hr aria-hidden="true">
-        <button role="menuitem" id="tab-edit-delete" class="tab-edit-delete-item">Delete</button>
-      </div>
     </div>
     <button class="tab-btn tab-btn-add" id="tab-add-audit" aria-label="New manual audit" title="New manual audit">+</button>
   </nav>
@@ -5195,7 +5125,6 @@
       });
     });
 
-    document.getElementById('tab-edit-wrap').hidden = !manualVisible || !activeAuditId;
 
     // Double-click to rename
     host.querySelectorAll('.tab-label').forEach(label => {
@@ -5303,7 +5232,6 @@
     document.getElementById('tab-panel-combined').hidden = tabId !== 'combined';
     document.getElementById('tab-panel-scan').hidden = tabId !== 'scan';
     document.getElementById('tab-panel-manual').hidden = tabId !== 'manual';
-    if (tabId !== 'manual') document.getElementById('tab-edit-wrap').hidden = true;
     if (tabId === 'manual') renderTabs();
     if (tabId === 'combined') renderCombined();
   }
@@ -5344,40 +5272,6 @@
     } else {
       renderTabs();
     }
-  }
-
-  function deleteAudit(auditId) {
-    const audit = audits.find(a => a.id === auditId);
-    if (!audit) return;
-    const count = (audit.findings || []).length;
-    const msg = count > 0
-      ? `Delete "${audit.name}"? It contains ${count} issue${count !== 1 ? 's' : ''} and cannot be recovered.`
-      : `Delete "${audit.name}"? This cannot be undone.`;
-    if (!confirm(msg)) return;
-    audits.splice(audits.findIndex(a => a.id === auditId), 1);
-    saveAudits();
-    if (activeAuditId === auditId) {
-      const nextOpen = audits.find(a => !a.closed);
-      if (nextOpen) { switchToAudit(nextOpen.id); }
-      else { activeAuditId = null; switchTab('scan'); }
-    } else {
-      renderTabs();
-    }
-  }
-
-  function duplicateAudit(auditId) {
-    const audit = audits.find(a => a.id === auditId);
-    if (!audit) return;
-    const id = 'ma_' + Date.now() + Math.random().toString(36).slice(2);
-    audits.push({
-      id,
-      name: `Copy of ${audit.name}`,
-      findings: JSON.parse(JSON.stringify(audit.findings || [])),
-      testingEnv: audit.testingEnv ? JSON.parse(JSON.stringify(audit.testingEnv)) : null,
-      closed: false,
-    });
-    saveAudits();
-    switchToAudit(id);
   }
 
   // ── Combined Report ────────────────────────────────────────────────────────
@@ -5529,78 +5423,6 @@
   // ResizeObserver: recheck overflow when tab bar resizes
   new ResizeObserver(() => requestAnimationFrame(checkTabOverflow))
     .observe(document.querySelector('.tab-bar'));
-
-  // ── Tab edit menu ────────────────────────────────────────────────────────────
-  function closeTabEditMenu() {
-    const menu = document.getElementById('tab-edit-menu');
-    if (menu) menu.hidden = true;
-    document.getElementById('tab-edit-trigger')?.setAttribute('aria-expanded', 'false');
-  }
-
-  document.getElementById('tab-edit-trigger').addEventListener('click', e => {
-    e.stopPropagation();
-    const menu = document.getElementById('tab-edit-menu');
-    const isOpen = !menu.hidden;
-    menu.hidden = isOpen;
-    e.currentTarget.setAttribute('aria-expanded', String(!isOpen));
-  });
-
-  document.addEventListener('click', e => {
-    if (!e.target.closest('#tab-edit-wrap')) closeTabEditMenu();
-  });
-
-  document.getElementById('tab-edit-rename').addEventListener('click', () => {
-    closeTabEditMenu();
-    openRenameModal();
-  });
-
-  document.getElementById('tab-edit-duplicate').addEventListener('click', () => {
-    closeTabEditMenu();
-    if (activeAuditId) duplicateAudit(activeAuditId);
-  });
-
-  document.getElementById('tab-edit-delete').addEventListener('click', () => {
-    closeTabEditMenu();
-    if (activeAuditId) deleteAudit(activeAuditId);
-  });
-
-  // ── Rename modal ─────────────────────────────────────────────────────────────
-  function openRenameModal() {
-    const audit = currentAudit();
-    if (!audit) return;
-    const modal = document.getElementById('rename-audit-modal');
-    const input = document.getElementById('rename-modal-input');
-    input.value = audit.name;
-    modal.hidden = false;
-    setTimeout(() => { input.focus(); input.select(); }, 30);
-  }
-
-  function closeRenameModal() {
-    document.getElementById('rename-audit-modal').hidden = true;
-  }
-
-  function commitRename() {
-    const audit = currentAudit();
-    if (!audit) return;
-    const newName = document.getElementById('rename-modal-input').value.trim();
-    if (!newName) return;
-    audit.name = newName;
-    saveAudits();
-    closeRenameModal();
-    renderTabs();
-  }
-
-  document.getElementById('rename-modal-close').addEventListener('click', closeRenameModal);
-  document.getElementById('rename-modal-cancel').addEventListener('click', closeRenameModal);
-  document.getElementById('rename-modal-ok').addEventListener('click', commitRename);
-  document.getElementById('rename-audit-modal').addEventListener('click', e => {
-    if (e.target === document.getElementById('rename-audit-modal')) closeRenameModal();
-  });
-  document.getElementById('rename-modal-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') { e.preventDefault(); commitRename(); }
-    if (e.key === 'Escape') closeRenameModal();
-    e.stopPropagation();
-  });
 
   // Initial tab render
   renderTabs();
@@ -6058,28 +5880,5 @@
 
 </script>
 
-<!-- Rename audit modal -->
-<div id="rename-audit-modal" class="modal-backdrop" role="dialog" aria-modal="true"
-     aria-labelledby="rename-modal-title" hidden>
-  <div class="modal" style="max-width:400px;">
-    <header class="modal-header">
-      <h2 id="rename-modal-title" class="modal-title">Rename audit</h2>
-      <button class="modal-close" id="rename-modal-close" aria-label="Close">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-             stroke-linecap="round" stroke-linejoin="round">
-          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
-    </header>
-    <div style="padding:20px 24px;">
-      <label for="rename-modal-input" style="display:block;font-size:13px;font-weight:500;margin-bottom:8px;">Audit name</label>
-      <input id="rename-modal-input" type="text" class="rename-input" autocomplete="off" />
-    </div>
-    <footer style="display:flex;justify-content:flex-end;gap:8px;padding:0 24px 20px;">
-      <button class="toggle" id="rename-modal-cancel">Cancel</button>
-      <button class="toggle btn-primary" id="rename-modal-ok" style="height:32px;">Rename</button>
-    </footer>
-  </div>
-</div>
 </body>
 </html>
