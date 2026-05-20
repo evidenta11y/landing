@@ -78,6 +78,9 @@ body {
 .sidebar-nav {
   flex: 1;
   padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 .nav-item {
   display: flex;
@@ -90,6 +93,11 @@ body {
   color: var(--ink-3);
   text-decoration: none;
   transition: background 0.1s, color 0.1s;
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  font-family: var(--font-display);
 }
 .nav-item:hover {
   background: var(--surface-2);
@@ -106,18 +114,16 @@ body {
 .nav-item.active svg {
   opacity: 1;
 }
+.nav-item.nav-logout {
+  color: var(--ink-4);
+}
+.nav-item.nav-logout:hover {
+  color: #791F1F;
+  background: #FCEBEB;
+}
 .sidebar-footer {
-  padding: 14px 18px;
+  padding: 14px 10px;
   border-top: 1px solid var(--line);
-}
-.sidebar-footer a {
-  font-size: 12px;
-  color: var(--ink-3);
-  text-decoration: none;
-  transition: color 0.1s;
-}
-.sidebar-footer a:hover {
-  color: var(--ink);
 }
 
 .main {
@@ -148,6 +154,11 @@ body {
   color: var(--ink-3);
   margin: 0;
 }
+.page-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 #search {
   border: 1px solid var(--line-strong);
   border-radius: 6px;
@@ -165,6 +176,24 @@ body {
 }
 #search:focus {
   border-color: var(--accent);
+}
+#refresh-btn {
+  padding: 7px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: var(--surface);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: border-color 0.1s, color 0.1s, background 0.1s;
+  white-space: nowrap;
+}
+#refresh-btn:hover {
+  border-color: var(--ink-4);
+  color: var(--ink);
+  background: var(--surface-2);
 }
 
 .section-card {
@@ -264,30 +293,6 @@ body {
 .type-manual {
   background: var(--surface-3);
   color: var(--ink-2);
-}
-
-.delete-row td {
-  background: var(--bg);
-  padding: 6px 14px 10px;
-  border-bottom: 1px solid var(--line);
-  text-align: right;
-}
-.delete-btn {
-  background: none;
-  border: none;
-  font: inherit;
-  font-size: 12px;
-  color: var(--ink-4);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 6px;
-  border-radius: 4px;
-}
-.delete-btn:hover {
-  color: var(--ink);
-  background: var(--surface-3);
 }
 
 .score-badge {
@@ -499,9 +504,21 @@ body {
       </svg>
       Reports
     </a>
+    <button class="nav-item nav-logout" id="logout-btn" type="button">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M10 8H3M6 5l-3 3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8 3h4a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H8" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
+      </svg>
+      Logout
+    </button>
   </nav>
   <div class="sidebar-footer">
-    <a href="/">← evidenta11y.com</a>
+    <a class="nav-item" href="/">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      evidenta11y.com
+    </a>
   </div>
 </aside>
 
@@ -511,14 +528,31 @@ body {
       <h1>Reports</h1>
       <p class="page-header-sub">All scans and accessibility audits</p>
     </div>
-    <input id="search" type="search" placeholder="Filter by URL or audit name…" autocomplete="off" />
+    <div class="page-header-right">
+      <button id="refresh-btn" onclick="loadReports()">↻ Refresh</button>
+      <input id="search" type="search" placeholder="Filter by URL or audit name…" autocomplete="off" />
+    </div>
   </div>
 
   <div id="reports-container"></div>
 </main>
 
 <script>
+const API = 'https://platform-production-ace5.up.railway.app';
+
+(function() {
+  if (!localStorage.getItem('e11y_session')) {
+    window.location.replace('/app/login');
+  }
+})();
+
+document.getElementById('logout-btn').addEventListener('click', function() {
+  localStorage.removeItem('e11y_session');
+  window.location.replace('/app/login');
+});
+
 let query = '';
+let apiReports = [];
 const expandedGroups = new Set();
 
 function hostname(url) {
@@ -550,8 +584,8 @@ function esc(str) {
   return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-function buildGroups(registry, q) {
-  let entries = registry.slice();
+function buildGroups(reports, q) {
+  let entries = reports.slice();
   if (q) {
     const lq = q.toLowerCase();
     entries = entries.filter(r => {
@@ -568,38 +602,27 @@ function buildGroups(registry, q) {
     map.get(d).push(r);
   }
   const groups = [];
-  for (const [domain, reports] of map.entries()) {
-    reports.sort((a, b) => new Date(b.savedAt || 0) - new Date(a.savedAt || 0));
-    groups.push({ domain, reports });
+  for (const [domain, reps] of map.entries()) {
+    reps.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+    groups.push({ domain, reports: reps });
   }
   groups.sort((a, b) => {
-    const aDate = new Date(a.reports[0].savedAt || 0);
-    const bDate = new Date(b.reports[0].savedAt || 0);
+    const aDate = new Date(a.reports[0].created_at || 0);
+    const bDate = new Date(b.reports[0].created_at || 0);
     return bDate - aDate;
   });
   return groups;
 }
 
-function deleteEntry(token) {
-  let registry = [];
-  try { registry = JSON.parse(localStorage.getItem('e11y_report_registry') || '[]'); } catch (e) {}
-  registry = registry.filter(r => r.token !== token);
-  localStorage.setItem('e11y_report_registry', JSON.stringify(registry));
-  render();
-}
-
 function render() {
-  let registry = [];
-  try { registry = JSON.parse(localStorage.getItem('e11y_report_registry') || '[]'); } catch (e) {}
-
   const container = document.getElementById('reports-container');
 
-  if (registry.length === 0) {
-    container.innerHTML = `<div class="section-card"><div class="empty-state"><p class="empty-state-title">No reports yet</p><p class="empty-state-body">Open a report link to save it here.</p></div></div>`;
+  if (apiReports.length === 0) {
+    container.innerHTML = `<div class="section-card"><div class="empty-state"><p class="empty-state-title">No reports yet</p><p class="empty-state-body">Run a scan to see your first report here.</p></div></div>`;
     return;
   }
 
-  const groups = buildGroups(registry, query);
+  const groups = buildGroups(apiReports, query);
 
   if (groups.length === 0) {
     container.innerHTML = `<div class="section-card"><div class="empty-state"><p class="empty-state-title">No reports match your search.</p></div></div>`;
@@ -612,7 +635,7 @@ function render() {
     const { domain, reports } = group;
     const isOpen = expandedGroups.has(domain);
 
-    const scores = reports.map(r => r.avgScore).filter(s => s !== null && s !== undefined);
+    const scores = reports.map(r => r.avg_score).filter(s => s !== null && s !== undefined);
     const groupAvg = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
     const groupScoreBadge = `<span class="score-badge ${scoreClass(groupAvg)}">${groupAvg !== null ? groupAvg : '—'}</span>`;
 
@@ -623,7 +646,7 @@ function render() {
     const totalManualAudits = reports.reduce((sum, r) => sum + (r.manual_audits || []).length, 0);
     const subLabel = `${reports.length} scan${reports.length !== 1 ? 's' : ''}${totalManualAudits > 0 ? ' · ' + totalManualAudits + ' manual audit' + (totalManualAudits !== 1 ? 's' : '') : ''}`;
 
-    const lastDate = fmtDate(reports[0].savedAt);
+    const lastDate = fmtDate(reports[0].created_at);
     const escapedDomain = esc(domain);
 
     tbody += `<tr class="group-row${isOpen ? ' is-open' : ''}" data-domain="${escapedDomain}">
@@ -644,12 +667,12 @@ function render() {
 
     if (isOpen) {
       for (const r of reports) {
-        const sc = r.avgScore !== null && r.avgScore !== undefined ? r.avgScore : null;
+        const sc = r.avg_score !== null && r.avg_score !== undefined ? r.avg_score : null;
         const scoreBadge = `<span class="score-badge ${scoreClass(sc)}">${sc !== null ? sc : '—'}</span>`;
-        const pages = (r.pagesTotal != null) ? `${r.pagesScanned ?? '?'} / ${r.pagesTotal}` : '—';
+        const pages = (r.pages_total != null) ? `${r.pages_scanned ?? '?'} / ${r.pages_total}` : '—';
         const escapedUrl = esc(r.url || '');
         const escapedToken = esc(r.token);
-        const scanDate = fmtDate(r.scannedAt || r.savedAt);
+        const scanDate = fmtDate(r.completed_at || r.created_at);
 
         tbody += `<tr class="sub-row">
           <td></td>
@@ -665,7 +688,7 @@ function render() {
         </tr>`;
 
         for (const a of (r.manual_audits || [])) {
-          const auditDate = fmtDate(r.savedAt);
+          const auditDate = fmtDate(r.created_at);
           const escapedAuditName = esc(a.name || '');
           const escapedAuditId = esc(a.id || '');
           const issueLabel = `${a.findings_count} issue${a.findings_count !== 1 ? 's' : ''}`;
@@ -695,18 +718,6 @@ function render() {
             </td>
           </tr>`;
         }
-
-        tbody += `<tr class="delete-row">
-          <td colspan="7">
-            <button class="delete-btn" data-token="${escapedToken}">
-              <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                <path d="M1 3h12M5 3V2h4v1M2.5 3l.7 8.4A1 1 0 0 0 4.2 12h5.6a1 1 0 0 0 1-.6L11.5 3" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M5.5 6v3.5M8.5 6v3.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
-              </svg>
-              Remove from list
-            </button>
-          </td>
-        </tr>`;
       }
     }
   }
@@ -729,13 +740,41 @@ function render() {
   </div>`;
 }
 
+async function loadReports() {
+  const session = localStorage.getItem('e11y_session');
+  const container = document.getElementById('reports-container');
+  container.innerHTML = `<div class="section-card"><div class="empty-state"><p class="empty-state-title" style="color:var(--ink-3)">Loading…</p></div></div>`;
+
+  try {
+    const res = await fetch(`${API}/v1/my/reports`, {
+      headers: { 'Authorization': `Bearer ${session}` },
+    });
+
+    if (res.status === 401) {
+      localStorage.removeItem('e11y_session');
+      window.location.replace('/app/login');
+      return;
+    }
+
+    if (!res.ok) {
+      container.innerHTML = `<div class="section-card"><div class="empty-state"><p class="empty-state-title">Failed to load reports</p><p class="empty-state-body">Please try refreshing.</p></div></div>`;
+      return;
+    }
+
+    const data = await res.json();
+    apiReports = data.reports || [];
+    render();
+  } catch (err) {
+    container.innerHTML = `<div class="section-card"><div class="empty-state"><p class="empty-state-title">Something went wrong</p><p class="empty-state-body">Please try again.</p></div></div>`;
+  }
+}
+
 document.getElementById('search').addEventListener('input', function() {
   query = this.value;
   render();
 });
 
-// ── Kebab menu state ──────────────────────────────────────────────────────────
-let openKebab = null; // { token, auditId, el }
+let openKebab = null;
 
 function closeKebab() {
   if (openKebab) {
@@ -769,7 +808,6 @@ function openKebabMenu(btn) {
     });
   });
 
-  // Append to body so table overflow:hidden doesn't clip it
   document.body.appendChild(menu);
   const r = btn.getBoundingClientRect();
   menu.style.position = 'fixed';
@@ -783,17 +821,15 @@ document.addEventListener('click', e => {
   if (!e.target.closest('.kebab-wrap')) closeKebab();
 });
 
-// ── Kebab actions ─────────────────────────────────────────────────────────────
-const API = 'https://platform-production-ace5.up.railway.app';
+const APIBASE = 'https://platform-production-ace5.up.railway.app';
 
 async function syncToAPI(token, audits) {
   const key = localStorage.getItem(`e11y_token_${token}`);
   if (!key) return;
   try {
-    // Read existing overrides first so we don't wipe auto/AI issue status + notes
-    const existing = await fetch(`${API}/v1/public/report/view/${token}/annotations`)
+    const existing = await fetch(`${APIBASE}/v1/public/report/view/${token}/annotations`)
       .then(r => r.ok ? r.json() : {}).catch(() => ({}));
-    await fetch(`${API}/v1/public/report/view/${token}/annotations`, {
+    await fetch(`${APIBASE}/v1/public/report/view/${token}/annotations`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
       body: JSON.stringify({ manual_audits: audits, issue_overrides: existing.issue_overrides || {} }),
@@ -851,7 +887,6 @@ function doAuditAction(token, auditId, action, auditName) {
   render();
 }
 
-// ── Rename dialog ─────────────────────────────────────────────────────────────
 function startRename(token, auditId, currentName) {
   const backdrop = document.createElement('div');
   backdrop.className = 'rename-backdrop';
@@ -890,13 +925,9 @@ function startRename(token, auditId, currentName) {
   });
 }
 
-// ── Click delegation ──────────────────────────────────────────────────────────
 document.getElementById('reports-container').addEventListener('click', function(e) {
   const kebabBtn = e.target.closest('.kebab-btn');
   if (kebabBtn) { e.stopPropagation(); openKebabMenu(kebabBtn); return; }
-
-  const deleteBtn = e.target.closest('.delete-btn');
-  if (deleteBtn) { deleteEntry(deleteBtn.dataset.token); return; }
 
   const groupRow = e.target.closest('.group-row');
   if (groupRow) {
@@ -906,7 +937,7 @@ document.getElementById('reports-container').addEventListener('click', function(
   }
 });
 
-render();
+loadReports();
 </script>
 </body>
 </html>

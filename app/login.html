@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sign in — evidenta11y</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg: #f0f2f8;
+  --surface: #ffffff;
+  --surface-2: #f0f2f8;
+  --surface-3: #e4e8f0;
+  --ink: #0a0f2e;
+  --ink-2: #2d3561;
+  --ink-3: #5c6589;
+  --ink-4: #9ca3af;
+  --line: #e2e8f0;
+  --line-strong: #cbd5e1;
+  --accent: #00d4a0;
+  --accent-dark: #00b386;
+  --font-display: 'Inter Tight', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-feature-settings: "ss01", "cv11";
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+.login-card {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 40px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.08);
+  width: 100%;
+  max-width: 380px;
+}
+.card-brand {
+  margin-bottom: 28px;
+}
+.brand-logo {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-3);
+  display: block;
+}
+.brand-tagline {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-4);
+  display: block;
+  margin-top: 2px;
+}
+.login-card h1 {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0 0 20px;
+  color: var(--ink);
+}
+.login-form label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-2);
+  margin-bottom: 4px;
+}
+.login-form input[type="email"],
+.login-form input[type="password"] {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--surface);
+  outline: none;
+  margin-bottom: 12px;
+  transition: border-color 0.15s;
+}
+.login-form input[type="email"]:focus,
+.login-form input[type="password"]:focus {
+  border-color: var(--accent);
+}
+.login-btn {
+  width: 100%;
+  padding: 10px;
+  background: var(--accent);
+  border: none;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--ink);
+  transition: background 0.15s;
+  margin-top: 4px;
+}
+.login-btn:hover {
+  background: var(--accent-dark);
+}
+.login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.error-msg {
+  display: none;
+  margin-top: 12px;
+  font-size: 13px;
+  color: #791F1F;
+  background: #FCEBEB;
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+</style>
+</head>
+<body>
+<div class="login-card">
+  <div class="card-brand">
+    <span class="brand-logo">evidenta11y</span>
+    <span class="brand-tagline">Accessibility Platform</span>
+  </div>
+  <h1>Sign in</h1>
+  <form class="login-form" id="login-form" novalidate>
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" autocomplete="email" placeholder="you@example.com" required />
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" autocomplete="current-password" placeholder="••••••••" required />
+    <button type="submit" class="login-btn" id="login-btn">Login</button>
+    <div class="error-msg" id="error-msg" role="alert"></div>
+  </form>
+</div>
+<script>
+const API = 'https://platform-production-ace5.up.railway.app';
+
+(function() {
+  if (localStorage.getItem('e11y_session')) {
+    window.location.replace('/app/');
+  }
+})();
+
+document.getElementById('login-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('login-btn');
+  const errEl = document.getElementById('error-msg');
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+
+  errEl.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Signing in…';
+
+  try {
+    const res = await fetch(`${API}/v1/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    if (res.status === 401) {
+      errEl.textContent = 'Invalid email or password.';
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Login';
+      return;
+    }
+    if (!res.ok) {
+      errEl.textContent = 'Something went wrong, please try again.';
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Login';
+      return;
+    }
+    const data = await res.json();
+    localStorage.setItem('e11y_session', data.token);
+    window.location.replace('/app/');
+  } catch (err) {
+    errEl.textContent = 'Something went wrong, please try again.';
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Login';
+  }
+});
+</script>
+</body>
+</html>

@@ -38,7 +38,6 @@
     min-height: 100vh;
   }
 
-  /* Sidebar */
   .sidebar {
     width: 220px;
     min-width: 220px;
@@ -54,7 +53,7 @@
     padding: 20px 12px 16px;
   }
   .sidebar-brand {
-    padding: 0 8px 20px;
+    padding: 0 8px 16px;
     border-bottom: 1px solid var(--line);
     margin-bottom: 12px;
   }
@@ -75,6 +74,15 @@
     display: block;
     margin-top: 2px;
   }
+  .brand-user {
+    font-size: 12px;
+    color: var(--ink-3);
+    display: block;
+    margin-top: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
   .sidebar-nav {
     flex: 1;
     display: flex;
@@ -92,6 +100,11 @@
     color: var(--ink-3);
     text-decoration: none;
     transition: background 0.1s, color 0.1s;
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    font-family: var(--font-display);
   }
   .nav-item:hover,
   .nav-item.active {
@@ -103,12 +116,19 @@
     opacity: 0.7;
   }
   .nav-item.active svg { opacity: 1; }
+  .nav-item.nav-logout {
+    color: var(--ink-4);
+    margin-top: 4px;
+  }
+  .nav-item.nav-logout:hover {
+    color: #791F1F;
+    background: #FCEBEB;
+  }
   .sidebar-footer {
     padding-top: 12px;
     border-top: 1px solid var(--line);
   }
 
-  /* Main content */
   .main {
     margin-left: 220px;
     flex: 1;
@@ -117,7 +137,6 @@
     overflow-y: auto;
   }
 
-  /* Page header */
   .page-header {
     margin-bottom: 28px;
   }
@@ -135,7 +154,6 @@
     color: var(--ink-3);
   }
 
-  /* Stats grid */
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -170,8 +188,13 @@
     color: var(--ink-4);
     margin: 0;
   }
+  .stat-skeleton .stat-value {
+    background: var(--surface-3);
+    border-radius: 4px;
+    color: transparent;
+    user-select: none;
+  }
 
-  /* Section card */
   .card {
     background: var(--surface);
     border: 1px solid var(--line);
@@ -200,7 +223,6 @@
   .card-link:hover { color: var(--ink); }
   .card-body { padding: 0; }
 
-  /* Report table */
   .report-table {
     width: 100%;
     border-collapse: collapse;
@@ -236,7 +258,6 @@
     color: var(--ink);
   }
 
-  /* Score badge */
   .score-badge {
     display: inline-flex;
     width: 36px;
@@ -253,7 +274,6 @@
   .score-low  { background: #FCEBEB; color: #791F1F; }
   .score-none { background: var(--surface-3); color: var(--ink-4); }
 
-  /* Status chip */
   .status-chip {
     display: inline-flex;
     align-items: center;
@@ -268,7 +288,6 @@
   .status-scanning  { background: #E6F1FB; color: #0C447C; }
   .status-failed    { background: #FCEBEB; color: #791F1F; }
 
-  /* Open button */
   .open-btn {
     display: inline-flex;
     align-items: center;
@@ -287,12 +306,17 @@
     background: var(--surface-2);
   }
 
-  /* Empty state */
   .empty-state {
     padding: 48px 24px;
     text-align: center;
     color: var(--ink-4);
     font-size: 13px;
+  }
+
+  .inline-error {
+    padding: 16px 20px;
+    font-size: 13px;
+    color: #791F1F;
   }
 </style>
 </head>
@@ -302,6 +326,7 @@
   <div class="sidebar-brand">
     <span class="brand-name">evidenta11y</span>
     <span class="brand-sub">Accessibility Platform</span>
+    <span class="brand-user" id="sidebar-user"></span>
   </div>
   <nav class="sidebar-nav">
     <a class="nav-item active" href="/app/" aria-current="page">
@@ -322,6 +347,13 @@
       </svg>
       Reports
     </a>
+    <button class="nav-item nav-logout" id="logout-btn" type="button">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M10 8H3M6 5l-3 3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8 3h4a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H8" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
+      </svg>
+      Logout
+    </button>
   </nav>
   <div class="sidebar-footer">
     <a class="nav-item" href="/">
@@ -340,22 +372,22 @@
   </div>
 
   <div class="stats-grid">
-    <div class="stat-card" id="stat-total">
+    <div class="stat-card stat-skeleton" id="stat-total">
       <p class="stat-label">Total Reports</p>
       <p class="stat-value">—</p>
       <p class="stat-sub">All time</p>
     </div>
-    <div class="stat-card" id="stat-avg-score">
+    <div class="stat-card stat-skeleton" id="stat-avg-score">
       <p class="stat-label">Avg Score</p>
       <p class="stat-value">—</p>
       <p class="stat-sub">Scored reports</p>
     </div>
-    <div class="stat-card" id="stat-sites">
+    <div class="stat-card stat-skeleton" id="stat-sites">
       <p class="stat-label">Sites Analyzed</p>
       <p class="stat-value">—</p>
       <p class="stat-sub">Unique hostnames</p>
     </div>
-    <div class="stat-card" id="stat-month">
+    <div class="stat-card stat-skeleton" id="stat-month">
       <p class="stat-label">This Month</p>
       <p class="stat-value">—</p>
       <p class="stat-sub">Reports added</p>
@@ -368,110 +400,141 @@
       <a class="card-link" href="/app/reports">View all →</a>
     </div>
     <div class="card-body">
-      <div id="recent-reports-container"></div>
+      <div id="recent-reports-container"><div class="empty-state">Loading…</div></div>
     </div>
   </div>
 </main>
 
 <script>
-  function scoreClass(score) {
-    if (score === null || score === undefined) return 'score-none';
-    if (score >= 90) return 'score-high';
-    if (score >= 70) return 'score-mid';
-    return 'score-low';
-  }
+const API = 'https://platform-production-ace5.up.railway.app';
 
-  function statusChip(status) {
-    const label = status ? status.charAt(0).toUpperCase() + status.slice(1) : 'Unknown';
-    const cls = ['complete', 'queued', 'scanning', 'failed'].includes(status)
-      ? 'status-' + status
-      : 'status-queued';
-    return `<span class="status-chip ${cls}">${label}</span>`;
+(function() {
+  if (!localStorage.getItem('e11y_session')) {
+    window.location.replace('/app/login');
   }
+})();
 
-  function fmtDate(iso) {
-    if (!iso) return '—';
-    const d = new Date(iso);
-    if (isNaN(d)) return '—';
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+document.getElementById('logout-btn').addEventListener('click', function() {
+  localStorage.removeItem('e11y_session');
+  window.location.replace('/app/login');
+});
+
+function scoreClass(score) {
+  if (score === null || score === undefined) return 'score-none';
+  if (score >= 90) return 'score-high';
+  if (score >= 70) return 'score-mid';
+  return 'score-low';
+}
+
+function statusChip(status) {
+  const label = status ? status.charAt(0).toUpperCase() + status.slice(1) : 'Unknown';
+  const cls = ['complete', 'queued', 'scanning', 'failed'].includes(status)
+    ? 'status-' + status
+    : 'status-queued';
+  return `<span class="status-chip ${cls}">${label}</span>`;
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (isNaN(d)) return '—';
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function escHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function setStatCard(id, value) {
+  const card = document.getElementById(id);
+  card.classList.remove('stat-skeleton');
+  card.querySelector('.stat-value').textContent = value;
+}
+
+function renderTable(reports, container) {
+  if (!reports.length) {
+    container.innerHTML = '<div class="empty-state">No reports yet.</div>';
+    return;
   }
+  const rows = reports.map(r => {
+    const scoreCls = scoreClass(r.avg_score);
+    const scoreVal = r.avg_score !== null && r.avg_score !== undefined ? r.avg_score : '—';
+    const pages = (r.pages_scanned !== null && r.pages_scanned !== undefined && r.pages_total)
+      ? `${r.pages_scanned}/${r.pages_total}`
+      : (r.pages_total || '—');
+    return `<tr>
+      <td class="url-cell" title="${escHtml(r.url)}">${escHtml(r.url)}</td>
+      <td><span class="score-badge ${scoreCls}">${scoreVal}</span></td>
+      <td>${pages}</td>
+      <td>${statusChip(r.status)}</td>
+      <td>${fmtDate(r.created_at)}</td>
+      <td><a class="open-btn" href="/reports/${encodeURIComponent(r.token)}">Open</a></td>
+    </tr>`;
+  }).join('');
+  container.innerHTML = `<table class="report-table">
+    <thead>
+      <tr>
+        <th>URL</th>
+        <th>Score</th>
+        <th>Pages</th>
+        <th>Status</th>
+        <th>Date</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
 
-  function renderTable(reports, container) {
-    if (!reports.length) {
-      container.innerHTML = '<div class="empty-state">No reports yet. Open a report link and it will appear here automatically.</div>';
+async function loadDashboard() {
+  const session = localStorage.getItem('e11y_session');
+  const headers = { 'Authorization': `Bearer ${session}` };
+
+  try {
+    const [meRes, reportsRes] = await Promise.all([
+      fetch(`${API}/v1/auth/me`, { headers }),
+      fetch(`${API}/v1/my/reports`, { headers }),
+    ]);
+
+    if (meRes.status === 401 || reportsRes.status === 401) {
+      localStorage.removeItem('e11y_session');
+      window.location.replace('/app/login');
       return;
     }
-    const rows = reports.map(r => {
-      const scoreCls = scoreClass(r.avgScore);
-      const scoreVal = r.avgScore !== null && r.avgScore !== undefined ? r.avgScore : '—';
-      const pages = (r.pagesScanned !== null && r.pagesScanned !== undefined && r.pagesTotal)
-        ? `${r.pagesScanned}/${r.pagesTotal}`
-        : (r.pagesTotal || '—');
-      return `<tr>
-        <td class="url-cell" title="${escHtml(r.url)}">${escHtml(r.url)}</td>
-        <td><span class="score-badge ${scoreCls}">${scoreVal}</span></td>
-        <td>${pages}</td>
-        <td>${statusChip(r.status)}</td>
-        <td>${fmtDate(r.savedAt)}</td>
-        <td><a class="open-btn" href="/reports/${encodeURIComponent(r.token)}">Open</a></td>
-      </tr>`;
-    }).join('');
-    container.innerHTML = `<table class="report-table">
-      <thead>
-        <tr>
-          <th>URL</th>
-          <th>Score</th>
-          <th>Pages</th>
-          <th>Status</th>
-          <th>Date</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>${rows}</tbody>
-    </table>`;
-  }
 
-  function escHtml(str) {
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
-
-  function setStatCard(id, value, sub) {
-    const card = document.getElementById(id);
-    card.querySelector('.stat-value').textContent = value;
-    if (sub !== undefined) card.querySelector('.stat-sub').textContent = sub;
-  }
-
-  function render() {
-    let registry = [];
-    try {
-      const raw = localStorage.getItem('e11y_report_registry');
-      if (raw) registry = JSON.parse(raw);
-      if (!Array.isArray(registry)) registry = [];
-    } catch (e) {
-      registry = [];
+    if (!meRes.ok || !reportsRes.ok) {
+      document.getElementById('recent-reports-container').innerHTML =
+        '<div class="inline-error">Failed to load data. Please refresh the page.</div>';
+      return;
     }
 
-    const total = registry.length;
+    const me = await meRes.json();
+    const { reports } = await reportsRes.json();
 
-    const scored = registry.filter(r => r.avgScore !== null && r.avgScore !== undefined);
+    const userEl = document.getElementById('sidebar-user');
+    if (me.name) userEl.textContent = me.name;
+
+    const total = reports.length;
+
+    const scored = reports.filter(r => r.avg_score !== null && r.avg_score !== undefined);
     const avgScore = scored.length
-      ? Math.round(scored.reduce((s, r) => s + r.avgScore, 0) / scored.length)
+      ? Math.round(scored.reduce((s, r) => s + r.avg_score, 0) / scored.length)
       : null;
 
     const sites = new Set(
-      registry.map(r => {
+      reports.map(r => {
         try { return new URL(r.url).hostname; } catch (e) { return r.url; }
       })
     ).size;
 
     const now = new Date();
-    const thisMonth = registry.filter(r => {
-      if (!r.savedAt) return false;
-      const d = new Date(r.savedAt);
+    const thisMonth = reports.filter(r => {
+      if (!r.created_at) return false;
+      const d = new Date(r.created_at);
       return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
     }).length;
 
@@ -480,16 +543,15 @@
     setStatCard('stat-sites', sites || '0');
     setStatCard('stat-month', thisMonth || '0');
 
-    const recent = registry.slice().sort((a, b) => {
-      const ta = a.savedAt ? new Date(a.savedAt).getTime() : 0;
-      const tb = b.savedAt ? new Date(b.savedAt).getTime() : 0;
-      return tb - ta;
-    }).slice(0, 5);
-
+    const recent = reports.slice(0, 5);
     renderTable(recent, document.getElementById('recent-reports-container'));
+  } catch (err) {
+    document.getElementById('recent-reports-container').innerHTML =
+      '<div class="inline-error">Something went wrong, please try again.</div>';
   }
+}
 
-  render();
+loadDashboard();
 </script>
 </body>
 </html>

@@ -2629,8 +2629,8 @@
   const CURRENT_USER = { author: 'Joe L.', initials: 'JL' };
 
   const token = window.location.pathname.split('/').filter(Boolean).pop();
-  const claimed = !!localStorage.getItem(`e11y_token_${token}`);
-  const authToken = localStorage.getItem(`e11y_token_${token}`);
+  const authToken = localStorage.getItem('e11y_session') || localStorage.getItem(`e11y_token_${token}`);
+  const claimed = !!authToken;
   if (claimed) {
     const authButtons = document.getElementById('auth-buttons');
     if (authButtons) authButtons.style.display = 'none';
@@ -2640,6 +2640,7 @@
 
   document.getElementById('logout-btn').addEventListener('click', () => {
     localStorage.removeItem(`e11y_token_${token}`);
+    localStorage.removeItem('e11y_session');
     location.reload();
   });
 
@@ -4959,6 +4960,7 @@
       }
       if (!res.ok) throw new Error(data.error || 'Unknown error');
       localStorage.setItem(`e11y_token_${token}`, data.token);
+      if (!localStorage.getItem('e11y_session')) localStorage.setItem('e11y_session', data.token);
       closeSignupModal();
       location.reload();
     } catch (err) {
@@ -5043,6 +5045,7 @@
       if (!res.ok) throw new Error(data.error || 'Unknown error');
       const apiKey = data.api_key || data.token || data.key;
       localStorage.setItem(`e11y_token_${token}`, apiKey);
+      if (!localStorage.getItem('e11y_session')) localStorage.setItem('e11y_session', apiKey);
       closeLoginModal();
       location.reload();
     } catch (err) {
