@@ -151,8 +151,11 @@ body {
 const API = 'https://platform-production-ace5.up.railway.app';
 
 (function() {
-  if (localStorage.getItem('e11y_session')) {
+  const s = localStorage.getItem('e11y_session');
+  if (s && s !== 'undefined' && s !== 'null') {
     window.location.replace('/app/');
+  } else if (s) {
+    localStorage.removeItem('e11y_session');
   }
 })();
 
@@ -188,6 +191,13 @@ document.getElementById('login-form').addEventListener('submit', async function(
       return;
     }
     const data = await res.json();
+    if (!data.token) {
+      errEl.textContent = 'Login succeeded but no session token was returned. Please try again or contact support.';
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Login';
+      return;
+    }
     localStorage.setItem('e11y_session', data.token);
     window.location.replace('/app/');
   } catch (err) {
