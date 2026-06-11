@@ -2109,6 +2109,30 @@
     line-height: 1.6;
   }
   .manual-empty p { margin: 0 0 16px; }
+  /* Inline add row */
+  .issue-add-row td { background: var(--surface-2); vertical-align: middle; padding: 7px 8px; }
+  .add-row-input {
+    width: 100%; padding: 5px 8px; border: 1px solid var(--line-strong); border-radius: 4px;
+    font: inherit; font-size: 12px; color: var(--ink); background: var(--surface);
+    outline: none; min-width: 0;
+  }
+  .add-row-input:focus { border-color: var(--accent); }
+  .add-row-input.add-row-error { border-color: var(--critical-fg); }
+  .add-row-select {
+    width: 100%; padding: 5px 8px; border: 1px solid var(--line-strong); border-radius: 4px;
+    font: inherit; font-size: 12px; color: var(--ink); background: var(--surface);
+    outline: none; cursor: pointer;
+  }
+  .add-row-select:focus { border-color: var(--accent); }
+  .add-row-actions { display: flex; gap: 4px; align-items: center; }
+  .add-row-confirm, .add-row-discard-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; border: 1px solid var(--line-strong); border-radius: 4px;
+    background: none; cursor: pointer; font-size: 13px; color: var(--ink-3); padding: 0; flex-shrink: 0;
+  }
+  .add-row-confirm:hover { background: #e5f0dd; border-color: #2D6B2D; color: #2D6B2D; }
+  .add-row-discard-btn:hover { background: var(--critical-bg); border-color: var(--critical-fg); color: var(--critical-fg); }
+
   /* Add Issue modal field layout */
   .ai-field { display: flex; flex-direction: column; gap: 6px; margin-top: 16px; }
   .ai-field:first-child { margin-top: 0; }
@@ -5510,16 +5534,108 @@
   function renderManualTable() {
     const tbody = document.getElementById('manual-tbody');
     if (!tbody) return;
-    if (!MANUAL_RAW.length) {
-      tbody.innerHTML = `<tr><td colspan="8"><div class="manual-empty">
-        <p>No manual issues yet.</p>
-        <button class="btn-primary" id="manual-empty-add-btn">Add your first issue</button>
-      </div></td></tr>`;
-      document.getElementById('manual-empty-add-btn')?.addEventListener('click', openAddIssueModal);
-      return;
-    }
+    // Preserve state of any in-progress add rows
+    const existingAddRows = Array.from(tbody.querySelectorAll('.issue-add-row')).map(tr => ({
+      pendingId: tr.dataset.pendingId,
+      impact: tr.querySelector('.add-row-select')?.value || 'serious',
+      rule: tr.querySelector('.add-row-rule')?.value || '',
+      problem: tr.querySelector('.add-row-problem')?.value || '',
+      fix: tr.querySelector('.add-row-fix')?.value || '',
+      selector: tr.querySelector('.add-row-selector')?.value || '',
+    }));
     tbody.innerHTML = MANUAL_RAW.map(renderManualRow).join('');
-    bindManualRowEvents();
+    if (MANUAL_RAW.length) bindManualRowEvents();
+    if (existingAddRows.length > 0) {
+      existingAddRows.forEach((state, i) => appendAddRow(MANUAL_RAW.length + i + 1, state));
+    } else if (!MANUAL_RAW.length) {
+      appendAddRow(1, null);
+    }
+  }
+
+  function buildAddRowHtml(num, prefill) {
+    const sel = (v, match) => v === match ? ' selected' : '';
+    const imp = prefill?.impact || 'serious';
+    const val = s => escapeAttr(prefill?.[s] || '');
+    return `
+      <td></td>
+      <td><span class="issue-num" style="color:var(--ink-4)">#${String(num).padStart(3,'0')}-M</span></td>
+      <td>
+        <select class="add-row-select">
+          <option value="critical"${sel(imp,'critical')}>Critical</option>
+          <option value="serious"${sel(imp,'serious')}>Serious</option>
+          <option value="moderate"${sel(imp,'moderate')}>Moderate</option>
+          <option value="minor"${sel(imp,'minor')}>Minor</option>
+        </select>
+      </td>
+      <td><input class="add-row-input add-row-rule" placeholder="Rule / issue name" value="${val('rule')}" /></td>
+      <td><input class="add-row-input add-row-problem" placeholder="Problem description" value="${val('problem')}" /></td>
+      <td><input class="add-row-input add-row-fix" placeholder="How to fix" value="${val('fix')}" /></td>
+      <td><input class="add-row-input add-row-selector" placeholder=".selector" value="${val('selector')}" /></td>
+      <td class="add-row-actions">
+        <button class="add-row-confirm" title="Save (Enter)">✓</button>
+        <button class="add-row-discard-btn" title="Discard (Esc)">✕</button>
+      </td>`;
+  }
+
+  function appendAddRow(num, prefill) {
+    const tbody = document.getElementById('manual-tbody');
+    const pendingId = (prefill && prefill.pendingId) || ('pending_' + Date.now() + '_' + Math.random().toString(36).slice(2));
+    const tr = document.createElement('tr');
+    tr.className = 'issue-add-row';
+    tr.dataset.pendingId = pendingId;
+    tr.innerHTML = buildAddRowHtml(num, prefill);
+    tbody.appendChild(tr);
+    bindAddRowEvents(tr);
+    return tr;
+  }
+
+  function commitAddRow(tr) {
+    const ruleEl = tr.querySelector('.add-row-rule');
+    const rule = ruleEl?.value.trim() || '';
+    if (!rule) { ruleEl?.classList.add('add-row-error'); ruleEl?.focus(); return false; }
+    MANUAL_RAW.push({
+      id: 'mf_' + Date.now() + Math.random().toString(36).slice(2),
+      issueNumber: MANUAL_RAW.length + 1,
+      impact: tr.querySelector('.add-row-select')?.value || 'serious',
+      wcag: '', rule,
+      problem: tr.querySelector('.add-row-problem')?.value.trim() || '',
+      howToFix: tr.querySelector('.add-row-fix')?.value.trim() || '',
+      selector: tr.querySelector('.add-row-selector')?.value.trim() || '',
+      html: '', status: 'todo', notes: [], attachments: [],
+    });
+    saveManualFindings();
+    return true;
+  }
+
+  function bindAddRowEvents(tr) {
+    tr.querySelector('.add-row-confirm')?.addEventListener('click', () => {
+      if (commitAddRow(tr)) renderManualTable();
+    });
+    tr.querySelector('.add-row-discard-btn')?.addEventListener('click', () => {
+      tr.remove();
+      if (!MANUAL_RAW.length && !document.querySelector('#manual-tbody .issue-add-row')) renderManualTable();
+    });
+    tr.querySelectorAll('.add-row-input').forEach(input => {
+      input.addEventListener('input', () => input.classList.remove('add-row-error'));
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); if (commitAddRow(tr)) renderManualTable(); }
+        if (e.key === 'Escape') {
+          tr.remove();
+          if (!MANUAL_RAW.length && !document.querySelector('#manual-tbody .issue-add-row')) renderManualTable();
+        }
+      });
+    });
+    // Tab from last field: save and open a fresh row
+    tr.querySelector('.add-row-selector')?.addEventListener('keydown', e => {
+      if (e.key === 'Tab' && !e.shiftKey) {
+        e.preventDefault();
+        if (commitAddRow(tr)) {
+          renderManualTable();
+          const newRow = appendAddRow(MANUAL_RAW.length + 1, null);
+          newRow.querySelector('.add-row-rule')?.focus();
+        }
+      }
+    });
   }
 
   function renderManualRow(r) {
@@ -5850,7 +5966,16 @@
   document.getElementById('add-issue-close').addEventListener('click', closeAddIssueModal);
   document.getElementById('add-issue-cancel').addEventListener('click', closeAddIssueModal);
   addIssueModal.addEventListener('click', e => { if (e.target === addIssueModal) closeAddIssueModal(); });
-  document.getElementById('manual-add-issue-btn').addEventListener('click', openAddIssueModal);
+  document.getElementById('manual-add-issue-btn').addEventListener('click', () => {
+    const tbody = document.getElementById('manual-tbody');
+    const existing = tbody.querySelectorAll('.issue-add-row');
+    if (existing.length > 0) {
+      existing[existing.length - 1].querySelector('.add-row-rule')?.focus();
+      return;
+    }
+    const newRow = appendAddRow(MANUAL_RAW.length + 1, null);
+    newRow.querySelector('.add-row-rule')?.focus();
+  });
 
   document.getElementById('add-issue-submit').addEventListener('click', () => {
     const rule    = document.getElementById('ai-rule').value.trim();
