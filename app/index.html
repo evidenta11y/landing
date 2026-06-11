@@ -507,10 +507,8 @@ async function loadDashboard() {
     }
 
     if (!meRes.ok || !reportsRes.ok) {
-      const failedReq = !meRes.ok ? `/v1/auth/me → ${meRes.status}` : `/v1/my/reports → ${reportsRes.status}`;
-      const body = !meRes.ok ? await meRes.text().catch(() => '') : await reportsRes.text().catch(() => '');
       document.getElementById('recent-reports-container').innerHTML =
-        `<div class="inline-error">Failed to load data (${failedReq}): ${body.slice(0, 200)}</div>`;
+        '<div class="inline-error">Failed to load data. Please refresh the page.</div>';
       return;
     }
 
