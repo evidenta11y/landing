@@ -5488,7 +5488,8 @@
     if (!teEnv) return;
     const host = document.getElementById('te-chips-host');
     const fields = [
-      { label: 'WCAG', value: `${teEnv.wcag} ${teEnv.level}` },
+      { label: 'WCAG', value: `WCAG ${teEnv.wcag}` },
+      { label: 'Level', value: `Level ${teEnv.level}` },
       { label: 'OS',   value: teEnv.os },
       { label: 'Device', value: teEnv.device },
       { label: 'URL',  value: teEnv.url || 'https://' },
