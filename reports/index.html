@@ -2080,20 +2080,22 @@
     padding-top: 4px;
   }
   .te-display {
-    padding: 14px 18px;
+    padding: 12px 18px;
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
     align-items: center;
+    gap: 0;
   }
-  .te-chip {
+  .te-pair {
     display: inline-flex;
-    flex-direction: column;
-    gap: 2px;
-    padding: 6px 10px;
-    background: var(--surface-2);
-    border: 1px solid var(--line);
-    border-radius: 5px;
+    align-items: baseline;
+    gap: 5px;
+  }
+  .te-pair + .te-pair::before {
+    content: '·';
+    color: var(--ink-4);
+    font-size: 13px;
+    margin: 0 10px;
   }
   .te-chip-label {
     font-family: var(--font-mono);
@@ -2103,7 +2105,7 @@
     color: var(--ink-3);
     font-weight: 500;
   }
-  .te-chip-value { font-size: 13px; color: var(--ink); font-weight: 500; }
+  .te-chip-value { font-size: 13px; color: var(--ink); font-weight: 400; }
   /* Manual findings table */
   .manual-table-section { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
   .manual-table-section .table-wrap { border: none; border-radius: 0; overflow-x: auto; }
@@ -5466,7 +5468,7 @@
       { label: 'Device', value: teEnv.device },
     ];
     host.innerHTML = fields.map(f => `
-      <div class="te-chip">
+      <div class="te-pair">
         <span class="te-chip-label">${escapeHtml(f.label)}</span>
         <span class="te-chip-value">${escapeHtml(f.value)}</span>
       </div>`).join('');
