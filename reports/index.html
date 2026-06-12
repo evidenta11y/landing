@@ -2051,16 +2051,34 @@
     margin: 0;
     font-weight: 500;
   }
-  /* Collapsed single-row display when saved */
-  .te-section.te-saved .te-section-header {
-    border-bottom: none;
-    background: var(--surface);
+  /* Saved state: no card, just plain text */
+  .te-section.te-saved {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    margin-bottom: 16px;
+    overflow: visible;
   }
+  .te-section.te-saved .te-section-header {
+    background: transparent;
+    border-bottom: none;
+    padding: 0;
+  }
+  .te-section.te-saved h3 { display: none; }
   .te-section.te-saved .te-display {
     padding: 0;
     flex: 1;
-    margin: 0 16px;
   }
+  .te-section.te-saved #te-edit-btn {
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-size: 12px;
+    padding: 0 0 0 12px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .te-section.te-saved #te-edit-btn:hover { text-decoration: underline; }
   .te-form {
     padding: 18px;
     display: grid;
@@ -2090,32 +2108,20 @@
     padding-top: 4px;
   }
   .te-display {
-    padding: 12px 18px;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0;
-  }
-  .te-pair {
-    display: inline-flex;
-    align-items: baseline;
-    gap: 5px;
-  }
-  .te-pair + .te-pair::before {
-    content: '·';
-    color: var(--ink-4);
-    font-size: 13px;
-    margin: 0 10px;
-  }
-  .te-chip-label {
     font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--ink-3);
-    font-weight: 500;
+    font-size: 13px;
+    color: var(--ink-2);
   }
-  .te-chip-value { font-size: 13px; color: var(--ink); font-weight: 400; }
+  .te-pair { display: inline; }
+  .te-pair + .te-pair::before {
+    content: ' · ';
+    color: var(--ink-4);
+  }
+  .te-chip-label { display: none; }
+  .te-chip-value { font-size: 13px; font-weight: 400; }
   /* Manual findings table */
   .manual-table-section { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
   .manual-table-section .table-wrap { border: none; border-radius: 0; overflow-x: auto; }
