@@ -2051,6 +2051,16 @@
     margin: 0;
     font-weight: 500;
   }
+  /* Collapsed single-row display when saved */
+  .te-section.te-saved .te-section-header {
+    border-bottom: none;
+    background: var(--surface);
+  }
+  .te-section.te-saved .te-display {
+    padding: 0;
+    flex: 1;
+    margin: 0 16px;
+  }
   .te-form {
     padding: 18px;
     display: grid;
@@ -2371,6 +2381,9 @@
     <section class="te-section">
       <div class="te-section-header">
         <h3>Testing Environment</h3>
+        <div id="te-display-state" hidden>
+          <div class="te-display" id="te-chips-host"></div>
+        </div>
         <button class="btn-secondary btn-small" id="te-edit-btn" hidden>Edit</button>
       </div>
       <div id="te-form-state">
@@ -2418,9 +2431,6 @@
             <button class="btn-primary" id="te-save-btn">Save</button>
           </div>
         </div>
-      </div>
-      <div id="te-display-state" hidden>
-        <div class="te-display" id="te-chips-host"></div>
       </div>
     </section>
 
@@ -5443,6 +5453,7 @@
   // ── Testing Environment ───────────────────────────────────────────────────────
 
   function renderTE() {
+    const section = document.querySelector('.te-section');
     const formState = document.getElementById('te-form-state');
     const displayState = document.getElementById('te-display-state');
     const editBtn = document.getElementById('te-edit-btn');
@@ -5450,11 +5461,13 @@
       formState.hidden = true;
       displayState.hidden = false;
       editBtn.hidden = false;
+      section.classList.add('te-saved');
       renderTEChips();
     } else {
       formState.hidden = false;
       displayState.hidden = true;
       editBtn.hidden = true;
+      section.classList.remove('te-saved');
     }
   }
 
