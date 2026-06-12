@@ -2067,7 +2067,6 @@
   .te-section.te-saved h3 { display: none; }
   .te-section.te-saved .te-display {
     padding: 0;
-    flex: 1;
   }
   .te-section.te-saved #te-edit-btn {
     background: none;
@@ -2380,7 +2379,8 @@
     <section class="te-section">
       <div class="te-section-header">
         <h3>Testing Environment</h3>
-        <div id="te-display-state" hidden>
+        <div id="te-display-state" hidden style="display:flex;align-items:center;flex:1;gap:0;">
+          <span style="font-family:var(--font-mono);font-size:13px;color:var(--ink-3);margin-right:8px;white-space:nowrap;">Test Environment:</span>
           <div class="te-display" id="te-chips-host"></div>
         </div>
         <button class="btn-secondary btn-small" id="te-edit-btn" hidden>Edit</button>
