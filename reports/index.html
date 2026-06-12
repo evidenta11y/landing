@@ -2426,7 +2426,7 @@
           </div>
           <div class="te-field te-field-full">
             <label for="te-url-input">Page URL</label>
-            <input id="te-url-input" type="url" class="note-textarea"
+            <input id="te-url-input" type="text" class="note-textarea"
                    style="min-height:unset;height:34px;padding:0 10px;resize:none;"
                    placeholder="https://example.com/page" />
           </div>
@@ -5489,9 +5489,9 @@
     const host = document.getElementById('te-chips-host');
     const fields = [
       { label: 'WCAG', value: `${teEnv.wcag} ${teEnv.level}` },
-      { label: 'URL',  value: teEnv.url || '—' },
       { label: 'OS',   value: teEnv.os },
       { label: 'Device', value: teEnv.device },
+      { label: 'URL',  value: teEnv.url || 'https://' },
     ];
     host.innerHTML = fields.map(f => `
       <div class="te-pair">
