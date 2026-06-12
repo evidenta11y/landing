@@ -2710,6 +2710,7 @@
         MANUAL_RAW = currentAudit()?.findings || [];
         teEnv = currentAudit()?.testingEnv || null;
         try { localStorage.setItem(AUDITS_KEY, JSON.stringify(audits)); } catch {}
+        if (typeof renderTabs === 'function') renderTabs();
       }
 
       if (ann.issue_overrides) {
@@ -5267,8 +5268,9 @@
     closeOverflowMenu();
     activeAuditId = auditId;
     const audit = currentAudit();
-    if (audit && audit.closed) { audit.closed = false; saveAudits(); }
-    MANUAL_RAW = audit.findings;
+    if (!audit) return;
+    if (audit.closed) { audit.closed = false; saveAudits(); }
+    MANUAL_RAW = audit.findings || [];
     teEnv = audit.testingEnv;
     mState.expandedRow = null;
     mState.composingNote = null;
@@ -5534,6 +5536,7 @@
   function renderManualTable() {
     const tbody = document.getElementById('manual-tbody');
     if (!tbody) return;
+    const raw = MANUAL_RAW || [];
     // Preserve state of any in-progress add rows
     const existingAddRows = Array.from(tbody.querySelectorAll('.issue-add-row')).map(tr => ({
       pendingId: tr.dataset.pendingId,
@@ -5543,11 +5546,11 @@
       fix: tr.querySelector('.add-row-fix')?.value || '',
       selector: tr.querySelector('.add-row-selector')?.value || '',
     }));
-    tbody.innerHTML = MANUAL_RAW.map(renderManualRow).join('');
-    if (MANUAL_RAW.length) bindManualRowEvents();
+    tbody.innerHTML = raw.map(renderManualRow).join('');
+    if (raw.length) bindManualRowEvents();
     if (existingAddRows.length > 0) {
-      existingAddRows.forEach((state, i) => appendAddRow(MANUAL_RAW.length + i + 1, state));
-    } else if (!MANUAL_RAW.length) {
+      existingAddRows.forEach((state, i) => appendAddRow(raw.length + i + 1, state));
+    } else if (!raw.length) {
       appendAddRow(1, null);
     }
   }
