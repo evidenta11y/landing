@@ -2067,6 +2067,12 @@
     color: var(--ink-3);
     font-weight: 500;
   }
+  .te-select {
+    height: 34px; padding: 0 10px; border: 1px solid var(--line-strong); border-radius: 4px;
+    font: inherit; font-size: 13px; color: var(--ink); background: var(--surface);
+    outline: none; cursor: pointer; width: 100%;
+  }
+  .te-select:focus { border-color: var(--accent); }
   .te-form-actions {
     grid-column: 1 / -1;
     display: flex;
@@ -2368,37 +2374,37 @@
       <div id="te-form-state">
         <div class="te-form">
           <div class="te-field">
-            <label>WCAG Version</label>
-            <div class="seg-row" id="te-wcag-row">
-              <button class="seg-radio" data-te-wcag="2.0">2.0</button>
-              <button class="seg-radio" data-te-wcag="2.1">2.1</button>
-              <button class="seg-radio active" data-te-wcag="2.2">2.2</button>
-            </div>
+            <label for="te-wcag-select">WCAG Version</label>
+            <select id="te-wcag-select" class="te-select">
+              <option value="2.0">2.0</option>
+              <option value="2.1">2.1</option>
+              <option value="2.2" selected>2.2</option>
+            </select>
           </div>
           <div class="te-field">
-            <label>Conformance Level</label>
-            <div class="seg-row" id="te-level-row">
-              <button class="seg-radio" data-te-level="A">A</button>
-              <button class="seg-radio active" data-te-level="AA">AA</button>
-              <button class="seg-radio" data-te-level="AAA">AAA</button>
-            </div>
+            <label for="te-level-select">Conformance Level</label>
+            <select id="te-level-select" class="te-select">
+              <option value="A">A</option>
+              <option value="AA" selected>AA</option>
+              <option value="AAA">AAA</option>
+            </select>
           </div>
           <div class="te-field">
-            <label for="te-url">Operating System</label>
-            <div class="seg-row" id="te-os-row">
-              <button class="seg-radio active" data-te-os="Mac">Mac</button>
-              <button class="seg-radio" data-te-os="Windows">Windows</button>
-              <button class="seg-radio" data-te-os="iOS">iOS</button>
-              <button class="seg-radio" data-te-os="Android">Android</button>
-            </div>
+            <label for="te-os-select">Operating System</label>
+            <select id="te-os-select" class="te-select">
+              <option value="Mac" selected>Mac</option>
+              <option value="Windows">Windows</option>
+              <option value="iOS">iOS</option>
+              <option value="Android">Android</option>
+            </select>
           </div>
           <div class="te-field">
-            <label>Device</label>
-            <div class="seg-row" id="te-device-row">
-              <button class="seg-radio active" data-te-device="Desktop">Desktop</button>
-              <button class="seg-radio" data-te-device="Mobile">Mobile</button>
-              <button class="seg-radio" data-te-device="Tablet">Tablet</button>
-            </div>
+            <label for="te-device-select">Device</label>
+            <select id="te-device-select" class="te-select">
+              <option value="Desktop" selected>Desktop</option>
+              <option value="Mobile">Mobile</option>
+              <option value="Tablet">Tablet</option>
+            </select>
           </div>
           <div class="te-field te-field-full">
             <label for="te-url-input">Page URL</label>
@@ -5433,14 +5439,6 @@
   renderTabs();
 
   // ── Testing Environment ───────────────────────────────────────────────────────
-  ['te-wcag-row','te-level-row','te-os-row','te-device-row'].forEach(rowId => {
-    document.querySelectorAll(`#${rowId} .seg-radio`).forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll(`#${rowId} .seg-radio`).forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-      });
-    });
-  });
 
   function renderTE() {
     const formState = document.getElementById('te-form-state');
@@ -5476,25 +5474,18 @@
 
   function populateTEForm() {
     if (!teEnv) return;
-    const maps = [
-      ['te-wcag-row',   'teWcag',   teEnv.wcag],
-      ['te-level-row',  'teLevel',  teEnv.level],
-      ['te-os-row',     'teOs',     teEnv.os],
-      ['te-device-row', 'teDevice', teEnv.device],
-    ];
-    maps.forEach(([rowId, key, val]) => {
-      document.querySelectorAll(`#${rowId} .seg-radio`).forEach(b => {
-        b.classList.toggle('active', b.dataset[key] === val);
-      });
-    });
-    document.getElementById('te-url-input').value = teEnv.url || '';
+    document.getElementById('te-wcag-select').value   = teEnv.wcag   || '2.2';
+    document.getElementById('te-level-select').value  = teEnv.level  || 'AA';
+    document.getElementById('te-os-select').value     = teEnv.os     || 'Mac';
+    document.getElementById('te-device-select').value = teEnv.device || 'Desktop';
+    document.getElementById('te-url-input').value     = teEnv.url    || '';
   }
 
   document.getElementById('te-save-btn').addEventListener('click', () => {
-    const wcag   = document.querySelector('#te-wcag-row .seg-radio.active')?.dataset.teWcag || '2.2';
-    const level  = document.querySelector('#te-level-row .seg-radio.active')?.dataset.teLevel || 'AA';
-    const os     = document.querySelector('#te-os-row .seg-radio.active')?.dataset.teOs || '';
-    const device = document.querySelector('#te-device-row .seg-radio.active')?.dataset.teDevice || '';
+    const wcag   = document.getElementById('te-wcag-select').value;
+    const level  = document.getElementById('te-level-select').value;
+    const os     = document.getElementById('te-os-select').value;
+    const device = document.getElementById('te-device-select').value;
     const url    = document.getElementById('te-url-input').value.trim();
     teEnv = { wcag, level, url, os, device };
     saveTestingEnv(teEnv);
