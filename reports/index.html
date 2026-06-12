@@ -2427,6 +2427,7 @@
                    placeholder="https://example.com/page" />
           </div>
           <div class="te-form-actions">
+            <button class="btn-secondary" id="te-cancel-btn">Cancel</button>
             <button class="btn-primary" id="te-save-btn">Save</button>
           </div>
         </div>
@@ -5463,6 +5464,7 @@
     const formState = document.getElementById('te-form-state');
     const displayState = document.getElementById('te-display-state');
     const editBtn = document.getElementById('te-edit-btn');
+    const cancelBtn = document.getElementById('te-cancel-btn');
     if (teEnv) {
       formState.hidden = true;
       displayState.hidden = false;
@@ -5475,6 +5477,7 @@
       editBtn.hidden = true;
       section.classList.remove('te-saved');
     }
+    cancelBtn.hidden = !teEnv;
   }
 
   function renderTEChips() {
@@ -5514,10 +5517,15 @@
   });
 
   document.getElementById('te-edit-btn').addEventListener('click', () => {
+    document.querySelector('.te-section').classList.remove('te-saved');
     document.getElementById('te-form-state').hidden = false;
     document.getElementById('te-display-state').hidden = true;
     document.getElementById('te-edit-btn').hidden = true;
     populateTEForm();
+  });
+
+  document.getElementById('te-cancel-btn').addEventListener('click', () => {
+    renderTE();
   });
 
   // ── Render manual findings table ──────────────────────────────────────────────
