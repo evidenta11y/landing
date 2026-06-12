@@ -2065,6 +2065,8 @@
     padding: 0;
   }
   .te-section.te-saved h3 { display: none; }
+  #te-display-state { display: flex; align-items: center; flex: 1; gap: 0; }
+  #te-display-state[hidden] { display: none; }
   .te-section.te-saved .te-display {
     padding: 0;
   }
@@ -2104,6 +2106,7 @@
     grid-column: 1 / -1;
     display: flex;
     justify-content: flex-end;
+    gap: 8px;
     padding-top: 4px;
   }
   .te-display {
@@ -2379,7 +2382,7 @@
     <section class="te-section">
       <div class="te-section-header">
         <h3>Testing Environment</h3>
-        <div id="te-display-state" hidden style="display:flex;align-items:center;flex:1;gap:0;">
+        <div id="te-display-state" hidden>
           <span style="font-family:var(--font-mono);font-size:13px;color:var(--ink-3);margin-right:8px;white-space:nowrap;">Test Environment:</span>
           <div class="te-display" id="te-chips-host"></div>
         </div>
